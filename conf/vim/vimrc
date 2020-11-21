@@ -1,0 +1,108 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => General
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Set 'nocompatible' to ward off unexpected things that your distro might
+" have made, as well as sanely reset options when re-sourcing .vimrc
+set nocompatible
+
+" Better command-line completion
+set wildmenu
+
+" Show partial commands in the last line of the screen
+set showcmd
+
+" Highlight all search results
+set hlsearch
+
+" Show numbers relatively
+set relativenumber
+
+" Break lines at word (requires Wrap lines)
+set linebreak
+
+" Use case insensitive search, except when using capital letters
+set ignorecase
+set smartcase
+
+" Always display the status line, even if only one window is displayed
+set laststatus=2
+
+" When opening a new line and no filetype-specific indenting is enabled, keep
+" the same indent as the line you're currently on. Useful for READMEs, etc.
+set autoindent
+
+" Instead of failing a command because of unsaved changes, instead raise a
+" dialogue asking if you wish to save changed files.
+set confirm
+
+" Use visual bell instead of beeping when doing something wrong
+set visualbell
+
+" Set the command window height to 2 lines, to avoid many cases of having to
+" "press <Enter> to continue"
+set cmdheight=2
+
+" Highligth the current line
+set cursorline
+
+" Wrap-broken line prefix
+set showbreak=+++
+
+" Line wrap (number of cols)
+set textwidth=100
+
+" Highlight matching brace
+set showmatch
+
+" Searches for strings incrementally
+set incsearch
+
+" Use spaces instead of tabs
+set expandtab
+
+" Number of auto-indent spaces
+set shiftwidth=2
+
+" Enable smart-indent
+set smartindent
+
+" Enable smart-tabs
+set smarttab
+
+" Number of spaces per Tab
+set softtabstop=4
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Advanced
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Display the cursor position on the last line of the screen or in the status
+" line of a window
+set ruler
+
+" Number of undo levels
+set undolevels=1000
+
+" Allow backspacing over autoindent, line breaks and start of insert action
+set backspace=indent,eol,start
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" => Mappings
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
+" which is the default
+map Y y$
+
+" IRRELEVANT with vim-which-key
+" Map <C-L> (redraw screen) to also turn off search highlighting until the
+" next search
+" nnoremap <C-L> :nohl<CR><C-L>
+
+call plug#begin()
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
+call plug#end()

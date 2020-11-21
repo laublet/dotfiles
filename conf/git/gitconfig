@@ -1,0 +1,10 @@
+[user]
+	email = dev@loicaublet.com
+	name = Loïc Aublet
+[core]
+	editor = nvim
+	excludesFile = ~/.gitignore
+[merge]
+	tool = fugitive
+[mergetool "fugitive"]
+	cmd = vim -f -c \"Gvdiff\" \"$MERGED\"

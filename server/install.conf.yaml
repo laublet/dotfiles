@@ -1,0 +1,29 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- clean: ['~']
+
+- link:
+    ~/.zshrc:
+      force: true
+      path: zsh/zshrc
+    ~/.zpreztorc:
+      force: true
+      path: zsh/prezto/zpreztorc
+    ~/.vimrc: vim/vimrc
+    ~/.config/nvim:
+      force: true
+      path: nvim
+    ~/.mytheme.tmuxtheme: tmux/mytheme.tmuxtheme
+    ~/.home.tmuxtheme: tmux/home.tmuxtheme
+    ~/.tmux.conf: tmux/tmux.conf
+    ~/.ctags: ctags/ctags
+    ~/.gitconfig:
+       force: true
+       path: git/gitconfig
+    ~/.gitignore: git/gitignore
+
+- shell:
+    - [git submodule update --init --recursive, Installing submodules]

@@ -1,0 +1,81 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- clean: ['~']
+
+- link:
+    # alacritty
+    ~/.config/alacritty:
+      create: true
+      path: conf/alacritty
+
+    # ctags
+    ~/.ctags: 
+      path: conf/ctags/ctags
+
+    # i3
+    ~/.config/i3:
+      create: true
+      path: conf/i3
+    ~/.config/i3status:
+      create: true
+      path: conf/i3status
+      
+    # git
+    ~/.gitconfig:
+      path: conf/git/gitconfig
+    ~/.gitignore: 
+      path: conf/git/gitignore
+
+    # neovim
+    ~/.config/nvim:
+      create: true
+      path: conf/nvim
+
+    # picom
+    ~/.config/picom:
+      create: true
+      path: conf/picom
+
+    # prezto
+    ~/.zpreztorc:
+      force: true
+      path: conf/zsh/prezto/zpreztorc
+
+    # ranger
+    ~/.config/ranger/rc.conf:
+      force: true
+      path: conf/ranger/rc.conf
+
+    # rofi
+    ~/.config/rofi: 
+      create: true
+      path: conf/rofi
+
+    # Tmux
+    ~/.mytheme.tmuxtheme: 
+      path: conf/tmux/mytheme.tmuxtheme
+    ~/.home.tmuxtheme: 
+      path: conf/tmux/home.tmuxtheme
+    ~/.tmux.conf: 
+      path: conf/tmux/tmux.conf
+
+    # vim
+    ~/.vimrc: 
+      path: conf/vim/vimrc
+
+    # X
+    ~/.xinitrc: 
+      path: conf/X/xinitrc
+    ~/.Xresources: 
+      path: conf/X/Xresources
+
+    # zsh
+    ~/.zshrc:
+      force: true
+      path: conf/zsh/zshrc
+
+- shell:
+    - [git submodule update --init --recursive, Installing submodules]

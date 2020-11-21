@@ -1,0 +1,98 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+#
+# Executes commands at the start of an interactive session.
+#
+# Authors:
+#   Sorin Ionescu <sorin.ionescu@gmail.com>
+#
+
+# Source Prezto.
+if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
+  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+fi
+
+# Neovim default
+export EDITOR=nvim
+
+export PATH=/$HOME/.local/bin:$PATH
+
+# fzf config
+# Use rg if present
+if type rg &> /dev/null; then
+  export FZF_DEFAULT_COMMAND='rg --files --hidden -g !.git/'
+fi
+
+# See: 'https://github.com/junegunn/fzf/wiki/Configuring-shell-key-bindings'
+export FZF_DEFAULT_OPTS='-m --height 40% --border'
+export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200' --select-1 --exit-0"
+export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
+
+
+# Enable iex shell history
+export ERL_AFLAGS="-kernel shell_history enabled"
+
+
+# Alias
+# App aliases
+alias c="code ."
+alias v="nvim"
+alias sv="sudo nvim"
+alias robot="cd /opt/robo3t/bin/ && ./robo3t"
+alias postman="cd ~/Postman/ && ./Postman"
+
+alias pac="sudo pacman"
+alias pacs="sudo pacman -S"
+
+# System aliases
+alias i3="v ~/.config/i3/config"
+alias vzsh="v ~/.zshrc"
+alias lock="i3lock -t -e -i $HOME/Pictures/lock/lockscreen.png"
+alias wifi="wicd-gtk"
+alias sound="pavucontrol"
+alias tags="ctags -R ."
+
+# Work
+alias front1="cd ~/dev/wisebatt/estimate/front/ESTIMATE_FRONT_V1.0"
+alias front2="cd ~/dev/wisebatt/estimate/front/ESTIMATE_FRONT_V2.0"
+alias mid="cd ~/dev/wisebatt/estimate/mid/ESTIMATE_MIDSERVER_V1"
+alias cop="cd ~/dev/wisebatt/estimate/cop"
+alias stack="cd ~/dev/wisebatt/estimate/stack/ESTIMATE-WEB-STACK"
+
+# Autosuggest mapping
+# Using ctrl+space to complete & excute
+bindkey '^ ' autosuggest-execute
+
+# Codi
+# Usage: codi [filetype] [filename]
+codi() {
+  local syntax="${1:-python}"
+  shift
+  nvim -c \
+    "let g:startify_disable_at_vimenter = 1 |\
+    set bt=nofile ls=0 noru nonu nornu |\
+    hi ColorColumn ctermbg=NONE |\
+    hi VertSplit ctermbg=NONE |\
+    hi NonText ctermfg=0 |\
+    Codi $syntax" "$@"
+}
+
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Fzf Key bindings and autocomplete
+# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# fpath+=${ZDOTDIR:-~}/.zsh_functions
+source /usr/share/fzf/key-bindings.zsh
+source /usr/share/fzf/completion.zsh

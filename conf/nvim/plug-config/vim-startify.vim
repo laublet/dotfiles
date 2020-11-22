@@ -24,9 +24,9 @@ function! StartifyEntryFormat()
 
 let g:startify_bookmarks = [
             \ { 'c': '~/.config/i3/config' },
+            \ { 'd': '~/dev/dotfiles' },
             \ { 'i': '~/.config/nvim/init.vim' },
             \ { 'z': '~/.zshrc' },
-            \ '~/dev/dotfiles',
             \ ]
 
 let g:startify_enable_special = 0

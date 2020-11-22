@@ -28,6 +28,8 @@ Plug 'mbbill/undotree'
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 " Icons must be last
 Plug 'ryanoasis/vim-devicons'
+"vifm
+Plug 'vifm/vifm.vim'
 
 " Visual
 " Color parentheses

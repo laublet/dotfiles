@@ -169,12 +169,13 @@ let g:which_key_map.s = {
       \ 'P' : [':Tags'          , 'project tags'],
       \ 's' : [':Snippets'      , 'snippets'],
       \ 'S' : [':Colors'        , 'color schemes'],
-      \ 't' : [':Rg'            , 'text Rg'],
+      \ 't' : [':RG'            , 'text RG'],
       \ 'T' : [':BTags'         , 'buffer tags'],
       \ 'w' : [':Windows'       , 'search windows'],
       \ 'y' : [':Filetypes'     , 'file types'],
       \ 'z' : [':FZF'           , 'FZF'],
       \ }
+      " \ 't' : [':Rg'            , 'text Rg'],
 
 " s = Startify
 let g:which_key_map.S = {
@@ -194,10 +195,9 @@ let g:which_key_map.t = {
       \ 'g' : [':FloatermNew lazygit'        , 'git'],
       \ 'd' : [':FloatermNew lazydocker'     , 'docker'],
       \ 'n' : [':FloatermNew node'           , 'node'],
-      \ 'e' : [':FloatermNew iex'            , 'elixir'],
       \ 'p' : [':FloatermNew python3'        , 'python3'],
-      \ 'r' : [':FloatermNew ranger'         , 'ranger'],
       \ 't' : [':FloatermToggle'             , 'toggle'],
+      \ 'v' : [':FloatermNew vifm'           , 'vifm'],
       \ 'y' : [':FloatermNew ytop'           , 'ytop'],
       \ }
 

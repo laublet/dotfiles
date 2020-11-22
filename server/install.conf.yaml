@@ -8,22 +8,22 @@
 - link:
     ~/.zshrc:
       force: true
-      path: zsh/zshrc
+      path: conf/zsh/zshrc
     ~/.zpreztorc:
       force: true
-      path: zsh/prezto/zpreztorc
-    ~/.vimrc: vim/vimrc
+      path: conf/zsh/prezto/zpreztorc
+    ~/.vimrc: conf/vim/vimrc
     ~/.config/nvim:
       force: true
-      path: nvim
-    ~/.mytheme.tmuxtheme: tmux/mytheme.tmuxtheme
-    ~/.home.tmuxtheme: tmux/home.tmuxtheme
-    ~/.tmux.conf: tmux/tmux.conf
-    ~/.ctags: ctags/ctags
+      path: conf/nvim
+    ~/.mytheme.tmuxtheme: conf/tmux/mytheme.tmuxtheme
+    ~/.home.tmuxtheme: conf/tmux/home.tmuxtheme
+    ~/.tmux.conf: conf/tmux/tmux.conf
+    ~/.ctags: conf/ctags/ctags
     ~/.gitconfig:
        force: true
-       path: git/gitconfig
-    ~/.gitignore: git/gitignore
+       path: conf/git/gitconfig
+    ~/.gitignore: conf/git/gitignore
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

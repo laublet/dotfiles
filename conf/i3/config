@@ -5,14 +5,26 @@ set $alt Mod1
 set $lock i3lock -t -e -i $HOME/Pictures/lock/lockscreen.png
 
 # autostart
-# exec_always --no-startup-id $HOME/.config/polybar/launch.sh
-exec_always --no-startup-id ~/.config/i3/home.sh
-exec_always --no-startup-id ~/.screenlayout/main.sh
-exec_always --no-startup-id pulseaudio --start
-#exec --no-startup-id compton
-exec --no-startup-id picom -b
-exec --no-startup-id nm-applet
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
+
+# Sound
+#exec_always --no-startup-id pulseaudio -k
+#exec_always --no-startup-id pulseaudio --start
+
+# Composite Manager (transparency of windows)
+exec_always --no-startup-id picom -b
+
+# Wifi applet
+# exec_always --no-startup-id nm-applet
+
+# Notification
+exec --no-startup-id dunst -config ~/.config/dunst/dunstrc
+
+# "Fibonacci" like layout
 exec_always --no-startup-id autotiling
+
+# Detect screen change
+exec_always --no-startup-id autorandr --change
 
 # Needed for i3-gaps
 #hide_edge_borders both
@@ -21,6 +33,8 @@ for_window [class="^.*"] border pixel 2
 # smart_gaps on
 gaps outer 0
 gaps inner 20
+
+mouse_warping none
 
 bindsym $mod+z		gaps outer current plus 5
 bindsym $mod+Shift+z	gaps outer current minus 5
@@ -156,6 +170,21 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
+# Pulse Audio controls
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl -- set-sink-volume 1 +5% #increase sound volume
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl -- set-sink-volume 1 -5% #decrease sound volume
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute 1 toggle # mute sound
+
+# Media player controls
+bindsym XF86AudioPlay exec playerctl play
+bindsym XF86AudioPause exec playerctl pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+
+## Sreen brightness controls
+#bindsym XF86MonBrightnessUp exec xbacklight -inc 20 # increase screen brightness
+#bindsym XF86MonBrightnessDown exec xbacklight -dec 20 # decrease screen brightness
+
 # resize window (you can also use the mouse for that)
 mode "resize" {
         # These bindings trigger as soon as you enter the resize mode
@@ -192,22 +221,22 @@ client.placeholder      #282A36 #282A36 #F8F8F2 #282A36   #282A36
 client.background       #F8F8F2
 
 
-bar {
-        status_command i3blocks
-        position top
-        height 20
-        colors {
-          background #282A36
-          statusline #F8F8F2
-          separator  #44475A
-
-          focused_workspace  #44475A #44475A #F8F8F2
-          active_workspace   #282A36 #44475A #F8F8F2
-          inactive_workspace #282A36 #282A36 #BFBFBF
-          urgent_workspace   #FF5555 #FF5555 #F8F8F2
-          binding_mode       #FF5555 #FF5555 #F8F8F2
-        }
-}
+#bar {
+#        status_command i3blocks
+#        position top
+#        height 20
+#        colors {
+#          background #282A36
+#          statusline #F8F8F2
+#          separator  #44475A
+#
+#          focused_workspace  #44475A #44475A #F8F8F2
+#          active_workspace   #282A36 #44475A #F8F8F2
+#          inactive_workspace #282A36 #282A36 #BFBFBF
+#          urgent_workspace   #FF5555 #FF5555 #F8F8F2
+#          binding_mode       #FF5555 #FF5555 #F8F8F2
+#        }
+#}
 
 
 

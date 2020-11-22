@@ -12,8 +12,13 @@
       path: conf/alacritty
 
     # ctags
-    ~/.ctags: 
+    ~/.ctags:
       path: conf/ctags/ctags
+
+    # dunst
+    ~/.config/dunst:
+      create: true
+      path: conf/dunst
 
     # i3
     ~/.config/i3:
@@ -22,12 +27,17 @@
     ~/.config/i3status:
       create: true
       path: conf/i3status
-      
+
     # git
     ~/.gitconfig:
       path: conf/git/gitconfig
-    ~/.gitignore: 
+    ~/.gitignore:
       path: conf/git/gitignore
+
+    # neofetch
+    ~/.config/neofetch:
+      create: true
+      path: conf/neofetch
 
     # neovim
     ~/.config/nvim:
@@ -38,6 +48,11 @@
     ~/.config/picom:
       create: true
       path: conf/picom
+
+    # polybar
+    ~/.config/polybar:
+      create: true
+      path: conf/polybar
 
     # prezto
     ~/.zpreztorc:
@@ -50,26 +65,26 @@
       path: conf/ranger/rc.conf
 
     # rofi
-    ~/.config/rofi: 
+    ~/.config/rofi:
       create: true
       path: conf/rofi
 
     # Tmux
-    ~/.mytheme.tmuxtheme: 
+    ~/.mytheme.tmuxtheme:
       path: conf/tmux/mytheme.tmuxtheme
-    ~/.home.tmuxtheme: 
+    ~/.home.tmuxtheme:
       path: conf/tmux/home.tmuxtheme
-    ~/.tmux.conf: 
+    ~/.tmux.conf:
       path: conf/tmux/tmux.conf
 
     # vim
-    ~/.vimrc: 
+    ~/.vimrc:
       path: conf/vim/vimrc
 
     # X
-    ~/.xinitrc: 
+    ~/.xinitrc:
       path: conf/X/xinitrc
-    ~/.Xresources: 
+    ~/.Xresources:
       path: conf/X/Xresources
 
     # zsh

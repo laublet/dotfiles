@@ -53,8 +53,11 @@ fi
 
 # Install fzf
 if [ ! -e "$HOME/.fzf" ]; then
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-~/.fzf/install
+# git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+# ~/.fzf/install
+
+# For debian/ubuntu
+sudo apt-get install fzf
 else
   echo 'fzf already installed'
 fi

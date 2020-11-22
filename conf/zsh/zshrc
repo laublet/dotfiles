@@ -53,16 +53,11 @@ alias pacs="sudo pacman -S"
 alias i3="v ~/.config/i3/config"
 alias vzsh="v ~/.zshrc"
 alias lock="i3lock -t -e -i $HOME/Pictures/lock/lockscreen.png"
+alias bat="cat /sys/class/power_supply/BAT0/capacity"
+alias watchBat="watch -n0 cat /sys/class/power_supply/BAT0/capacity"
 alias wifi="wicd-gtk"
 alias sound="pavucontrol"
 alias tags="ctags -R ."
-
-# Work
-alias front1="cd ~/dev/wisebatt/estimate/front/ESTIMATE_FRONT_V1.0"
-alias front2="cd ~/dev/wisebatt/estimate/front/ESTIMATE_FRONT_V2.0"
-alias mid="cd ~/dev/wisebatt/estimate/mid/ESTIMATE_MIDSERVER_V1"
-alias cop="cd ~/dev/wisebatt/estimate/cop"
-alias stack="cd ~/dev/wisebatt/estimate/stack/ESTIMATE-WEB-STACK"
 
 # Autosuggest mapping
 # Using ctrl+space to complete & excute

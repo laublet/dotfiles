@@ -82,6 +82,7 @@ if exists('+termguicolors')
   set termguicolors
 endif
 
-
-
+" trigger autoread (refresh buffer) when changing buffer
+" in combinaison with tmux (set -g focus-events on) refresh when file is saved ouside of vim
+au FocusGained,BufEnter * :checktime
 

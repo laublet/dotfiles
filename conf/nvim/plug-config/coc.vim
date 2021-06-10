@@ -34,6 +34,10 @@ function! s:check_back_space() abort
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
 
+if $NVM_BIN != ""
+  let g:coc_node_path = '$NVM_BIN/node'
+endif
+
 let g:coc_snippet_next = '<tab>'
 
 " " Use tab for trigger completion with characters ahead and navigate.

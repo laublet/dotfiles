@@ -12,6 +12,9 @@ fi
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
+# Debian server
+# export TERM=xterm
+
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -41,10 +44,13 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 # Alias
 # App aliases
 alias c="code ."
+alias k="kubectl"
 alias v="nvim"
 alias sv="sudo nvim"
 alias robot="cd /opt/robo3t/bin/ && ./robo3t"
 alias postman="cd ~/Postman/ && ./Postman"
+
+alias kubectl="microk8s.kubectl"
 
 alias pac="sudo pacman"
 alias pacs="sudo pacman -S"
@@ -62,6 +68,9 @@ alias tags="ctags -R ."
 # Autosuggest mapping
 # Using ctrl+space to complete & excute
 bindkey '^ ' autosuggest-execute
+
+# kubectl completion
+[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
 
 # Codi
 # Usage: codi [filetype] [filename]

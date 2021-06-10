@@ -26,18 +26,19 @@ else
   echo 'Prezto already installed'
 fi
 
-# Install Tmux & tmux-plugins manager
+# Install Tmux
 if [ ! -e "/usr/bin/tmux" ]; then
   echo 'Installing tmux'
   sudo apt-get install tmux -y
-
-  git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
   tmux source ~/.tmux.conf
   echo 'Tmux installed'
 else
   echo 'Tmux already installed'
 fi
+
+# Install tmux-plugins
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # Install vim && vim-plug
 if [ ! -e "/usr/bin/vim" ]; then
@@ -53,11 +54,9 @@ fi
 
 # Install fzf
 if [ ! -e "$HOME/.fzf" ]; then
-# git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
-# ~/.fzf/install
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
 
-# For debian/ubuntu
-sudo apt-get install fzf
 else
   echo 'fzf already installed'
 fi

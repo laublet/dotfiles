@@ -82,8 +82,8 @@ let g:which_key_map.f = {
 " g = git
 let g:which_key_map.g = {
       \ 'name' : '+git' ,
-      \ 'a' : [':Git add .'                         , 'add all'],
-      \ 'A' : [':Git add %'                         , 'add current'],
+      \ 'a' : [':Git add %'                         , 'add current hunk'],
+      \ 'A' : [':Git add .'                         , 'add all'],
       \ 'b' : [':Git blame'                         , 'blame'],
       \ 'B' : [':GBrowse'                           , 'browse'],
       \ 'c' : [':Git commit'                        , 'commit'],
@@ -105,8 +105,7 @@ let g:which_key_map.g = {
       \ 'S' : [':!git status'                       , 'status'],
       \ 't' : [':GitGutterSignsToggle'              , 'toggle signs'],
       \ 'u' : ['<Plug>(GitGutterUndoHunk)'          , 'undo hunk'],
-      \ 'v' : [':GV'                                , 'view commits'],
-      \ 'V' : [':GV!'                               , 'view buffer commits'],
+      \ 'w' : [':Gwrite'                            , 'add current file'],
       \ }
 
 " l = server protocol

@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =5
+let g:netrw_dirhist_5='/home/loic/dev/wb/estimate/ms/ESTV2-MS_estimate'
+let g:netrw_dirhist_4='/home/loic/dev/wb/estimate/front/ESTIMATE_FRONT_V2.0'
+let g:netrw_dirhist_3='/home/loic/dev/wb/estimate/ESTIMATE-STACK'
+let g:netrw_dirhist_2='/home/loic/dev/wb/estimate/ms/ESTV2-MS_estimate'
+let g:netrw_dirhist_1='/home/loic/dev/wb/estimate/mid/ESTIMATE-MIDSERVER_V2'
+let g:netrw_dirhist_0='/home/loic/dev/wb/estimate/ESTIMATE-STACK'
+let g:netrw_dirhist_9='/home/loic/dev/wb/estimate/mid/ESTIMATE-MIDSERVER_V2'
+let g:netrw_dirhist_8='/home/loic/dev/wb/estimate/front/ESTIMATE_FRONT_V2.0'
+let g:netrw_dirhist_7='/home/loic/dev/wb/estimate/mid/ESTIMATE_MIDSERVER_V1'
+let g:netrw_dirhist_6='/home/loic/dev/wb/estimate/ms/ESTV2-MS_estimate'

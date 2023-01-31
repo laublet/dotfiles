@@ -36,7 +36,6 @@ export FZF_DEFAULT_OPTS='-m --height 40% --border'
 export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200' --select-1 --exit-0"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 
-
 # Enable iex shell history
 export ERL_AFLAGS="-kernel shell_history enabled"
 
@@ -44,13 +43,11 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 # Alias
 # App aliases
 alias c="code ."
-alias k="kubectl"
+# alias k="kubectl"
 alias v="nvim"
 alias sv="sudo nvim"
 alias robot="cd /opt/robo3t/bin/ && ./robo3t"
 alias postman="cd ~/Postman/ && ./Postman"
-
-alias kubectl="microk8s.kubectl"
 
 alias pac="sudo pacman"
 alias pacs="sudo pacman -S"
@@ -66,11 +63,11 @@ alias sound="pavucontrol"
 alias tags="ctags -R ."
 
 # Autosuggest mapping
-# Using ctrl+space to complete & excute
+# Using ctrl+space to complete & execute
 bindkey '^ ' autosuggest-execute
 
-# kubectl completion
-[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
+# # kubectl completion
+# [[ $commands[kubectl] ]] && source <(kubectl completion zsh)
 
 # Codi
 # Usage: codi [filetype] [filename]
@@ -100,3 +97,10 @@ export NVM_DIR="$HOME/.nvm"
 # fpath+=${ZDOTDIR:-~}/.zsh_functions
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
+
+# bun completions
+[ -s "/home/loic/.bun/_bun" ] && source "/home/loic/.bun/_bun"
+
+# Bun
+export BUN_INSTALL="/home/loic/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

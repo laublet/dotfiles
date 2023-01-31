@@ -45,6 +45,11 @@ zstyle ':prezto:load' pmodule \
   'git' \
   'docker' \
   'node' \
+  'fzf-tab' \
+  'pacman' \
+  'ssh' \
+  'tmux' \
+  'archive' \
 
 #
 # Autosuggestions

@@ -79,8 +79,6 @@ colors: # Default colors
 # Visual Bell
 # ...
 
-background_opacity: 0.6
-
 font:
   normal:
     family: "Hack Nerd Font"
@@ -103,6 +101,8 @@ font:
     y: 0
 
 window:
+  opacity: 0.6
+  # opacity: 1
   padding:
     x: 0
     y: 0
@@ -135,7 +135,7 @@ key_bindings:
   - { key: C, mods: Control|Shift, action: Copy }
   - { key: Key0, mods: Control, action: ResetFontSize }
   - { key: Equals, mods: Control, action: IncreaseFontSize }
-  - { key: Add, mods: Control, action: IncreaseFontSize }
-  - { key: Subtract, mods: Control, action: DecreaseFontSize }
+  - { key: NumpadAdd, mods: Control, action: IncreaseFontSize }
+  - { key: NumpadSubtract, mods: Control, action: DecreaseFontSize }
   - { key: Minus, mods: Control, action: DecreaseFontSize }
   - { key: Return,   mods: Control|Shift, action: SpawnNewInstance }

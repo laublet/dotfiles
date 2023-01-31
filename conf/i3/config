@@ -74,7 +74,7 @@ bindsym $mod+Shift+q kill
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # ROFI
-bindsym $mod+d exec rofi -show drun -lines 20 -eh 1.3 -opacity "85" -bw 0
+bindsym $mod+d exec rofi -show drun -lines 20 -eh 1 -opacity "85" -bw 0
 
 # Ulauncher
 bindsym $mod+u exec ulauncher
@@ -162,6 +162,39 @@ bindsym $mod+Shift+7 move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
 bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
+
+# Workspace
+
+workspace_layout stacking
+
+workspace 6 output HDMI-2
+workspace 7 output HDMI-2
+workspace 8 output DVI-I-1-1
+workspace 9 output DVI-I-1-1
+
+# exec --no-startup-id i3-msg 'sleep 1; workspace 7; exec spotify; workspace 8'
+# exec --no-startup-id i3-msg 'sleep 2; workspace 8; exec firefox-developer-edition'
+# exec --no-startup-id i3-msg 'sleep 3; workspace 8; exec Google-Chrome; workspace 9'
+# exec --no-startup-id i3-msg 'sleep 4; workspace 9; exec alacritty; workspace 10'
+# exec --no-startup-id i3-msg 'sleep 5; workspace 10; exec slack'
+# exec --no-startup-id i3-msg 'sleep 6; workspace 10; exec google-chrome'
+
+exec --no-startup-id workspace 7
+exec --no-startup-id workspace 8
+
+exec --no-startup-id spotify
+exec --no-startup-id firefox-developer-edition
+exec --no-startup-id google-chrome-stable
+exec --no-startup-id google-chrome-stable
+exec --no-startup-id google-chrome-stable
+exec --no-startup-id alacritty
+exec --no-startup-id slack
+
+assign [class="spotify"] 6
+assign [class="firefox-developer-edition"] 7
+assign [class="alacritty"] 8
+assign [class="google-chrome-stable"] 9
+assign [class="slack"] 9
 
 # reload the configuration file
 bindsym $mod+Shift+c reload

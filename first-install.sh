@@ -4,46 +4,71 @@
 echo 'Installing System...'
 sudo pacman -S --noconfirm git alacritty rxvt-unicode ntfs-3g
 
-# Install yay
-echo 'Installing Yay...'
+# Install paru
+echo 'Installing Paru...'
 cd ~
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -i
+sudo pacman -S --needed base-devel
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
 cd ~
 
 # Install i3 & related tooling
 echo "Installing i3 and relevant tools..."
 sudo pacman -S --noconfirm i3 polybar rofi feh arandr pavucontrol-qt playerctl neofetch
-yay -S autotiling-git
+paru -S autorandr autotiling-git
 echo "done"
 
 # Install basics
 echo 'Installing basics tools...'
-sudo pacman -S --noconfirm curl wget htop xsel xclip tar zip unzip p7zip net-tools openssh ufw fzf code notepaddqq
+sudo pacman -S --noconfirm curl wget htop xsel xclip xauth tar zip unzip p7zip net-tools openssh ufw fzf code notepaddqq ripgrep
 echo "done"
 
 echo "Installing fonts..."
-yay -S --noconfirm nerd-fonts-hack nerd-fonts-source-code-pro
-yay -S --noconfirm nvm robot3t-bin lazydocker nerd-fonts-hack nerd-fonts-source-code-pro
+paru -S --noconfirm nerd-fonts-hack nerd-fonts-source-code-pro
+paru -S --noconfirm nvm robot3t-bin lazydocker nerd-fonts-hack nerd-fonts-source-code-pro
 echo "done"
+
+# Install zsh
+if [ ! -e "/usr/bin/zsh" ]; then
+  echo 'Installing zsh'
+  sudo pacman -S zsh
+  echo 'Zsh installed'
+else
+  echo 'Zsh already installed'
+fi
+# Change default shell to zsh
+echo 'Changing default shell to zsh'
+chsh -s /bin/zsh
+
+#Check if prezto is installed
+if [ ! -d "$HOME/.zprezto/" ]; then
+  echo 'Installing prezto'
+  git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
+  echo 'Prezto installed'
+else
+  echo 'Prezto already installed'
+fi
+
+# Install p10k
+paru -Sy --noconfirm ttf-meslo-nerd-font-powerlevel10k
 
 # Spotify
 echo "Installing Spotify, get the GPG key first..."
 curl -sS https://download.spotify.com/debian/pubkey_0D811D58.gpg | gpg --import -
 
 echo "Install spotify..."
-yay -S --noconfirm spotify
+paru -S --noconfirm spotify
 echo "done"
 
 # Work related
 echo "Installing work apps..."
-yay -S --noconfirm slack-desktop zoom
+paru -S --noconfirm slack-desktop zoom
 echo "done"
 
 # Node
 echo "Installing node..."
-yay -S --noconfirm nvm
+paru -S --noconfirm nvm
 nvm install --lts
 echo "done"
 
@@ -51,10 +76,6 @@ echo "done"
 echo "Installing python..."
 sudo pacman -S --noconfirm python python-pip python2
 echo "done"
-
-# Go
-# echo "Installing go"
-# sudo pacman -S --noconfirm go
 
 # Neovim
 echo "Installing neovim and dependencies..."
@@ -68,28 +89,18 @@ echo "done"
 # tmux
 echo "Installing tmux..."
 sudo pacman -S --noconfirm tmux
+
+tmux source ~/.tmux.conf
 echo "done"
 
 echo "Cloning tmux-plugins..."
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 echo "done"
 
-# Ranger
-echo "Installing ranger..."
-sudo pacman -S ranger
-echo "done"
-
-echo "Adding devicons to ranger..."
-git clone https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons
-echo "done"
-
-echo "Installing ueberzug for ranger image support..."
-pip install ueberzug
-echo "done"
 
 # Docker
 echo "Installing and enabling Docker..."
-sudo pacman -S --noconfirm Docker docker-compose
+sudo pacman -S --noconfirm docker docker-compose
 echo "done"
 
 echo "Enabling and starting Docker..."
@@ -111,7 +122,7 @@ mkdir Pictures
 cp ./wallpapers ~/Pictures/
 
 sudo pacman -S --noconfirm libreoffice-still
-yay -S stacer
+paru -S stacer
 
 echo "Rebooting"
 sudo reboot

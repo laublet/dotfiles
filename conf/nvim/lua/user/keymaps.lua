@@ -51,7 +51,7 @@ keymap("n", "<leader>w", ":w!<CR>", opts)
 keymap("n", "<leader>vm", ":vsp $MYVIMRC", opts)
 
 -- Reload config
-keymap("n", "<leader>vs", ":source $MYVIMRC", opts)
+keymap("n", "<leader>r", ":source $MYVIMRC", opts)
 
 
 -- Press jk fast to enter

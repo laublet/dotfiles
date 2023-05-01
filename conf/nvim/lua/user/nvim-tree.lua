@@ -14,6 +14,34 @@ end
 
 local tree_cb = nvim_tree_config.nvim_tree_callback
 
+local function open_nvim_tree(data)
+  local IGNORED_FT = {
+    "markdown",
+  }
+
+  -- buffer is a real file on the disk
+  local real_file = vim.fn.filereadable(data.file) == 1
+
+  -- buffer is a [No Name]
+  local no_name = data.file == "" and vim.bo[data.buf].buftype == ""
+
+  -- &ft
+  local filetype = vim.bo[data.buf].ft
+
+  -- only files please
+  if not real_file and not no_name then
+    return
+  end
+
+  -- skip ignored filetypes
+  if vim.tbl_contains(IGNORED_FT, filetype) then
+    return
+  end
+
+  -- open the tree but don't focus it
+  require("nvim-tree.api").tree.toggle({ focus = false })
+end
+
 nvim_tree.setup {
   auto_reload_on_write = true,
   create_in_closed_folder = false,
@@ -21,9 +49,6 @@ nvim_tree.setup {
   hijack_netrw = true,
   hijack_cursor = false,
   hijack_unnamed_buffer_when_opening = false,
-  ignore_buffer_on_setup = false,
-  open_on_setup = false,
-  open_on_setup_file = false,
   open_on_tab = false,
   sort_by = "name",
   update_cwd = true,
@@ -107,11 +132,11 @@ nvim_tree.setup {
     update_cwd = false,
     ignore_list = {},
   },
-  ignore_ft_on_setup = {
-    "startify",
-    "dashboard",
-    "alpha",
-  },
+  --[[ ignore_ft_on_setup = { ]]
+  --[[   "startify", ]]
+  --[[   "dashboard", ]]
+  --[[   "alpha", ]]
+  --[[ }, ]]
   system_open = {
     cmd = "",
     args = {},

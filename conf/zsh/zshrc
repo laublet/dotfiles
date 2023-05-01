@@ -36,10 +36,6 @@ export FZF_DEFAULT_OPTS='-m --height 40% --border'
 export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200' --select-1 --exit-0"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 
-# Enable iex shell history
-export ERL_AFLAGS="-kernel shell_history enabled"
-
-
 # Alias
 # App aliases
 alias c="code ."
@@ -47,7 +43,6 @@ alias c="code ."
 alias v="nvim"
 alias sv="sudo nvim"
 alias robot="cd /opt/robo3t/bin/ && ./robo3t"
-alias postman="cd ~/Postman/ && ./Postman"
 
 alias pac="sudo pacman"
 alias pacs="sudo pacman -S"

@@ -6,6 +6,10 @@
 - clean: ['~']
 
 - link:
+    # aerospace
+    ~/.config/aerospace:
+      create: true
+      path: conf/aerospace
     # alacritty
     ~/.config/alacritty:
       create: true

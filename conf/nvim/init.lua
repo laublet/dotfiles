@@ -21,5 +21,6 @@ require "user.whichkey"
 require "user.rust-tools"
 require "user.fzf-lua"
 require "user.dracula"
+require "user.bookmarks"
 
 vim.cmd[[colorscheme dracula]]

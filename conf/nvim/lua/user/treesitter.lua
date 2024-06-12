@@ -4,7 +4,7 @@ if not status_ok then
 end
 
 configs.setup {
-  ensure_installed = { "lua", "javascript", "typescript", "tsx", "python", "rust" , "dockerfile", "go", "dot", "json"},
+  ensure_installed = { "lua", "javascript", "typescript", "tsx", "python", "dockerfile", "dot", "json"},
   sync_install = false,
   ignore_install = { "" }, -- List of parsers to ignore installing
   highlight = {

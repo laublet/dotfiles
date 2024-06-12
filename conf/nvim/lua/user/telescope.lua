@@ -4,6 +4,7 @@ if not status_ok then
 end
 
 telescope.load_extension('media_files')
+telescope.load_extension('bookmarks')
 
 local actions = require "telescope.actions"
 
@@ -89,6 +90,9 @@ telescope.setup {
     -- builtin picker
   },
   extensions = {
+    bookmarks = {
+          selected_browser = 'chrome',
+    },
     fzf = {
           fuzzy = true,                    -- false will only do exact matching
           override_generic_sorter = true,  -- override the generic sorter

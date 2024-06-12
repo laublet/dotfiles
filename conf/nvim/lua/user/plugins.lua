@@ -50,7 +50,6 @@ return packer.startup(function(use)
   use 'kyazdani42/nvim-web-devicons'
   use 'kyazdani42/nvim-tree.lua'
 
-
   -- colorscheme
   use 'Mofiqul/dracula.nvim'
 
@@ -116,6 +115,15 @@ return packer.startup(function(use)
   use {'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
   use 'nvim-telescope/telescope-media-files.nvim'
   use "ahmedkhalf/project.nvim"
+
+  use {
+    'dhruvmanila/browser-bookmarks.nvim',
+    tag = '*',
+    requires = {
+      'kkharji/sqlite.lua',
+      'nvim-telescope/telescope.nvim',
+    }
+  }
 
   -- fzf
   use { 'junegunn/fzf', run = './install --bin' }

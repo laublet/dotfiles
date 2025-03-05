@@ -85,6 +85,11 @@
     ~/.vimrc:
       path: conf/vim/vimrc
 
+    # WezTerm
+    ~/.wezterm.lua:
+      create: true
+      path: conf/wezterm/.wezterm.lua
+
     # X
     ~/.xinitrc:
       path: conf/X/xinitrc

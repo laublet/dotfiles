@@ -25,6 +25,12 @@ export EDITOR=nvim
 
 export PATH=/$HOME/.local/bin:$PATH
 
+# Token gitlab blank
+export CI_JOB_TOKEN=glpat-qvFPu6ZqddBw1q5yNbfG
+
+# GPG
+export GPG_TTY=$(tty)
+
 # fzf config
 ## Use fd if present
 if type fd &> /dev/null; then
@@ -125,11 +131,10 @@ fi
 
 # Alias
 # App aliases
-alias c="code ."
+alias c="cursor ."
 # alias k="kubectl"
 alias v="nvim"
 alias sv="sudo nvim"
-alias robot="cd /opt/robo3t/bin/ && ./robo3t"
 
 alias pac="sudo pacman"
 alias pacs="sudo pacman -S"
@@ -261,11 +266,7 @@ source <(fzf --zsh)
 #   source <(fzf --zsh)
 # }
  
-# Fzf Key bindings and autocomplete
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-# fpath+=${ZDOTDIR:-~}/.zsh_functions
-source /usr/share/fzf/key-bindings.zsh
-source /usr/share/fzf/completion.zsh
+# (( ${+commands[fzf]} )) && _load_fzf &! # Load asynchronously if fzf exists
 
 # bun completions
 [ -s "/home/loic/.bun/_bun" ] && source "/home/loic/.bun/_bun"

@@ -4,7 +4,7 @@
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 
 # Basics
-brew install bat fd fnm fzf git htop neovim ripgrep vim wget zoxide zsh 
+brew install bat fd fnm fzf htop neovim ripgrep vim wget zoxide zsh 
 
 # Dev / work
 brew install awscli granted sqlite yarn 
@@ -26,6 +26,4 @@ brew install --cask font-hack-nerd-font font-atkinson-hyperlegible
 
 # Need to go to the app store for these
 # amphetamine
-# prime tv
-# apple tv
 

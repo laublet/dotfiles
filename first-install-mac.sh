@@ -24,6 +24,13 @@ brew install --cask nvidia-geforce-now philips-hue-sync
 # Install Fonts
 brew install --cask font-hack-nerd-font font-atkinson-hyperlegible
 
+IF [ ! -d "$HOME/.zprezto/" ]; then
+  echo 'Installing prezto'
+  git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
+  echo 'Prezto installed'
+else
+  echo 'Prezto already installed'
+fi
 # Need to go to the app store for these
 # amphetamine
 

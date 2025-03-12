@@ -7,7 +7,11 @@
 brew install bat fd fnm fzf htop neovim ripgrep vim wget zoxide zsh 
 
 # Dev / work
-brew install awscli granted sqlite yarn 
+brew install awscli sqlite yarn 
+
+# Granted 
+brew tap common-fate/granted
+brew install granted
 
 # Utils
 brew install bitwarden

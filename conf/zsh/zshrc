@@ -1,286 +1,170 @@
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
-#
-# Executes commands at the start of an interactive session.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
-#
-
-# Debian server
-# export TERM=xterm
-
-# Source Prezto.
+# ── Prezto ───────────────────────────────────────────────────────
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Neovim default
+# ── Vi mode cursor & speed fix ───────────────────────────────────
+export KEYTIMEOUT=1
+
+function zle-keymap-select {
+  if [[ ${KEYMAP} == vicmd ]] || [[ $1 = 'block' ]]; then
+    echo -ne '\e[2 q'  # block cursor (normal mode)
+  elif [[ ${KEYMAP} == main ]] || [[ ${KEYMAP} == viins ]] || [[ $1 = 'beam' ]]; then
+    echo -ne '\e[6 q'  # beam cursor (insert mode)
+  fi
+}
+zle -N zle-keymap-select
+
+function zle-line-init {
+  echo -ne '\e[6 q'
+}
+zle -N zle-line-init
+
+# ── Editor ───────────────────────────────────────────────────────
 export EDITOR=nvim
-
-#export PATH=/$HOME/.local/bin:$PATH
-export PATH="/opt/homebrew/bin:$PATH"
-
-# Token gitlab blank
-export CI_JOB_TOKEN=glpat-qvFPu6ZqddBw1q5yNbfG
-
-# GPG
 export GPG_TTY=$(tty)
 
-# fzf config
-## Use fd if present
-if type fd &> /dev/null; then
-  # Custom binding for fzf directory navigation (Ctrl+F instead of Alt+C)
-  bindkey '^F' fzf-cd-widget
-  # export FZF_DEFAULT_COMMAND='rg --files --hidden -g !.git/'
-  # export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix'
+# ── Secrets (tokens, API keys — never version this file) ─────────
+[[ -f ~/.secrets ]] && source ~/.secrets
+
+# ── OS-specific ──────────────────────────────────────────────────
+if [[ "$OSTYPE" == darwin* ]]; then
+  # macOS
+  export PATH="/opt/homebrew/bin:$PATH"
+  export PATH="$PATH:$HOME/.local/bin"
+
+  alias c="cursor ."
+
+elif [[ "$OSTYPE" == linux* ]]; then
+  # Linux (Pop!_OS / MSI)
+  alias pac="sudo pacman -S"
+  alias lock="i3lock -t -e -i $HOME/Pictures/lock/gg"
+  alias wifi="wicd-gtk"
+  alias sound="pavucontrol"
+fi
+
+# ── FNM (Node version manager) ───────────────────────────────────
+if command -v fnm &>/dev/null; then
+  eval "$(fnm env --use-on-cd --shell zsh)"
+fi
+
+# ── fzf ──────────────────────────────────────────────────────────
+if command -v fzf &>/dev/null; then
+  source <(fzf --zsh)
+fi
+
+# Use fd for fzf if available
+if command -v fd &>/dev/null; then
   export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
   export FZF_ALT_C_COMMAND="fd --type d --strip-cwd-prefix --hidden --follow --exclude .git"
+  bindkey '^F' fzf-cd-widget
 fi
 
-# See: 'https://github.com/junegunn/fzf/wiki/Configuring-shell-key-bindings'
 export FZF_DEFAULT_OPTS='-m --height 40% --border'
-export FZF_CTRL_T_OPTS="--preview '(highlight -O ansi -l {} 2> /dev/null || cat {} || tree -C {}) 2> /dev/null | head -200' --select-1 --exit-0"
+export FZF_CTRL_T_OPTS="--preview '(bat --style=numbers --color=always {} 2>/dev/null || cat {} || tree -C {}) 2>/dev/null | head -200' --select-1 --exit-0"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
-export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -200'"
+export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} 2>/dev/null || tree -C {} | head -200'"
 
-# Interactive ripgrep with fzf
-# Usage: rgf <search-term>
+# ── zoxide ───────────────────────────────────────────────────────
+if command -v zoxide &>/dev/null; then
+  eval "$(zoxide init zsh)"
+fi
+
+# ── direnv ───────────────────────────────────────────────────────
+if command -v direnv &>/dev/null; then
+  eval "$(direnv hook zsh)"
+fi
+
+# ── Aliases (shared) ─────────────────────────────────────────────
+alias v="nvim"
+alias sv="sudo nvim"
+alias vzsh="v ~/.zshrc"
+alias lg="lazygit"
+alias lzd="lazydocker"
+# yazi: cd to last visited directory on exit
+function y() {
+  local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+  yazi "$@" --cwd-file="$tmp"
+  if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+    builtin cd -- "$cwd"
+  fi
+  rm -f -- "$tmp"
+}
+
+# bat (cat replacement)
+if command -v bat &>/dev/null; then
+  alias cat="bat --paging=never"
+  alias catp="bat"  # bat with pager
+fi
+
+# eza (ls replacement)
+if command -v eza &>/dev/null; then
+  alias ls="eza"
+  alias ll="eza -la --git --icons"
+  alias lt="eza --tree --level=2 --icons"
+fi
+
+# ripgrep shortcuts
+alias rgi='rg -i'
+alias rgw='rg -w'
+alias rgh='rg --hidden'
+alias rgn='rg --no-ignore'
+
+alias tags="ctags -R ."
+
+# ── Ripgrep + fzf functions ──────────────────────────────────────
+
+# Interactive ripgrep → fzf → open in editor
+# Usage: rgf <pattern>
 rgf() {
   [[ -z "$1" ]] && { echo "Usage: rgf <pattern>"; return 1; }
-  
   local RG_PREFIX="rg --line-number --column --no-heading --color=always --smart-case"
   local PREVIEW_CMD
-  
   if command -v bat &>/dev/null; then
     PREVIEW_CMD='bat --style=numbers --color=always --highlight-line {2} {1}'
   else
     PREVIEW_CMD='cat {1}'
   fi
-  
   $RG_PREFIX "$1" | fzf --delimiter : \
     --preview "$PREVIEW_CMD" \
     --preview-window 'up,60%,border-bottom,+{2}+3/3' \
-    --bind 'enter:become(vim {1} +{2})'
+    --bind "enter:become($EDITOR {1} +{2})"
 }
 
-# Lazy-load ripgrep functions by creating stubs that load the real functions when called
-# Find files containing pattern and open in editor
+# Find files containing pattern → fzf → open in editor
 # Usage: rgv <pattern>
 rgv() {
-  # Define the actual function
-  _rgv() {
-    local pattern="${1:-}"
-    [[ -z "$pattern" ]] && { echo "Usage: rgv <pattern>"; return 1; }
-    
-    rg --files-with-matches --no-messages "$pattern" | fzf --preview "rg --color=always --line-number '$pattern' {}" --preview-window="up,60%" | xargs -I {} $EDITOR {} +/"$pattern"
-  }
-  
-  # Replace the stub with the real function and run it
-  unfunction rgv
-  function rgv() { _rgv "$@"; }
-  rgv "$@"
+  [[ -z "$1" ]] && { echo "Usage: rgv <pattern>"; return 1; }
+  rg --files-with-matches --no-messages "$1" \
+    | fzf --preview "rg --color=always --line-number '$1' {}" --preview-window="up,60%" \
+    | xargs -I {} $EDITOR {} +/"$1"
 }
 
-# Search for pattern in specified file types
+# Search in specific file types
 # Usage: rgt <file-type> <pattern>
 rgt() {
-  # Define the actual function
-  _rgt() {
-    local type="$1"
-    local pattern="$2"
-    [[ -z "$type" || -z "$pattern" ]] && { echo "Usage: rgt <file-type> <pattern>"; return 1; }
-    
-    rg --type "$type" --color=always --line-number "$pattern" | fzf --ansi --preview 'f=$(echo {} | awk -F: "{print \$1}"); cat $f' --preview-window="up,60%"
-  }
-  
-  # Replace the stub with the real function and run it
-  unfunction rgt
-  function rgt() { _rgt "$@"; }
-  rgt "$@"
+  [[ -z "$1" || -z "$2" ]] && { echo "Usage: rgt <file-type> <pattern>"; return 1; }
+  rg --type "$1" --color=always --line-number "$2" \
+    | fzf --ansi --preview 'f=$(echo {} | awk -F: "{print \$1}"); bat --style=numbers --color=always $f 2>/dev/null || cat $f' --preview-window="up,60%"
 }
 
 # Count occurrences of a pattern
 # Usage: rgc <pattern>
 rgc() {
-  # Define the actual function
-  _rgc() {
-    local pattern="${1:-}"
-    [[ -z "$pattern" ]] && { echo "Usage: rgc <pattern>"; return 1; }
-    
-    rg --count-matches "$pattern" | sort -t: -k2 -nr
-  }
-  
-  # Replace the stub with the real function and run it
-  unfunction rgc
-  function rgc() { _rgc "$@"; }
-  rgc "$@"
+  [[ -z "$1" ]] && { echo "Usage: rgc <pattern>"; return 1; }
+  rg --count-matches "$1" | sort -t: -k2 -nr
 }
 
-# zoxide - smarter directory navigation
-if command -v zoxide > /dev/null; then
-  eval "$(zoxide init zsh)"
-  # Optional: Add fzf integration for interactive selection
-  alias zi="z -i"  # Interactive selection using fzf
-fi
-
-# Alias
-# App aliases
-alias c="cursor ."
-# alias k="kubectl"
-alias v="nvim"
-alias sv="sudo nvim"
-
-alias pac="sudo pacman"
-alias pacs="sudo pacman -S"
-
-# Quick ripgrep aliases
-alias rgi='rg -i'                   # Case insensitive search
-alias rgff='rg --files | grep'      # Find files by name using ripgrep
-alias rgw='rg -w'                   # Match whole words only
-alias rgh='rg --hidden'             # Include hidden files in search
-alias rgn='rg --no-ignore'          # Don't respect ignore files (.gitignore, etc)
-
-# System aliases
-alias i3="v ~/.config/i3/config"
-alias vzsh="v ~/.zshrc"
-alias lock="i3lock -t -e -i $HOME/Pictures/lock/lockscreen.png"
-alias bat="cat /sys/class/power_supply/BAT0/capacity"
-alias watchBat="watch -n0 cat /sys/class/power_supply/BAT0/capacity"
-alias wifi="wicd-gtk"
-alias sound="pavucontrol"
-alias tags="ctags -R ."
-alias ac="assume -c"
-
-# Autosuggest mapping
-# Using ctrl+space to complete & execute
+# ── Keybindings ──────────────────────────────────────────────────
 bindkey '^ ' autosuggest-execute
 
-# # kubectl completion
-# [[ $commands[kubectl] ]] && source <(kubectl completion zsh)
+# Alt+arrows → word navigation (native on macOS, needs explicit binding on Linux)
+if [[ "$OSTYPE" == linux* ]]; then
+  bindkey '\e[1;3D' backward-word   # Alt+Left
+  bindkey '\e[1;3C' forward-word    # Alt+Right
+  bindkey '\e^?' backward-kill-word # Alt+Backspace
+fi
 
-# NVM
-## Linux
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-## MacOS
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-# [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-
-# FNM
-eval "$(fnm env --use-on-cd --shell zsh)"
-
-# Replace the direct FNM initialization with lazy loading
-# fnm() {
-#   unset -f fnm
-#   eval "$(command fnm env --use-on-cd --shell zsh)"
-#   fnm "$@"
-# }
-
-# # Define node/npm/npx/yarn commands as triggers
-# node() {
-#   unset -f node npm npx yarn
-#   eval "$(command fnm env --use-on-cd --shell zsh)"
-#   node "$@"
-# }
-
-# npm() {
-#   unset -f node npm npx yarn
-#   eval "$(command fnm env --use-on-cd --shell zsh)"
-#   npm "$@"
-# }
-
-# npx() {
-#   unset -f node npm npx yarn
-#   eval "$(command fnm env --use-on-cd --shell zsh)"
-#   npx "$@"
-# }
-
-# yarn() {
-#   unset -f node npm npx yarn
-#   eval "$(command fnm env --use-on-cd --shell zsh)"
-#   yarn "$@"
-# }
-
-# Lazy-load NVM for faster shell startup
-# nvm() {
-#   unset -f nvm
-#   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-#   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
-#   nvm "$@"
-# }
-
-# # Create node/npm/npx commands that will trigger nvm loading
-# node() {
-#   unset -f node
-#   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-#   node "$@"
-# }
-
-# npm() {
-#   unset -f npm
-#   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-#   npm "$@"
-# }
-
-# npx() {
-#   unset -f npx
-#   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-#   npx "$@"
-# }
-
-# Automatically call nvm use when entering a directory with .nvmrc
-# autoload -U add-zsh-hook
-# load-nvmrc() {
-#   local nvmrc_path="$(nvm_find_nvmrc)"
-
-#   if [ -n "$nvmrc_path" ]; then
-#     local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-#     local node_version=$(nvm version)
-
-#     if [ "$nvmrc_node_version" = "N/A" ]; then
-#       nvm install
-#     elif [ "$nvmrc_node_version" != "$node_version" ]; then
-#       nvm use
-#     fi
-#   elif [ -n "$node_version" ] && [ -f "$nvmrc_path" ]; then
-#     echo "Reverting to nvm default version"
-#     nvm use default
-#   fi
-# }
-# add-zsh-hook chpwd load-nvmrc
-# load-nvmrc
-
-# Set up fzf key bindings and fuzzy completion
-source <(fzf --zsh)
-# Load fzf asynchronously for faster startup
-# _load_fzf() {
-#   source <(fzf --zsh)
-# }
- 
-# (( ${+commands[fzf]} )) && _load_fzf &! # Load asynchronously if fzf exists
-
-# Powerlevel9k
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-POWERLEVEL9K_VCS_MAX_INDEX_SIZE_DIRTY=5000
-POWERLEVEL9K_VCS_DISABLE_GITSTATUS_FORMATTING=true
-POWERLEVEL9K_VCS_GIT_HOOKS=(vcs-detect-changes git-untracked git-aheadbehind)
-
-# # Generate and cache completions
-# autoload -Uz compinit
-# if [[ -n ${ZDOTDIR}/.zcompdump(#qN.mh+24) ]]; then
-#   compinit
-# else
-#   compinit -C
-# fi
+# ── Starship prompt (must be last) ───────────────────────────────
+eval "$(starship init zsh)"

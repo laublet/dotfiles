@@ -1,0 +1,100 @@
+# Pop Shell / GNOME keybindings — mirrors AeroSpace architecture
+#
+# keyd makes Super a Cmd-like command layer (Super+key → Ctrl+key).
+# Alt and Ctrl are untouched. Pop Shell uses Ctrl+Alt combos
+# which keyd doesn't interfere with.
+#
+# What the user presses → what happens:
+#   Super + key             → app shortcut (copy, save, etc. via keyd)
+#   Alt + arrows            → word navigation (native)
+#   Ctrl + arrows           → split navigation (WezTerm/Neovim/Cursor)
+#   Ctrl+Alt + arrows       → focus window   (= AeroSpace ctrl-cmd-alt)
+#   Ctrl+Alt+Shift + arrows → move window    (= AeroSpace ctrl-cmd-alt-shift)
+#   Ctrl+Alt + number       → workspace      (= AeroSpace cmd-alt)
+#   Ctrl+Alt+Shift + number → move to ws     (= AeroSpace cmd-alt-shift)
+#   Super+Space              → launcher       (keyd passes real Super)
+#
+# Apply:  dconf load / < conf/pop-shell/keybindings.dconf
+
+[org/gnome/shell/extensions/pop-shell]
+tile-by-default=true
+gap-inner=uint32 20
+gap-outer=uint32 10
+active-hint=true
+active-hint-border-radius=uint32 4
+
+[org/gnome/desktop/wm/keybindings]
+switch-windows=['<Alt>Tab']
+switch-windows-backward=['<Alt><Shift>Tab']
+
+# Workspaces (Ctrl+Alt + number = physical Ctrl + physical Option)
+switch-to-workspace-1=['<Primary><Alt>1']
+switch-to-workspace-2=['<Primary><Alt>2']
+switch-to-workspace-3=['<Primary><Alt>3']
+switch-to-workspace-4=['<Primary><Alt>4']
+switch-to-workspace-5=['<Primary><Alt>5']
+switch-to-workspace-6=['<Primary><Alt>6']
+switch-to-workspace-7=['<Primary><Alt>7']
+switch-to-workspace-8=['<Primary><Alt>8']
+switch-to-workspace-9=['<Primary><Alt>9']
+
+# Move to workspace (Ctrl+Alt+Shift + number)
+move-to-workspace-1=['<Primary><Alt><Shift>1']
+move-to-workspace-2=['<Primary><Alt><Shift>2']
+move-to-workspace-3=['<Primary><Alt><Shift>3']
+move-to-workspace-4=['<Primary><Alt><Shift>4']
+move-to-workspace-5=['<Primary><Alt><Shift>5']
+move-to-workspace-6=['<Primary><Alt><Shift>6']
+move-to-workspace-7=['<Primary><Alt><Shift>7']
+move-to-workspace-8=['<Primary><Alt><Shift>8']
+move-to-workspace-9=['<Primary><Alt><Shift>9']
+
+# Disable defaults that conflict
+move-to-side-n=@as []
+move-to-side-s=@as []
+move-to-side-e=@as []
+move-to-side-w=@as []
+
+toggle-fullscreen=['<Primary><Alt>f']
+close=['<Primary>q']
+
+[org/gnome/shell/extensions/pop-shell/keybindings]
+# Focus (Ctrl+Alt + arrows)
+focus-left=['<Primary><Alt>Left']
+focus-down=['<Primary><Alt>Down']
+focus-up=['<Primary><Alt>Up']
+focus-right=['<Primary><Alt>Right']
+
+# Move (Ctrl+Alt+Shift + arrows)
+tile-move-left=['<Primary><Alt><Shift>Left']
+tile-move-down=['<Primary><Alt><Shift>Down']
+tile-move-up=['<Primary><Alt><Shift>Up']
+tile-move-right=['<Primary><Alt><Shift>Right']
+
+# Resize (Ctrl+Alt + minus/equal, mirrors AeroSpace HYPR resize)
+tile-resize-left=['<Primary><Alt>minus']
+tile-resize-down=['<Primary><Alt>equal']
+tile-resize-up=['<Primary><Alt>equal']
+tile-resize-right=['<Primary><Alt>minus']
+
+# Toggle tiling / floating
+toggle-tiling=['<Primary><Alt>y']
+toggle-floating=['<Primary><Alt>g']
+toggle-stacking=['<Primary><Alt>s']
+
+activate-launcher=['<Super>space']
+
+[org/gnome/mutter/keybindings]
+toggle-tiled-left=@as []
+toggle-tiled-right=@as []
+
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+name='WezTerm'
+command='wezterm'
+binding='<Primary><Alt>Return'
+
+[org/gnome/desktop/wm/preferences]
+num-workspaces=10

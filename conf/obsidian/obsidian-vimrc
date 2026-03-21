@@ -1,0 +1,138 @@
+" .obsidian.vimrc — Loïc
+" Aligné sur l'architecture keybindings arrows-only
+" Plugin requis : obsidian-vimrc-support
+"
+" Principe : Space = leader, obcommand pour les actions Obsidian,
+" vim motions standard pour l'édition. Même muscle memory que Cursor/Neovim.
+
+" ============================================================================
+" BASICS
+" ============================================================================
+
+" Yank to system clipboard
+set clipboard=unnamed
+
+" j/k naviguent les lignes visuelles (pas logiques) — essentiel pour le markdown
+nmap j gj
+nmap k gk
+vmap j gj
+vmap k gk
+
+" H/L = début/fin de ligne (comme dans Cursor)
+nmap H ^
+nmap L $
+vmap H ^
+vmap L $
+
+" Y = yank jusqu'à fin de ligne (cohérent avec D et C)
+nmap Y y$
+
+" ============================================================================
+" LEADER LAYER (Space + ...)
+" ============================================================================
+" mapleader ne fonctionne pas dans obsidian-vimrc, on unmap Space
+" et on utilise <Space> directement dans les mappings.
+
+unmap <Space>
+
+" --- Fichiers ---
+exmap quickSwitcher obcommand switcher:open
+nmap <Space>f :quickSwitcher
+
+exmap saveFile obcommand editor:save-file
+nmap <Space>w :saveFile
+
+exmap closeTab obcommand workspace:close
+nmap <Space>q :closeTab
+
+" --- Recherche ---
+exmap globalSearch obcommand global-search:open
+nmap <Space>g :globalSearch
+
+exmap searchReplace obcommand editor:open-search-replace
+nmap <Space>r :searchReplace
+
+" --- Sidebar / zones ---
+exmap toggleLeftSidebar obcommand app:toggle-left-sidebar
+nmap <Space>e :toggleLeftSidebar
+
+exmap toggleRightSidebar obcommand app:toggle-right-sidebar
+nmap <Space>E :toggleRightSidebar
+
+exmap revealFile obcommand file-explorer:reveal-active-file
+nmap <Space>R :revealFile
+
+" --- Navigation notes ---
+exmap goBack obcommand app:go-back
+nmap <C-o> :goBack
+
+exmap goForward obcommand app:go-forward
+nmap <C-i> :goForward
+
+exmap followLink obcommand editor:follow-link
+nmap gd :followLink
+
+" --- Daily notes ---
+exmap dailyNote obcommand daily-notes
+nmap <Space>d :dailyNote
+
+exmap dailyNext obcommand daily-notes:goto-next
+nmap <Space>] :dailyNext
+
+exmap dailyPrev obcommand daily-notes:goto-prev
+nmap <Space>[ :dailyPrev
+
+" --- Divers ---
+exmap commandPalette obcommand command-palette:open
+nmap <Space>p :commandPalette
+
+exmap togglePreview obcommand markdown:toggle-preview
+nmap <Space>v :togglePreview
+
+exmap graph obcommand graph:open
+nmap <Space>G :graph
+
+" --- Headings rapides ---
+exmap h1 obcommand editor:set-heading-1
+exmap h2 obcommand editor:set-heading-2
+exmap h3 obcommand editor:set-heading-3
+nmap <Space>1 :h1
+nmap <Space>2 :h2
+nmap <Space>3 :h3
+
+" --- Checklist ---
+exmap toggleChecklist obcommand editor:toggle-checklist-status
+nmap <Space>x :toggleChecklist
+
+" --- Fold ---
+exmap toggleFold obcommand editor:toggle-fold
+nmap za :toggleFold
+
+exmap foldAll obcommand editor:fold-all
+nmap zM :foldAll
+
+exmap unfoldAll obcommand editor:unfold-all
+nmap zR :unfoldAll
+
+" ============================================================================
+" SURROUND (plugin obsidian-vimrc-support built-in)
+" ============================================================================
+" surround utilise la syntaxe du plugin vimrc-support, pas tpope ni mini.surround
+" En visual mode : sélectionner du texte puis taper S suivi du caractère
+" En normal mode : le plugin supporte `surround` comme commande ex
+"
+" Exemples en visual mode :
+"   viw puis S" → entoure le mot de "
+"   viw puis S( → entoure le mot de ()
+"   viw puis S[ → entoure le mot de []
+
+" ============================================================================
+" NOTES
+" ============================================================================
+" La navigation entre panes (Ctrl+arrows) et le déplacement de groupes (Cmd+Ctrl+arrows,
+" aligné sur Cursor/WezTerm) sont dans Obsidian hotkeys.json — pas ici.
+"
+" Les splits (Cmd+D / Cmd+Shift+D) sont aussi dans hotkeys.json.
+"
+" Ce fichier gère uniquement ce qui se passe DANS l'éditeur (vim motions,
+" leader layer, navigation notes). La couche "zones" est dans les hotkeys Obsidian.

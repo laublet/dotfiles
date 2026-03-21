@@ -1,144 +1,306 @@
-// Place your key bindings in this file to override the defaults
+// Cursor keybindings v4 — Loïc
+// Architecture:
+//   Split navigation    → Ctrl + arrows (unified: same as WezTerm, Obsidian, Neovim)
+//   Zone navigation     → Ctrl + arrows (spatial: sidebar←editor→AI, terminal↕editor)
+//                          Escape from any zone → editor
+//   Leader layer        → Space + key (via vscode-neovim, from editor normal mode)
+//     Space+e  explorer   Space+f  quick open    Space+g  find in files
+//     Space+t  terminal   Space+v  git (scm)     Space+c  AI chat
+//     Space+b  buffers    Space+w  save           Space+q  close editor
+//     Space+z  zen mode
+//   Move editor groups  → Ctrl + Alt + arrows (same chord as WezTerm/Neovim resize)
+//   Split creation      → Cmd+d / Cmd+Shift+d (aligned with WezTerm/Obsidian)
+//   Tab reorder         → Ctrl+Shift + left/right
+//   AI terminal approve → Cmd+. (toggle YOLO mode) or navigate chat + Tab/Enter
+//
+// CHANGE v4: Ctrl+arrows now works from ALL zones (terminal, sidebar, panel, AI).
+//   Spatial model: arrow direction matches zone position relative to editor.
+// CHANGE v3: Ctrl+arrows replaces Ctrl+w+arrows for split focus.
 [
-    {
-        "key": "alt+right",
-        "command": "workbench.action.focusRightGroup"
-    },
-    {
-        "key": "cmd+; cmd+right",
-        "command": "-workbench.action.focusRightGroup"
-    },
-    {
-        "key": "alt+down",
-        "command": "workbench.action.focusBelowGroup"
-    },
-    {
-        "key": "cmd+k cmd+down",
-        "command": "-workbench.action.focusBelowGroup"
-    },
-    {
-        "key": "alt+up",
-        "command": "workbench.action.focusAboveGroup"
-    },
-    {
-        "key": "cmd+k cmd+up",
-        "command": "-workbench.action.focusAboveGroup"
-    },
-    {
-        "key": "alt+left",
-        "command": "workbench.action.focusLeftGroup"
-    },
-    {
-        "key": "cmd+k cmd+left",
-        "command": "-workbench.action.focusLeftGroup"
-    },
-    {
-        "key": "shift+alt+down",
-        "command": "workbench.action.moveActiveEditorGroupDown"
-    },
-    {
-        "key": "cmd+k down",
-        "command": "-workbench.action.moveActiveEditorGroupDown"
-    },
-    {
-        "key": "shift+alt+left",
-        "command": "workbench.action.moveActiveEditorGroupLeft"
-    },
-    {
-        "key": "cmd+k left",
-        "command": "-workbench.action.moveActiveEditorGroupLeft"
-    },
-    {
-        "key": "shift+alt+right",
-        "command": "workbench.action.moveActiveEditorGroupRight"
-    },
-    {
-        "key": "cmd+k right",
-        "command": "-workbench.action.moveActiveEditorGroupRight"
-    },
-    {
-        "key": "shift+alt+up",
-        "command": "workbench.action.moveActiveEditorGroupUp"
-    },
-    {
-        "key": "cmd+k up",
-        "command": "-workbench.action.moveActiveEditorGroupUp"
-    },
-    {
-        "key": "ctrl+shift+left",
-        "command": "workbench.action.moveEditorLeftInGroup"
-    },
-    {
-        "key": "cmd+k shift+cmd+left",
-        "command": "-workbench.action.moveEditorLeftInGroup"
-    },
-    {
-        "key": "ctrl+shift+right",
-        "command": "workbench.action.moveEditorRightInGroup"
-    },
-    {
-        "key": "cmd+k shift+cmd+right",
-        "command": "-workbench.action.moveEditorRightInGroup"
-    },
-    {
-        "key": "ctrl+n",
-        "command": "-extension.vim_ctrl+n",
-        "when": "editorTextFocus && vim.active && vim.use<C-n> && !inDebugRepl || vim.active && vim.use<C-n> && !inDebugRepl && vim.mode == 'CommandlineInProgress' || vim.active && vim.use<C-n> && !inDebugRepl && vim.mode == 'SearchInProgressMode'"
-    },
-    {
-        "key": "ctrl+a z",
-        "command": "workbench.action.toggleMaximizedPanel"
-    },
-    {
-        "key": "ctrl+a shift+k",
-        "command": "editor.action.peekDefinition",
-        "when": "editorHasDefinitionProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
-    },
-    {
-        "key": "alt+f12",
-        "command": "-editor.action.peekDefinition",
-        "when": "editorHasDefinitionProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
-    },
-    {
-        "key": "cmd+k alt+i",
-        "command": "editor.action.showDefinitionPreviewHover"
-    },
-    {
-        "key": "shift+cmd+c",
-        "command": "-workbench.action.terminal.openNativeConsole",
-        "when": "!terminalFocus"
-    },
-    {
-        "key": "ctrl+right",
-        "command": "workbench.action.focusFirstEditorGroup",
-        "when": "!editorFocus && !panelFocus && !terminalFocus"
-    },
-    {
-        "key": "ctrl+left",
-        "command": "workbench.action.focusSideBar",
-        "when": "!sideBarFocus && !panelFocus"
-    },
-    {
-        "key": "cmd+u",
-        "command": "workbench.action.chat.startVoiceChat",
-        "when": "!voiceChatInProgress"
-    },
-    {
-        "key": "cmd+u",
-        "command": "workbench.action.chat.stopListeningAndSubmit",
-        "when": "voiceChatInProgress"
-    },
-    {
-        "key": "shift+f12",
-        "command": "-editor.action.goToReferences",
-        "when": "editorHasReferenceProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
-    },
-    {
-        "key": "ctrl+h",
-        "command": "workbench.action.splitEditor"
-    },
-    {
-        "key": "ctrl+shift+h",
-        "command": "workbench.action.splitEditorDown"
-    }
+  // =========================================================================
+  // Split navigation — Ctrl + arrows (unified across all apps)
+  // =========================================================================
+  {
+    "key": "ctrl+left",
+    "command": "workbench.action.focusLeftGroup",
+    "when": "editorFocus"
+  },
+  {
+    "key": "ctrl+right",
+    "command": "workbench.action.focusRightGroup",
+    "when": "editorFocus"
+  },
+  {
+    "key": "ctrl+up",
+    "command": "workbench.action.focusAboveGroup",
+    "when": "editorFocus"
+  },
+  {
+    "key": "ctrl+down",
+    "command": "workbench.action.focusBelowGroup",
+    "when": "editorFocus"
+  },
+
+  // =========================================================================
+  // Zone navigation — Ctrl+arrows between zones (spatial model)
+  // =========================================================================
+  //   Editor ←→ Sidebar (left):   Ctrl+Left / Ctrl+Right
+  //   Editor ←→ Terminal (below): Ctrl+Down / Ctrl+Up
+  //   Editor ←→ Panel/AI (right): Ctrl+Left / Ctrl+Right
+  //   Escape from any zone → editor
+
+  // From sidebar → editor (sidebar is left, so Ctrl+Right = go right to editor)
+  {
+    "key": "escape",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "sideBarFocus"
+  },
+  {
+    "key": "ctrl+right",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "sideBarFocus"
+  },
+
+  // From terminal → editor (terminal is below, so Ctrl+Up = go up to editor)
+  {
+    "key": "ctrl+up",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "escape",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "terminalFocus && !terminalTextInputFocus"
+  },
+
+  // From panel (output, problems, etc.) → editor
+  {
+    "key": "ctrl+up",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "panelFocus && !terminalFocus"
+  },
+
+  // From auxiliary bar (AI chat on right) → editor
+  {
+    "key": "ctrl+left",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "auxiliaryBarFocus"
+  },
+  {
+    "key": "escape",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "auxiliaryBarFocus && !inputFocus"
+  },
+
+  // =========================================================================
+  // Move editor group — Ctrl + Alt + arrows (adjacent modifiers on Kyria)
+  // =========================================================================
+  {
+    "key": "ctrl+alt+left",
+    "command": "workbench.action.moveActiveEditorGroupLeft"
+  },
+  {
+    "key": "ctrl+alt+right",
+    "command": "workbench.action.moveActiveEditorGroupRight"
+  },
+  {
+    "key": "ctrl+alt+up",
+    "command": "workbench.action.moveActiveEditorGroupUp"
+  },
+  {
+    "key": "ctrl+alt+down",
+    "command": "workbench.action.moveActiveEditorGroupDown"
+  },
+
+  // =========================================================================
+  // Reorder tabs within group — Ctrl + Shift + left/right
+  // =========================================================================
+  {
+    "key": "ctrl+shift+left",
+    "command": "workbench.action.moveEditorLeftInGroup"
+  },
+  {
+    "key": "ctrl+shift+right",
+    "command": "workbench.action.moveEditorRightInGroup"
+  },
+
+  // =========================================================================
+  // Split creation — Cmd + d / Cmd + Shift + d (aligned with WezTerm/Obsidian)
+  // =========================================================================
+  {
+    "key": "cmd+d",
+    "command": "workbench.action.splitEditor"
+  },
+  {
+    "key": "cmd+d",
+    "command": "-editor.action.addSelectionToNextFindMatch"
+  },
+  {
+    "key": "cmd+shift+d",
+    "command": "workbench.action.splitEditorDown"
+  },
+
+  // =========================================================================
+  // Cursor AI — voice chat
+  // =========================================================================
+  {
+    "key": "cmd+u",
+    "command": "workbench.action.chat.startVoiceChat",
+    "when": "!voiceChatInProgress"
+  },
+  {
+    "key": "cmd+u",
+    "command": "workbench.action.chat.stopListeningAndSubmit",
+    "when": "voiceChatInProgress"
+  },
+
+  // =========================================================================
+  // Disable conflicting defaults
+  // =========================================================================
+  // Disable Ctrl+w+arrows from vscode-neovim (replaced by Ctrl+arrows above)
+  {
+    "key": "ctrl+w ctrl+left",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w ctrl+right",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w ctrl+up",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w ctrl+down",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w left",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w right",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w up",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w down",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  // Also disable Ctrl+w h/j/k/l to be safe
+  {
+    "key": "ctrl+w h",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w j",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w k",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+  {
+    "key": "ctrl+w l",
+    "command": "-vscode-neovim.send",
+    "when": "editorTextFocus && neovim.init"
+  },
+
+  // Disable old Cmd+K chord defaults
+  {
+    "key": "cmd+k cmd+left",
+    "command": "-workbench.action.focusLeftGroup"
+  },
+  {
+    "key": "cmd+k cmd+right",
+    "command": "-workbench.action.focusRightGroup"
+  },
+  {
+    "key": "cmd+k cmd+up",
+    "command": "-workbench.action.focusAboveGroup"
+  },
+  {
+    "key": "cmd+k cmd+down",
+    "command": "-workbench.action.focusBelowGroup"
+  },
+  {
+    "key": "cmd+k left",
+    "command": "-workbench.action.moveActiveEditorGroupLeft"
+  },
+  {
+    "key": "cmd+k right",
+    "command": "-workbench.action.moveActiveEditorGroupRight"
+  },
+  {
+    "key": "cmd+k up",
+    "command": "-workbench.action.moveActiveEditorGroupUp"
+  },
+  {
+    "key": "cmd+k down",
+    "command": "-workbench.action.moveActiveEditorGroupDown"
+  },
+  {
+    "key": "cmd+k shift+cmd+left",
+    "command": "-workbench.action.moveEditorLeftInGroup"
+  },
+  {
+    "key": "cmd+k shift+cmd+right",
+    "command": "-workbench.action.moveEditorRightInGroup"
+  },
+  {
+    "key": "shift+f12",
+    "command": "-editor.action.goToReferences",
+    "when": "editorHasReferenceProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
+  },
+  {
+    "key": "alt+f12",
+    "command": "-editor.action.peekDefinition",
+    "when": "editorHasDefinitionProvider && editorTextFocus && !inReferenceSearchEditor && !isInEmbeddedEditor"
+  },
+
+  // =========================================================================
+  // Linux: Alt+arrows = word navigation (macOS Option+arrows, native on Mac)
+  // keyd handles this at system level for GTK/Qt, but Cursor/Electron needs
+  // explicit bindings since keyd's alt_override sends Ctrl+arrows which
+  // would conflict with split navigation in the editor.
+  // =========================================================================
+  {
+    "key": "alt+left",
+    "command": "cursorWordLeft",
+    "when": "editorTextFocus && isLinux"
+  },
+  {
+    "key": "alt+right",
+    "command": "cursorWordRight",
+    "when": "editorTextFocus && isLinux"
+  },
+  {
+    "key": "alt+shift+left",
+    "command": "cursorWordLeftSelect",
+    "when": "editorTextFocus && isLinux"
+  },
+  {
+    "key": "alt+shift+right",
+    "command": "cursorWordRightSelect",
+    "when": "editorTextFocus && isLinux"
+  },
+  {
+    "key": "alt+backspace",
+    "command": "deleteWordLeft",
+    "when": "editorTextFocus && isLinux"
+  }
 ]

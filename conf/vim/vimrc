@@ -43,8 +43,14 @@ set visualbell
 " "press <Enter> to continue"
 set cmdheight=2
 
-" Highligth the current line
+" Highligth the current line and column (crosshair with block cursor in normal mode)
 set cursorline
+set cursorcolumn
+
+" Block cursor in normal/visual/command; bar in insert (terminal Vim 8.2+ with DECSCUSR)
+if exists('+guicursor')
+  set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+endif
 
 " Wrap-broken line prefix
 set showbreak=+++

@@ -1,3 +1,5 @@
+# Server — minimal setup (vim, zsh, nvim, git, tmux)
+
 - defaults:
     link:
       create: true
@@ -16,10 +18,10 @@
     ~/.config/nvim:
       force: true
       path: conf/nvim
-    ~/.mytheme.tmuxtheme: conf/tmux/mytheme.tmuxtheme
-    ~/.home.tmuxtheme: conf/tmux/home.tmuxtheme
-    ~/.tmux.conf: conf/tmux/tmux.conf
-    ~/.ctags: conf/ctags/ctags
+    ~/.mytheme.tmuxtheme: archive/tmux/mytheme.tmuxtheme
+    ~/.home.tmuxtheme: archive/tmux/home.tmuxtheme
+    ~/.tmux.conf: archive/tmux/tmux.conf
+    ~/.ctags: archive/ctags/ctags
     ~/.gitconfig:
        force: true
        path: conf/git/gitconfig

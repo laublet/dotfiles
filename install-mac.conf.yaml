@@ -1,0 +1,33 @@
+# macOS-specific dotfiles
+
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+    # aerospace
+    ~/.config/aerospace:
+      create: true
+      path: conf/aerospace
+
+    # cursor (macOS path)
+    ~/Library/Application Support/Cursor/User/keybindings.json:
+      create: true
+      path: conf/cursor/keybindings.json
+    ~/Library/Application Support/Cursor/User/settings.json:
+      create: true
+      path: conf/cursor/settings.json
+
+- shell:
+    # Import Mac app configs (Choosy, SteerMouse, LanguageTool)
+    - command: |
+        [ -f conf/mac-apps/choosy.plist ] && defaults import com.choosyosx.Choosy conf/mac-apps/choosy.plist || true
+        [ -f conf/mac-apps/choosy-behaviours.plist ] && mkdir -p ~/Library/Application\ Support/Choosy && cp conf/mac-apps/choosy-behaviours.plist ~/Library/Application\ Support/Choosy/behaviours.plist || true
+        [ -f conf/mac-apps/steermouse.plist ] && defaults import jp.plentycom.app.SteerMouse conf/mac-apps/steermouse.plist || true
+        [ -f conf/mac-apps/languagetool.plist ] && defaults import org.languagetool.desktop conf/mac-apps/languagetool.plist || true
+        [ -f conf/mac-apps/amphetamine.plist ] && defaults import com.if.Amphetamine conf/mac-apps/amphetamine.plist || true
+        MOUSELESS_DIR=~/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs
+        [ -f conf/mac-apps/mouseless.yaml ] && mkdir -p "$MOUSELESS_DIR" && cp conf/mac-apps/mouseless.yaml "$MOUSELESS_DIR/config.yaml" || true
+      description: Importing Mac app configs
+      quiet: true

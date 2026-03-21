@@ -1,3 +1,6 @@
+# Shared dotfiles — linked on all platforms (macOS, Linux, server)
+# OS-specific links live in install-mac.conf.yaml / install-linux.conf.yaml
+
 - defaults:
     link:
       create: true
@@ -6,100 +9,43 @@
 - clean: ['~']
 
 - link:
-    # aerospace
-    ~/.config/aerospace:
-      create: true
-      path: conf/aerospace
-    # alacritty
-    ~/.config/alacritty:
-      create: true
-      path: conf/alacritty
-
-    # ctags
-    ~/.ctags:
-      path: conf/ctags/ctags
-
-    # dunst
-    ~/.config/dunst:
-      create: true
-      path: conf/dunst
-
-    # i3
-    ~/.config/i3:
-      create: true
-      path: conf/i3
-    ~/.config/i3status:
-      create: true
-      path: conf/i3status
-
     # git
     ~/.gitconfig:
       path: conf/git/gitconfig
     ~/.gitignore:
       path: conf/git/gitignore
 
-    # neofetch
-    ~/.config/neofetch:
-      create: true
-      path: conf/neofetch
-
     # neovim
     ~/.config/nvim:
       create: true
       path: conf/nvim
 
-    # picom
-    ~/.config/picom:
-      create: true
-      path: conf/picom
-
-    # polybar
-    ~/.config/polybar:
-      create: true
-      path: conf/polybar
-
-    # prezto
-    ~/.zpreztorc:
-      force: true
-      path: conf/zsh/prezto/zpreztorc
-
-    # ranger
-    ~/.config/ranger/rc.conf:
-      force: true
-      path: conf/ranger/rc.conf
-
-    # rofi
-    ~/.config/rofi:
-      create: true
-      path: conf/rofi
-
-    # Tmux
-    ~/.mytheme.tmuxtheme:
-      path: conf/tmux/mytheme.tmuxtheme
-    ~/.home.tmuxtheme:
-      path: conf/tmux/home.tmuxtheme
-    ~/.tmux.conf:
-      path: conf/tmux/tmux.conf
-
     # vim
     ~/.vimrc:
       path: conf/vim/vimrc
 
-    # WezTerm
+    # starship
+    ~/.config/starship.toml:
+      create: true
+      path: conf/starship/starship.toml
+
+    # yazi
+    ~/.config/yazi:
+      create: true
+      path: conf/yazi
+
+    # wezterm
     ~/.wezterm.lua:
       create: true
       path: conf/wezterm/.wezterm.lua
-
-    # X
-    ~/.xinitrc:
-      path: conf/X/xinitrc
-    ~/.Xresources:
-      path: conf/X/Xresources
 
     # zsh
     ~/.zshrc:
       force: true
       path: conf/zsh/zshrc
+    ~/.zpreztorc:
+      force: true
+      path: conf/zsh/prezto/zpreztorc
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

@@ -1,26 +1,31 @@
-require "user.options"
-require "user.keymaps"
-require "user.plugins"
-require "user.colorscheme"
-require "user.cmp"
-require "user.lsp"
-require "user.telescope"
-require "user.treesitter"
-require "user.autopairs"
-require "user.comment"
-require "user.gitsigns"
-require "user.nvim-tree"
-require "user.bufferline"
-require "user.toggleterm"
-require "user.lualine"
-require "user.indentLine"
--- require "user.diffwiew"
-require "user.alpha"
-require "user.project"
-require "user.whichkey"
-require "user.rust-tools"
-require "user.fzf-lua"
-require "user.dracula"
-require "user.bookmarks"
+-- =============================================================================
+-- Neovim config — Loïc
+-- Shared between Neovim standalone and Cursor (via vscode-neovim)
+-- =============================================================================
 
-vim.cmd[[colorscheme dracula]]
+-- Leader must be set before lazy.nvim loads plugins
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+-- Load options and keymaps
+require("options")
+require("keymaps")
+
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Load plugin specs from lua/plugins/*.lua
+require("lazy").setup("plugins", {
+  change_detection = { notify = false },
+})

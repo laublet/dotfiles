@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>KeyboardShortcuts_Correction_Open</key>
+	<string>{"carbonModifiers":6144,"carbonKeyCode":8}</string>
+	<key>KeyboardShortcuts_OpenInEditorShortcut</key>
+	<string>{"carbonKeyCode":37,"carbonModifiers":2816}</string>
+	<key>KeyboardShortcuts_Paraphrasing_Open</key>
+	<string>{"carbonModifiers":6144,"carbonKeyCode":35}</string>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
+	<key>SUHasLaunchedBefore</key>
+	<true/>
+	<key>SULastCheckTime</key>
+	<date>2026-03-20T10:37:21Z</date>
+	<key>SUUpdateGroupIdentifier</key>
+	<integer>2324256493</integer>
+	<key>abIDV2</key>
+	<integer>874</integer>
+	<key>experiments_cache</key>
+	<data>
+	eyJpbnRlcm5hbF9raWxsc3dpdGNoIjp7ImZhbGxCYWNrIjoiZmFsc2UiLCJsaXZlIjpm
+	YWxzZX0sIm1hY29zX21haWxfc21hcnRfcmVwbHkiOnsibGl2ZSI6dHJ1ZSwidmFyaWFu
+	dCI6IkIifSwibWFjb3NfYWlfdG9vbHMiOnsibGl2ZSI6dHJ1ZSwidmFyaWFudCI6IkEi
+	fSwiZW5hYmxlX2FsbF9hcHBzIjp7ImxpdmUiOnRydWUsInZhcmlhbnQiOiJCIn19
+	</data>
+	<key>experiments_emitted_exposures</key>
+	<dict>
+		<key>enable_all_apps</key>
+		<string>B</string>
+	</dict>
+	<key>experiments_last_fetch_time</key>
+	<data>
+	Nzk1NjA0NTYyLjk2MTA4Mw==
+	</data>
+	<key>floatingSidebarWindowFrame</key>
+	<string>736 159 320 640 0 0 1512 949 </string>
+</dict>
+</plist>

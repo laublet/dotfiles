@@ -1,0 +1,30 @@
+# ~/.config/yazi/yazi.toml
+
+[manager]
+ratio = [1, 3, 4]
+sort_by = "natural"
+sort_sensitive = false
+sort_reverse = false
+sort_dir_first = true
+show_hidden = false
+show_symlink = true
+
+[preview]
+max_width = 1000
+max_height = 1000
+
+[opener]
+edit = [
+  { run = '${EDITOR:-nvim} "$@"', block = true, for = "unix" },
+]
+
+[open]
+prepend_rules = [
+  { name = "*.md", use = "edit" },
+  { name = "*.lua", use = "edit" },
+  { name = "*.toml", use = "edit" },
+  { name = "*.yaml", use = "edit" },
+  { name = "*.yml", use = "edit" },
+  { name = "*.json", use = "edit" },
+  { name = "*.sh", use = "edit" },
+]

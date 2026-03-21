@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Bootstrap a fresh machine: install packages + link dotfiles.
+# Usage:
+#   macOS:  ./bootstrap
+#   Linux:  ./bootstrap
+#   Server: ./install-server  (minimal: vim, zsh, nvim, git, tmux)
+
+set -e
+
+BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$BASEDIR"
+
+OS="$(uname -s)"
+echo "==> Bootstrapping on ${OS}..."
+
+# ── Install packages ──────────────────────────────────────────────
+if [[ "$OS" == "Darwin" ]]; then
+  if ! command -v brew &>/dev/null; then
+    echo "==> Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
+  echo "==> Installing packages (Brewfile)..."
+  brew bundle --file="$BASEDIR/Brewfile"
+
+elif [[ "$OS" == "Linux" ]]; then
+  echo "==> Installing packages (packages-linux.sh)..."
+  bash "$BASEDIR/packages-linux.sh"
+fi
+
+# ── Install Prezto ────────────────────────────────────────────────
+if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]]; then
+  echo "==> Installing Prezto..."
+  git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
+fi
+
+# ── Link dotfiles ─────────────────────────────────────────────────
+echo "==> Linking dotfiles..."
+bash "$BASEDIR/install"
+
+# ── Set default shell to zsh ─────────────────────────────────────
+if [[ "$SHELL" != */zsh ]]; then
+  echo "==> Setting zsh as default shell..."
+  chsh -s "$(which zsh)"
+fi
+
+echo ""
+echo "==> Done! Restart your shell or run: exec zsh"

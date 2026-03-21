@@ -1,10 +1,23 @@
-[user]
-	email = dev@loicaublet.com
-	name = Loïc Aublet
+[includeIf "gitdir:~/dev/perso/**"]
+    path = ~/dev/perso/.gitconfig-perso
+[includeIf "gitdir:~/dev/work/**"]
+    path = ~/dev/work/.gitconfig-work
 [core]
-	editor = nvim
+	editor = vim
 	excludesFile = ~/.gitignore
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	dark = true
+	side-by-side = true
+	line-numbers = true
+	syntax-theme = Dracula
 [merge]
 	tool = fugitive
+	conflictstyle = zdiff3
 [mergetool "fugitive"]
-	cmd = vim -f -c \"Gvdiff\" \"$MERGED\"
+	cmd = vim -f -c \"Gvdiff\" \"$MERGED\":
+[diff]
+	colorMoved = default

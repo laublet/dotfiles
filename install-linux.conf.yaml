@@ -1,0 +1,35 @@
+# Linux-specific dotfiles (Pop!_OS / Ubuntu)
+
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+    # cursor (Linux path)
+    ~/.config/Cursor/User/keybindings.json:
+      create: true
+      path: conf/cursor/keybindings.json
+    ~/.config/Cursor/User/settings.json:
+      create: true
+      path: conf/cursor/settings.json
+
+- shell:
+    # keyd: macOS-like modifiers (requires root)
+    - command: |
+        if command -v keyd &>/dev/null && [ -f conf/keyd/default.conf ]; then
+          echo "Deploying keyd config..."
+          sudo cp conf/keyd/default.conf /etc/keyd/default.conf
+          sudo systemctl restart keyd
+        fi
+      description: Deploying keyd config (macOS-like modifiers)
+      quiet: true
+
+    # Pop Shell / GNOME keybindings (mirrors AeroSpace architecture)
+    - command: |
+        if command -v dconf &>/dev/null && [ -f conf/pop-shell/keybindings.dconf ]; then
+          echo "Applying Pop Shell keybindings..."
+          dconf load / < conf/pop-shell/keybindings.dconf
+        fi
+      description: Applying Pop Shell keybindings
+      quiet: true

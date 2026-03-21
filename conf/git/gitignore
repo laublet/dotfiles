@@ -1,3 +1,6 @@
+# macOS
+.DS_Store
+
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
@@ -144,3 +147,6 @@ erl_crash.dump
 *.beam
 /config/*.secret.exs
 .elixir_ls/
+
+.secrets
+.envrc 

@@ -1,2 +1,6 @@
 nvim/plugged/
 nvim/.netrwhist
+.nvimlog
+.DS_Store
+*.swp
+*~

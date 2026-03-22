@@ -12,9 +12,13 @@ return {
   },
   opts = {
     provider = "claude",
-    claude = {
-      model = "claude-sonnet-4-20250514",
-      max_tokens = 8192,
+    providers = {
+      claude = {
+        model = "claude-sonnet-4-20250514",
+        extra_request_body = {
+          max_tokens = 8192,
+        },
+      },
     },
   },
 }

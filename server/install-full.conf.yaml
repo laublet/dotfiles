@@ -1,0 +1,53 @@
+# Home server — additional symlinks on top of server/install.conf.yaml
+# Adds neovim, btop, atuin, mise, yazi configs.
+# Run via: ./install-homeserver (which chains both configs)
+
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- link:
+    # neovim (full lazy.nvim config)
+    ~/.config/nvim:
+      create: true
+      force: true
+      path: conf/nvim
+
+    # btop
+    ~/.config/btop/btop.conf:
+      create: true
+      force: true
+      path: conf/btop/btop.conf
+
+    # atuin
+    ~/.config/atuin/config.toml:
+      create: true
+      force: true
+      path: conf/atuin/config.toml
+
+    # mise
+    ~/.config/mise/config.toml:
+      create: true
+      force: true
+      path: conf/mise/config.toml
+
+    # yazi
+    ~/.config/yazi:
+      create: true
+      path: conf/yazi
+
+    # lazygit (XDG path)
+    ~/.config/lazygit/config.yml:
+      create: true
+      path: conf/lazygit/config.yml
+
+    # lazydocker (XDG path)
+    ~/.config/lazydocker/config.yml:
+      create: true
+      path: conf/lazydocker/config.yml
+
+    # bottom
+    ~/.config/bottom/bottom.toml:
+      create: true
+      path: conf/bottom/bottom.toml

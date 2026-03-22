@@ -5,18 +5,41 @@ Keyboard-centric development environment, unified across macOS and Linux.
 ## Quick start
 
 ```bash
-# Fresh machine (installs packages + links dotfiles)
-just bootstrap         # or: ./bootstrap
+# ── macOS / Linux desktop ───────────────────────────
+just bootstrap         # full setup: packages + dotfiles
+just link              # re-link dotfiles only (detects OS)
 
-# Re-link dotfiles only (after config changes)
-just link              # or: ./install
+# ── Servers ─────────────────────────────────────────
+just server            # minimal: vim, zsh, git, zellij, starship
+just homeserver        # minimal + neovim, lazygit, docker, dev tools
 
-# Minimal server setup (vim, zsh, nvim, git, tmux)
-just server            # or: ./install-server
+# ── Package install by profile (Linux only) ─────────
+just packages-minimal     # server basics
+just packages-homeserver  # + dev tools
+just packages             # full desktop (default)
 
-# List all available tasks
+# ── List all tasks ──────────────────────────────────
 just
 ```
+
+### Profiles
+
+```
+Minimal Server        Home Server          Pop!_OS Desktop
+  vim                   + neovim (lazy)      + WezTerm
+  zsh + prezto          + lazygit            + Cursor
+  starship              + lazydocker         + Obsidian
+  git + delta           + btop               + Albert (launcher)
+  zellij                + atuin              + GPaste (clipboard)
+  bat, eza, fd          + yazi               + keyd (modifier remap)
+  fzf, ripgrep          + docker, mise       + FiraCode Nerd Font
+  zoxide, tlrc          + dust, sd, procs    + Signal, Slack, VLC…
+                        + tokei, ouch, just
+                        + glow
+```
+
+Each profile is layered — home server includes everything from minimal,
+desktop includes everything from home server.
 
 ## Architecture
 
@@ -213,18 +236,21 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 ## Repo structure
 
 ```
-├── justfile               # Task runner (just -l to list recipes)
-├── bootstrap              # Full setup: packages + dotfiles
-├── install                # Re-link dotfiles (detects OS)
-├── install-server         # Minimal server setup
-├── Brewfile               # macOS packages
-├── packages-linux.sh      # Pop!_OS / Ubuntu packages
-├── install.conf.yaml      # Shared symlinks
-├── install-mac.conf.yaml  # macOS symlinks (AeroSpace, Cursor)
-├── install-linux.conf.yaml# Linux symlinks (Cursor, Pop Shell dconf)
-├── cheatsheets/           # Per-tool markdown docs (Space H / cheat)
+├── justfile                 # Task runner (just -l to list recipes)
+├── bootstrap                # Full setup: packages + dotfiles
+├── install                  # Re-link dotfiles (detects OS)
+├── install-server           # Minimal server dotfiles (vim, zsh, zellij)
+├── install-homeserver       # Home server dotfiles (+ neovim, yazi, btop…)
+├── Brewfile                 # macOS packages
+├── packages-linux.sh        # Linux packages (accepts: minimal|homeserver|desktop)
+├── install.conf.yaml        # Shared symlinks
+├── install-mac.conf.yaml    # macOS symlinks (AeroSpace, Cursor, Albert)
+├── install-linux.conf.yaml  # Linux symlinks (Cursor, Albert, Pop Shell, keyd)
+├── cheatsheets/             # Per-tool markdown docs (Space H / cheat)
 ├── server/
-│   └── install.conf.yaml  # Server symlinks
+│   ├── install.conf.yaml    # Minimal server symlinks
+│   ├── install-full.conf.yaml # Home server additions (neovim, btop, atuin…)
+│   └── first-install.sh     # Legacy bootstrap (prezto, zsh, fzf)
 └── conf/
     ├── aerospace/         # Tiling WM (macOS)
     ├── cursor/            # Keybindings + settings

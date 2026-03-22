@@ -14,9 +14,13 @@ bootstrap:
 link:
     ./install
 
-[doc("Minimal server setup (vim, zsh, nvim, git, tmux)")]
+[doc("Minimal server setup (vim, zsh, git, zellij, starship)")]
 server:
     ./install-server
+
+[doc("Home server setup (minimal + neovim, lazygit, docker, dev tools)")]
+homeserver:
+    ./install-homeserver
 
 # ── Packages ──────────────────────────────────────────────────────
 
@@ -25,10 +29,20 @@ server:
 packages:
     brew bundle --file=Brewfile
 
-[doc("Install/update Linux packages")]
+[doc("Install Linux desktop packages (default profile)")]
 [linux]
 packages:
-    bash packages-linux.sh
+    bash packages-linux.sh desktop
+
+[doc("Install Linux minimal server packages")]
+[linux]
+packages-minimal:
+    bash packages-linux.sh minimal
+
+[doc("Install Linux home server packages")]
+[linux]
+packages-homeserver:
+    bash packages-linux.sh homeserver
 
 [doc("Update all installed brew packages")]
 [macos]

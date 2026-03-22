@@ -38,9 +38,7 @@ brew "zoxide"
 # ── Markdown ─────────────────────────────────────────────────────
 brew "glow"
 
-# ── Terminal browser ─────────────────────────────────────────────
-tap "browsh-org/browsh"
-brew "browsh"
+# ── Misc ─────────────────────────────────────────────────────────
 brew "w3m"
 
 # ── GUI apps ──────────────────────────────────────────────────────
@@ -50,7 +48,7 @@ cask "claude"
 cask "copyq"
 cask "cursor"
 cask "deepl"
-cask "docker"
+cask "docker-desktop"
 cask "firefox"
 cask "firefox@developer-edition"
 cask "google-chrome"
@@ -59,14 +57,15 @@ cask "languagetool"
 cask "mouseless"
 cask "obsidian"
 cask "postman"
-cask "raycast"
 cask "signal"
 cask "slack"
 cask "steermouse"
 cask "thunderbird"
 cask "todoist-app"
-cask "vlc"
 cask "wezterm"
+
+# ── Keyboard ─────────────────────────────────────────────────────
+cask "qmk-toolbox"
 
 # ── Mac App Store (requires `mas`) ───────────────────────────────
 mas "Amphetamine", id: 937984704

@@ -40,17 +40,17 @@
       create: true
       path: conf/yazi
 
-    # obsidian (vault: ~/Documents/Main)
-    ~/Documents/Main/.obsidian.vimrc:
+    # obsidian (vault: ~/dev/perso/vaults/Main)
+    ~/dev/perso/vaults/Main/.obsidian.vimrc:
       force: true
       path: conf/obsidian/obsidian-vimrc
-    ~/Documents/Main/.obsidian/hotkeys.json:
+    ~/dev/perso/vaults/Main/.obsidian/hotkeys.json:
       force: true
       path: conf/obsidian/hotkeys.json
-    ~/Documents/Main/.obsidian/app.json:
+    ~/dev/perso/vaults/Main/.obsidian/app.json:
       force: true
       path: conf/obsidian/app.json
-    ~/Documents/Main/.obsidian/community-plugins.json:
+    ~/dev/perso/vaults/Main/.obsidian/community-plugins.json:
       force: true
       path: conf/obsidian/community-plugins.json
 
@@ -59,8 +59,8 @@
       create: true
       path: conf/tridactyl/tridactylrc
 
-    # wezterm
-    ~/.wezterm.lua:
+    # wezterm (XDG)
+    ~/.config/wezterm/wezterm.lua:
       create: true
       path: conf/wezterm/.wezterm.lua
 
@@ -81,6 +81,11 @@
       create: true
       force: true
       path: conf/mise/config.toml
+
+    # bottom
+    ~/.config/bottom/bottom.toml:
+      create: true
+      path: conf/bottom/bottom.toml
 
     # zellij
     ~/.config/zellij:

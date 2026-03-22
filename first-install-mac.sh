@@ -18,7 +18,7 @@ brew install bitwarden
 
 # Install Casks
 brew install --cask nikitabobko/tap/aerospace
-brew install --cask chatgpt copyq cursor choosy discord docker firefox firefox@developer-edition google-chrome obsidian postman raycast slack steermouse todoist vlc wezterm zoom
+brew install --cask chatgpt copyq cursor choosy discord docker-desktop firefox firefox@developer-edition google-chrome obsidian postman raycast slack steermouse todoist wezterm zoom
 
 brew install --cask aws-vpn-client
 
@@ -26,7 +26,7 @@ brew install --cask aws-vpn-client
 brew install --cask nvidia-geforce-now philips-hue-sync
 
 # Install Fonts
-brew install --cask font-hack-nerd-font font-atkinson-hyperlegible
+brew install --cask font-fira-code-nerd-font
 
 IF [ ! -d "$HOME/.zprezto/" ]; then
   echo 'Installing prezto'

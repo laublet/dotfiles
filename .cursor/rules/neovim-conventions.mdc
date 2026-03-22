@@ -1,0 +1,25 @@
+---
+description: Neovim config conventions and tooling preferences
+globs: conf/nvim/**/*.lua
+alwaysApply: false
+---
+
+# Neovim Config Conventions
+
+## Keybindings & Documentation
+
+- When adding or modifying keybindings, always register them in which-key (`lua/plugins/which-key.lua`) with appropriate group names and descriptions.
+- When adding new keybinding groups, update the `spec` table in which-key.
+- Update cheatsheets if they exist and are relevant.
+
+## Plugin Structure
+
+- One plugin per file in `lua/plugins/`.
+- Use `cond = not vim.g.vscode` on plugins that should not load inside Cursor/VSCode.
+- Use lazy.nvim lazy-loading: `event`, `cmd`, `keys`, `ft` as appropriate.
+
+## Tools
+
+- Use `rg` (ripgrep) for searching, not `grep`.
+- Use `fd` for finding files, not `find`.
+- Use `fzf-lua` for fuzzy finding in Neovim (already configured).

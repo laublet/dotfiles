@@ -1,4 +1,4 @@
-# Linux-specific dotfiles (Pop!_OS / Ubuntu)
+# Linux desktop (Pop!_OS / Ubuntu) — extends shared install.conf.yaml
 
 - defaults:
     link:
@@ -14,6 +14,22 @@
       create: true
       path: conf/cursor/settings.json
 
+    # lazygit (XDG path)
+    ~/.config/lazygit/config.yml:
+      create: true
+      path: conf/lazygit/config.yml
+
+    # lazydocker (XDG path)
+    ~/.config/lazydocker/config.yml:
+      create: true
+      path: conf/lazydocker/config.yml
+
+    # albert (Linux path — ~/.config instead of ~/Library/Preferences)
+    ~/.config/albert/config:
+      create: true
+      force: true
+      path: conf/albert/config
+
 - shell:
     # keyd: macOS-like modifiers (requires root)
     - command: |
@@ -25,22 +41,22 @@
       description: Deploying keyd config (macOS-like modifiers)
       quiet: true
 
-    # Pop Shell / GNOME keybindings (mirrors AeroSpace architecture)
+    # COSMIC DE keybindings (Pop!_OS 24.04+)
     - command: |
-        if command -v dconf &>/dev/null && [ -f conf/pop-shell/keybindings.dconf ]; then
-          echo "Applying Pop Shell keybindings..."
-          dconf load / < conf/pop-shell/keybindings.dconf
+        COSMIC_DIR=~/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1
+        if [ -d ~/.config/cosmic ] && [ -f conf/cosmic/shortcuts.ron ]; then
+          echo "Deploying COSMIC custom keybindings..."
+          mkdir -p "$COSMIC_DIR"
+          cp conf/cosmic/shortcuts.ron "$COSMIC_DIR/custom"
         fi
-      description: Applying Pop Shell keybindings
+      description: Deploying COSMIC keybindings
       quiet: true
 
-    # Input sources: US + US-International, toggle with Ctrl+Alt+Space
+    # Pop Shell + GNOME settings (legacy — Pop!_OS 22.04 with GNOME)
     - command: |
-        if command -v gsettings &>/dev/null; then
-          echo "Configuring input sources (US + US-International)..."
-          gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('xkb', 'us+intl')]"
-          gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Ctrl><Alt>space']"
-          gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "['<Ctrl><Alt><Shift>space']"
+        if command -v dconf &>/dev/null && [ -f conf/pop-shell/keybindings.dconf ] && ! [ -d ~/.config/cosmic ]; then
+          echo "Applying Pop Shell + GNOME settings..."
+          dconf load / < conf/pop-shell/keybindings.dconf
         fi
-      description: Configuring input sources and toggle shortcut
+      description: Applying Pop Shell + GNOME settings (legacy)
       quiet: true

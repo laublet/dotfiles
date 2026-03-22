@@ -9,27 +9,16 @@
 #   ctrl                      → In-app split navigation (WezTerm/Neovim/Cursor)
 #
 
-after-login-command = [
-    # Wave 0 — instant: AeroSpace, Raycast, Amphetamine (macOS Login Items)
-    'exec-and-forget open -a "Mouseless"',
+# after-login-command was removed in AeroSpace 0.19.0 (SMAppService migration).
+# App launches are now handled via macOS Login Items:
+#   System Settings > General > Login Items
+#   Add: Mouseless, Calendar, Todoist, WezTerm,
+#        Firefox Developer Edition, Obsidian, Cursor
+# The dev layout script runs in after-startup-command with a one-shot guard.
 
-    # Wave 1 — 2s: dashboard (WS 0, lightweight Apple apps)
-    'exec-and-forget sleep 2 && open -a "Calendar"',
-    'exec-and-forget sleep 2 && open -a "Todoist"',
-
-    # Wave 2 — 5s: dev tools (WS 2, medium weight)
-    'exec-and-forget sleep 5 && open -a "WezTerm"',
-    'exec-and-forget sleep 5 && open -a "Firefox Developer Edition"',
-    'exec-and-forget sleep 5 && open -a "Obsidian"',
-
-    # Wave 3 — 12s: IDE (WS 2, heaviest)
-    'exec-and-forget sleep 12 && open -a "Cursor"',
-
-    # Wave 4 — 20s: arrange WS 2 in 2-column layout after all apps are ready
-    'exec-and-forget sleep 20 && ~/.config/aerospace/layout-dev-ws.sh',
-]
 after-startup-command = [
-    'exec-and-forget borders style=round active_color="gradient(top_left=0xffbd93f9,bottom_right=0xffff79c6)" inactive_color=0x4444475a width=4.0 hidpi=on'
+    'exec-and-forget borders style=round active_color="gradient(top_left=0xffbd93f9,bottom_right=0xffff79c6)" inactive_color=0x4444475a width=4.0 hidpi=on',
+    'exec-and-forget sleep 30 && ~/.config/aerospace/layout-dev-ws.sh',
 ]
 
 start-at-login = true
@@ -290,3 +279,8 @@ run = ['move-node-to-workspace 4']
 if.app-id = 'com.apple.systempreferences'
 check-further-callbacks = true
 run = ['move-node-to-workspace 4']
+
+# --- Always floating (popups, utilities) ---
+[[on-window-detected]]
+if.app-id = 'io.github.hluk.CopyQ'
+run = ['layout floating']

@@ -1,4 +1,5 @@
-# Server — minimal setup (vim, zsh, nvim, git, zellij)
+# Minimal server — vim, zsh, git, zellij, starship
+# For full dev setup (neovim, yazi, btop…) use install-homeserver instead.
 
 - defaults:
     link:
@@ -8,23 +9,32 @@
 - clean: ['~']
 
 - link:
+    # zsh
     ~/.zshrc:
       force: true
       path: conf/zsh/zshrc
     ~/.zpreztorc:
       force: true
       path: conf/zsh/prezto/zpreztorc
+
+    # vim (minimal editor for server)
     ~/.vimrc: conf/vim/vimrc
-    ~/.config/nvim:
-      force: true
-      path: conf/nvim
-    ~/.config/zellij:
-      force: true
-      path: conf/zellij
+
+    # git
     ~/.gitconfig:
-       force: true
-       path: conf/git/gitconfig
+      force: true
+      path: conf/git/gitconfig
     ~/.gitignore: conf/git/gitignore
+
+    # starship prompt
+    ~/.config/starship.toml:
+      create: true
+      path: conf/starship/starship.toml
+
+    # zellij (terminal multiplexer)
+    ~/.config/zellij:
+      create: true
+      path: conf/zellij
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

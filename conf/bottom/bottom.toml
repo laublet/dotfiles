@@ -1,0 +1,7 @@
+# bottom (btm) config
+# Docs: https://clementtsang.github.io/bottom/nightly/configuration/config-file/
+
+[flags]
+color = "gruvbox"
+tree = true
+enable_gpu = true

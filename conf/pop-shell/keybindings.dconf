@@ -1,100 +1,229 @@
-# Pop Shell / GNOME keybindings — mirrors AeroSpace architecture
-#
-# keyd makes Super a Cmd-like command layer (Super+key → Ctrl+key).
-# Alt and Ctrl are untouched. Pop Shell uses Ctrl+Alt combos
-# which keyd doesn't interfere with.
-#
-# What the user presses → what happens:
-#   Super + key             → app shortcut (copy, save, etc. via keyd)
-#   Alt + arrows            → word navigation (native)
-#   Ctrl + arrows           → split navigation (WezTerm/Neovim/Cursor)
-#   Ctrl+Alt + arrows       → focus window   (= AeroSpace ctrl-cmd-alt)
-#   Ctrl+Alt+Shift + arrows → move window    (= AeroSpace ctrl-cmd-alt-shift)
-#   Ctrl+Alt + number       → workspace      (= AeroSpace cmd-alt)
-#   Ctrl+Alt+Shift + number → move to ws     (= AeroSpace cmd-alt-shift)
-#   Super+Space              → launcher       (keyd passes real Super)
+# Pop Shell + GNOME settings — identical modifier architecture to AeroSpace
 #
 # Apply:  dconf load / < conf/pop-shell/keybindings.dconf
+#
+# keyd preserves Super in multi-modifier combos (via explicit passthrough),
+# so GNOME sees the exact same modifiers as AeroSpace on macOS.
+#
+# Physical keys → GNOME/Pop Shell action:
+#   Super (tap)                    → GNOME Activities / Albert
+#   Super + key                    → Ctrl+key (app shortcut, via keyd)
+#   Ctrl+Super+Alt + arrows        → <Super><Primary><Alt> Focus   (= LCAG)
+#   Ctrl+Super+Alt+Shift + arrows  → <Super><Primary><Alt><Shift>  (= HYPR)
+#   Super+Alt + number             → <Super><Alt> Workspace N
+#   Super+Alt + arrows             → <Super><Alt> WS prev/next
+#   Ctrl + arrows                  → in-app split nav (not intercepted)
 
+# ═══════════════════════════════════════════════════════════════════
+# POP SHELL — tiling
+# ═══════════════════════════════════════════════════════════════════
 [org/gnome/shell/extensions/pop-shell]
 tile-by-default=true
 gap-inner=uint32 20
 gap-outer=uint32 10
 active-hint=true
 active-hint-border-radius=uint32 4
+hint-color-rgba='rgb(189,147,249)'
+show-title=false
+smart-gaps=false
 
+# ═══════════════════════════════════════════════════════════════════
+# POP SHELL — keybindings (LCAG = Super+Ctrl+Alt)
+# ═══════════════════════════════════════════════════════════════════
+[org/gnome/shell/extensions/pop-shell/keybindings]
+# Focus window — Ctrl+Super+Alt + arrows (= AeroSpace LCAG)
+focus-left=['<Super><Primary><Alt>Left']
+focus-down=['<Super><Primary><Alt>Down']
+focus-up=['<Super><Primary><Alt>Up']
+focus-right=['<Super><Primary><Alt>Right']
+
+# Move window — Ctrl+Super+Alt+Shift + arrows (= AeroSpace HYPR)
+tile-move-left=['<Super><Primary><Alt><Shift>Left']
+tile-move-down=['<Super><Primary><Alt><Shift>Down']
+tile-move-up=['<Super><Primary><Alt><Shift>Up']
+tile-move-right=['<Super><Primary><Alt><Shift>Right']
+
+# Resize — HYPR + minus/equal
+tile-resize-left=['<Super><Primary><Alt><Shift>minus']
+tile-resize-right=['<Super><Primary><Alt><Shift>equal']
+tile-resize-up=['<Super><Primary><Alt><Shift>minus']
+tile-resize-down=['<Super><Primary><Alt><Shift>equal']
+
+# Swap — LCAG + enter
+tile-swap=['<Super><Primary><Alt>Return']
+
+# Layout toggles — LCAG + key (= AeroSpace ctrl-cmd-alt + key)
+toggle-tiling=['<Super><Primary><Alt>y']
+toggle-floating=['<Super><Primary><Alt>g']
+toggle-stacking=['<Super><Primary><Alt>s']
+
+# Fullscreen — LCAG + f
+# (defined below in wm/keybindings)
+
+# Launcher
+activate-launcher=['<Super>space']
+
+# ═══════════════════════════════════════════════════════════════════
+# GNOME WM — workspaces (Super+Alt = AeroSpace cmd-alt)
+# ═══════════════════════════════════════════════════════════════════
 [org/gnome/desktop/wm/keybindings]
+# App switching (physical Alt+Tab, unchanged by keyd)
 switch-windows=['<Alt>Tab']
 switch-windows-backward=['<Alt><Shift>Tab']
+switch-group=['<Alt>grave']
+switch-group-backward=['<Alt><Shift>grave']
 
-# Workspaces (Ctrl+Alt + number = physical Ctrl + physical Option)
-switch-to-workspace-1=['<Primary><Alt>1']
-switch-to-workspace-2=['<Primary><Alt>2']
-switch-to-workspace-3=['<Primary><Alt>3']
-switch-to-workspace-4=['<Primary><Alt>4']
-switch-to-workspace-5=['<Primary><Alt>5']
-switch-to-workspace-6=['<Primary><Alt>6']
-switch-to-workspace-7=['<Primary><Alt>7']
-switch-to-workspace-8=['<Primary><Alt>8']
-switch-to-workspace-9=['<Primary><Alt>9']
+# Switch to workspace N — Super+Alt + number (= AeroSpace cmd-alt-N)
+switch-to-workspace-1=['<Super><Alt>1']
+switch-to-workspace-2=['<Super><Alt>2']
+switch-to-workspace-3=['<Super><Alt>3']
+switch-to-workspace-4=['<Super><Alt>4']
+switch-to-workspace-5=['<Super><Alt>5']
+switch-to-workspace-6=['<Super><Alt>6']
+switch-to-workspace-7=['<Super><Alt>7']
+switch-to-workspace-8=['<Super><Alt>8']
+switch-to-workspace-9=['<Super><Alt>9']
+switch-to-workspace-10=['<Super><Alt>0']
 
-# Move to workspace (Ctrl+Alt+Shift + number)
-move-to-workspace-1=['<Primary><Alt><Shift>1']
-move-to-workspace-2=['<Primary><Alt><Shift>2']
-move-to-workspace-3=['<Primary><Alt><Shift>3']
-move-to-workspace-4=['<Primary><Alt><Shift>4']
-move-to-workspace-5=['<Primary><Alt><Shift>5']
-move-to-workspace-6=['<Primary><Alt><Shift>6']
-move-to-workspace-7=['<Primary><Alt><Shift>7']
-move-to-workspace-8=['<Primary><Alt><Shift>8']
-move-to-workspace-9=['<Primary><Alt><Shift>9']
+# Move to workspace N — Super+Alt+Shift + number (= AeroSpace cmd-alt-shift-N)
+move-to-workspace-1=['<Super><Alt><Shift>1']
+move-to-workspace-2=['<Super><Alt><Shift>2']
+move-to-workspace-3=['<Super><Alt><Shift>3']
+move-to-workspace-4=['<Super><Alt><Shift>4']
+move-to-workspace-5=['<Super><Alt><Shift>5']
+move-to-workspace-6=['<Super><Alt><Shift>6']
+move-to-workspace-7=['<Super><Alt><Shift>7']
+move-to-workspace-8=['<Super><Alt><Shift>8']
+move-to-workspace-9=['<Super><Alt><Shift>9']
+move-to-workspace-10=['<Super><Alt><Shift>0']
+
+# Workspace prev/next — Super+Alt + Left/Right (= AeroSpace cmd-alt-left/right)
+switch-to-workspace-left=['<Super><Alt>Left']
+switch-to-workspace-right=['<Super><Alt>Right']
+move-to-workspace-left=['<Super><Alt><Shift>Left']
+move-to-workspace-right=['<Super><Alt><Shift>Right']
+
+# Fullscreen — LCAG + f (= AeroSpace ctrl-cmd-alt-f)
+toggle-fullscreen=['<Super><Primary><Alt>f']
+
+# Close window (Ctrl+Q → physical Super+Q via keyd)
+close=['<Primary>q']
+
+# Input source switch
+switch-input-source=['<Super>space']
+switch-input-source-backward=['<Super><Shift>space']
 
 # Disable defaults that conflict
 move-to-side-n=@as []
 move-to-side-s=@as []
 move-to-side-e=@as []
 move-to-side-w=@as []
+minimize=@as []
 
-toggle-fullscreen=['<Primary><Alt>f']
-close=['<Primary>q']
+# ═══════════════════════════════════════════════════════════════════
+# GNOME WM — preferences
+# ═══════════════════════════════════════════════════════════════════
+[org/gnome/desktop/wm/preferences]
+num-workspaces=10
+focus-mode='click'
+button-layout='appmenu:minimize,maximize,close'
 
-[org/gnome/shell/extensions/pop-shell/keybindings]
-# Focus (Ctrl+Alt + arrows)
-focus-left=['<Primary><Alt>Left']
-focus-down=['<Primary><Alt>Down']
-focus-up=['<Primary><Alt>Up']
-focus-right=['<Primary><Alt>Right']
-
-# Move (Ctrl+Alt+Shift + arrows)
-tile-move-left=['<Primary><Alt><Shift>Left']
-tile-move-down=['<Primary><Alt><Shift>Down']
-tile-move-up=['<Primary><Alt><Shift>Up']
-tile-move-right=['<Primary><Alt><Shift>Right']
-
-# Resize (Ctrl+Alt + minus/equal, mirrors AeroSpace HYPR resize)
-tile-resize-left=['<Primary><Alt>minus']
-tile-resize-down=['<Primary><Alt>equal']
-tile-resize-up=['<Primary><Alt>equal']
-tile-resize-right=['<Primary><Alt>minus']
-
-# Toggle tiling / floating
-toggle-tiling=['<Primary><Alt>y']
-toggle-floating=['<Primary><Alt>g']
-toggle-stacking=['<Primary><Alt>s']
-
-activate-launcher=['<Super>space']
+# ═══════════════════════════════════════════════════════════════════
+# MUTTER — disable conflicting tiling defaults
+# ═══════════════════════════════════════════════════════════════════
+[org/gnome/mutter]
+dynamic-workspaces=false
+workspaces-only-on-primary=false
+edge-tiling=false
 
 [org/gnome/mutter/keybindings]
 toggle-tiled-left=@as []
 toggle-tiled-right=@as []
 
+# ═══════════════════════════════════════════════════════════════════
+# TERMINAL LAUNCH — LCAG + Enter (= AeroSpace ctrl-cmd-alt-enter)
+# ═══════════════════════════════════════════════════════════════════
 [org/gnome/settings-daemon/plugins/media-keys]
 custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
 
 [org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
 name='WezTerm'
 command='wezterm'
-binding='<Primary><Alt>Return'
+binding='<Super><Primary><Alt>Return'
 
-[org/gnome/desktop/wm/preferences]
-num-workspaces=10
+# ═══════════════════════════════════════════════════════════════════
+# INPUT — keyboard & touchpad
+# ═══════════════════════════════════════════════════════════════════
+[org/gnome/desktop/input-sources]
+sources=[('xkb', 'us'), ('xkb', 'us+intl')]
+
+[org/gnome/desktop/peripherals/touchpad]
+tap-to-click=true
+natural-scroll=true
+two-finger-scrolling-enabled=true
+speed=0.5
+
+[org/gnome/desktop/peripherals/mouse]
+natural-scroll=false
+
+# ═══════════════════════════════════════════════════════════════════
+# DESKTOP — quality of life
+# ═══════════════════════════════════════════════════════════════════
+[org/gnome/desktop/interface]
+clock-format='24h'
+clock-show-weekday=true
+show-battery-percentage=true
+enable-hot-corners=false
+gtk-theme='Pop-dark'
+icon-theme='Pop'
+cursor-theme='Pop'
+color-scheme='prefer-dark'
+font-antialiasing='rgba'
+font-hinting='slight'
+
+[org/gnome/desktop/notifications]
+show-in-lock-screen=false
+
+[org/gnome/desktop/privacy]
+remember-recent-files=true
+recent-files-max-age=30
+remove-old-trash-files=true
+remove-old-temp-files=true
+old-files-age=uint32 30
+
+[org/gnome/desktop/screensaver]
+lock-delay=uint32 300
+
+[org/gnome/desktop/session]
+idle-delay=uint32 900
+
+# ═══════════════════════════════════════════════════════════════════
+# NIGHT LIGHT
+# ═══════════════════════════════════════════════════════════════════
+[org/gnome/settings-daemon/plugins/color]
+night-light-enabled=true
+night-light-schedule-automatic=true
+night-light-temperature=uint32 3500
+
+# ═══════════════════════════════════════════════════════════════════
+# FILE MANAGER (Nautilus)
+# ═══════════════════════════════════════════════════════════════════
+[org/gnome/nautilus/preferences]
+default-folder-viewer='list-view'
+show-hidden-files=true
+
+[org/gnome/nautilus/list-view]
+default-zoom-level='small'
+use-tree-view=true
+
+# ═══════════════════════════════════════════════════════════════════
+# DOCK — dash-to-dock / cosmic-dock
+# ═══════════════════════════════════════════════════════════════════
+[org/gnome/shell/extensions/dash-to-dock]
+dock-position='BOTTOM'
+intellihide=true
+dash-max-icon-size=36
+show-trash=false
+show-mounts=false
+hot-keys=false
+favorite-apps=['com.github.wez.wezterm.desktop', 'cursor.desktop', 'firefox-developer-edition.desktop', 'obsidian.desktop', 'org.mozilla.Thunderbird.desktop', 'com.slack.Slack.desktop', 'org.signal.Signal.desktop', 'org.gnome.Nautilus.desktop', 'gnome-system-monitor.desktop']

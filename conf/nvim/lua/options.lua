@@ -58,6 +58,15 @@ if not vim.g.vscode then
   opt.autoread = true
   vim.cmd([[set whichwrap+=<,>,[,],h,l]])
 
+  -- Auto-reload files changed outside Neovim (e.g. by Cursor, git, etc.)
+  vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
+    callback = function()
+      if vim.fn.getcmdwintype() == "" then
+        vim.cmd("checktime")
+      end
+    end,
+  })
+
   -- Force conceallevel for markdown (some ftplugins reset it to 0)
   vim.api.nvim_create_autocmd("FileType", {
     pattern = "markdown",

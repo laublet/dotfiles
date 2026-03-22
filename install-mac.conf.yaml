@@ -11,6 +11,22 @@
       create: true
       path: conf/aerospace
 
+    # albert
+    ~/Library/Preferences/albert/config:
+      create: true
+      force: true
+      path: conf/albert/config
+
+    # lazygit (macOS path)
+    ~/Library/Application Support/lazygit/config.yml:
+      create: true
+      path: conf/lazygit/config.yml
+
+    # lazydocker (macOS path)
+    ~/Library/Application Support/jesseduffield/lazydocker/config.yml:
+      create: true
+      path: conf/lazydocker/config.yml
+
     # cursor (macOS path)
     ~/Library/Application Support/Cursor/User/keybindings.json:
       create: true

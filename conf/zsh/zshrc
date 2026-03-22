@@ -37,11 +37,10 @@ if [[ "$OSTYPE" == darwin* ]]; then
   alias ff='open -a "Firefox Developer Edition"'
 
 elif [[ "$OSTYPE" == linux* ]]; then
-  # Linux (Pop!_OS / MSI)
-  alias pac="sudo pacman -S"
-  alias lock="i3lock -t -e -i $HOME/Pictures/lock/gg"
-  alias wifi="wicd-gtk"
-  alias sound="pavucontrol"
+  export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+  alias c="cursor --no-sandbox ."
+  alias ff="firefox"
+  alias open="xdg-open"
 fi
 
 # ── fzf ──────────────────────────────────────────────────────────
@@ -206,6 +205,19 @@ rgc() {
   [[ -z "$1" ]] && { echo "Usage: rgc <pattern>"; return 1; }
   rg --count-matches "$1" | sort -t: -k2 -nr
 }
+
+# ── JSON (jq) ───────────────────────────────────────────────────
+if [[ "$OSTYPE" == darwin* ]]; then
+  alias jp='pbpaste | jq .'
+  alias jm='pbpaste | jq -c .'
+  alias je='pbpaste | jq -R .'
+  alias ju='pbpaste | jq -r .'
+elif [[ "$OSTYPE" == linux* ]]; then
+  alias jp='xclip -selection clipboard -o | jq .'
+  alias jm='xclip -selection clipboard -o | jq -c .'
+  alias je='xclip -selection clipboard -o | jq -R .'
+  alias ju='xclip -selection clipboard -o | jq -r .'
+fi
 
 # ── Keybindings ──────────────────────────────────────────────────
 bindkey '^ ' autosuggest-execute

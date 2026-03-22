@@ -91,7 +91,11 @@ config.scrollback_lines = 50000
 
 -- Maximize on startup
 wezterm.on("gui-startup", function(cmd)
-  local _, _, window = mux.spawn_window(cmd or {})
+  local btm_tab, _, window = mux.spawn_window({ args = { "btm" } })
+  btm_tab:set_title("btm")
+  local work_tab = window:spawn_tab({ cwd = wezterm.home_dir .. "/dev/work/blank" })
+  local perso_tab = window:spawn_tab({ cwd = wezterm.home_dir .. "/dev/perso" })
+  work_tab:activate()
   window:gui_window():maximize()
 end)
 

@@ -27,7 +27,10 @@ return {
         ["<C-Space>"] = cmp.mapping.complete(),
         ["<CR>"] = cmp.mapping.confirm({ select = true }),
         ["<Tab>"] = cmp.mapping(function(fallback)
-          if cmp.visible() then
+          local ok, suggestion = pcall(require, "supermaven-nvim.completion_preview")
+          if ok and suggestion.has_suggestion() then
+            suggestion.on_accept_suggestion()
+          elseif cmp.visible() then
             cmp.select_next_item()
           elseif luasnip.expand_or_jumpable() then
             luasnip.expand_or_jump()

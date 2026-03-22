@@ -1,64 +1,67 @@
-// Cursor keybindings v4 — Loïc
-// Architecture:
-//   Split navigation    → Ctrl + arrows (unified: same as WezTerm, Obsidian, Neovim)
-//   Zone navigation     → Ctrl + arrows (spatial: sidebar←editor→AI, terminal↕editor)
-//                          Escape from any zone → editor
+// Cursor keybindings v6 — Loïc
+// Architecture (modifier escalation, consistent with/without splits):
+//   Zone navigation     → Ctrl + arrows (always: sidebar ← editor → chat, terminal ↕ editor)
+//                          Escape from any zone → editor (only way out of chat: webview limitation)
+//   Split navigation    → Ctrl + Shift + arrows (editor groups + terminal panes)
+//   Move editor groups  → Ctrl + Alt + arrows (same chord as WezTerm/Neovim resize)
+//   Tab switching       → Cmd + Shift + left/right (editor tabs, terminal instances, chat tabs)
+//   Tab reorder         → Cmd + Alt + left/right
+//   Split creation      → Cmd+d / Cmd+Shift+d (context-aware: editor or terminal)
+//   Terminal mgmt       → Cmd+t (new), Cmd+w (kill), Cmd+d (split) — when terminal focused
 //   Leader layer        → Space + key (via vscode-neovim, from editor normal mode)
 //     Space+e  explorer   Space+f  quick open    Space+g  find in files
 //     Space+t  terminal   Space+v  git (scm)     Space+c  AI chat
-//     Space+b  buffers    Space+w  save           Space+q  close editor
-//     Space+z  zen mode
-//   Move editor groups  → Ctrl + Alt + arrows (same chord as WezTerm/Neovim resize)
-//   Split creation      → Cmd+d / Cmd+Shift+d (aligned with WezTerm/Obsidian)
-//   Tab reorder         → Ctrl+Shift + left/right
-//   AI terminal approve → Cmd+. (toggle YOLO mode) or navigate chat + Tab/Enter
+//     Space+b  buffers    Space+d  debugger      Space+w  save
+//     Space+q  close      Space+z  zen mode
+//   AI accept/reject    → Cmd+Enter (inline chat), Cmd+Shift+Enter (accept diff/tool),
+//                          Cmd+Shift+Backspace (reject), Cmd+Ctrl+Enter/Backspace (bulk)
 //
+// Spatial model:
+//   [Sidebar] ←Ctrl+Left— [Editor] —Ctrl+Right→ [AI Chat]
+//                            ↕ Ctrl+Down / Ctrl+Up
+//                         [Terminal]
+//
+// Webview limitation: Cmd+Shift+arrows and Ctrl+Left do NOT work inside the
+// AI chat panel (webview captures keys at DOM level). Use Escape to exit chat.
+//
+// CHANGE v6: Terminal management (split, kill, new, navigate panes/instances).
+//   Cmd+d/w/t context-aware: editor vs terminal. Same keys as WezTerm.
+// CHANGE v5: Ctrl+arrows always = zone nav (consistent with/without splits).
+//   Ctrl+Shift+arrows = split nav. Tab reorder moved to Cmd+Alt.
 // CHANGE v4: Ctrl+arrows now works from ALL zones (terminal, sidebar, panel, AI).
-//   Spatial model: arrow direction matches zone position relative to editor.
 // CHANGE v3: Ctrl+arrows replaces Ctrl+w+arrows for split focus.
 [
   // =========================================================================
-  // Split navigation — Ctrl + arrows (unified across all apps)
+  // Zone navigation — Ctrl + arrows (always, with or without splits)
   // =========================================================================
+  // Editor → zones
   {
     "key": "ctrl+left",
-    "command": "workbench.action.focusLeftGroup",
-    "when": "editorFocus"
+    "command": "workbench.action.focusSideBar",
+    "when": "editorTextFocus"
   },
   {
     "key": "ctrl+right",
-    "command": "workbench.action.focusRightGroup",
-    "when": "editorFocus"
-  },
-  {
-    "key": "ctrl+up",
-    "command": "workbench.action.focusAboveGroup",
-    "when": "editorFocus"
+    "command": "workbench.action.focusAuxiliaryBar",
+    "when": "editorTextFocus"
   },
   {
     "key": "ctrl+down",
-    "command": "workbench.action.focusBelowGroup",
-    "when": "editorFocus"
+    "command": "workbench.action.terminal.focus",
+    "when": "editorTextFocus"
   },
 
-  // =========================================================================
-  // Zone navigation — Ctrl+arrows between zones (spatial model)
-  // =========================================================================
-  //   Editor ←→ Sidebar (left):   Ctrl+Left / Ctrl+Right
-  //   Editor ←→ Terminal (below): Ctrl+Down / Ctrl+Up
-  //   Editor ←→ Panel/AI (right): Ctrl+Left / Ctrl+Right
-  //   Escape from any zone → editor
-
-  // From sidebar → editor (sidebar is left, so Ctrl+Right = go right to editor)
-  {
-    "key": "escape",
-    "command": "workbench.action.focusActiveEditorGroup",
-    "when": "sideBarFocus"
-  },
+  // From sidebar → editor (Ctrl+Right = go right to editor, Escape = back)
+  // Use broad OR to cover all sidebar views (explorer tree, search, SCM, etc.)
   {
     "key": "ctrl+right",
     "command": "workbench.action.focusActiveEditorGroup",
-    "when": "sideBarFocus"
+    "when": "sideBarFocus || filesExplorerFocus || sideBarVisible && !editorTextFocus && !terminalFocus && !auxiliaryBarFocus && !panelFocus"
+  },
+  {
+    "key": "escape",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "(sideBarFocus || filesExplorerFocus) && !inputFocus"
   },
 
   // From terminal → editor (terminal is below, so Ctrl+Up = go up to editor)
@@ -80,16 +83,18 @@
     "when": "panelFocus && !terminalFocus"
   },
 
-  // From auxiliary bar (AI chat on right) → editor
-  {
-    "key": "ctrl+left",
-    "command": "workbench.action.focusActiveEditorGroup",
-    "when": "auxiliaryBarFocus"
-  },
+  // From auxiliary bar / AI chat → editor
+  // NOTE: Ctrl+Left does NOT work from the chat (webview captures keys at DOM level).
+  // Escape is the only reliable way to leave the chat.
   {
     "key": "escape",
     "command": "workbench.action.focusActiveEditorGroup",
     "when": "auxiliaryBarFocus && !inputFocus"
+  },
+  {
+    "key": "escape",
+    "command": "workbench.action.focusActiveEditorGroup",
+    "when": "inChat && !editorTextFocus && !inputFocus"
   },
 
   // =========================================================================
@@ -113,23 +118,69 @@
   },
 
   // =========================================================================
-  // Reorder tabs within group — Ctrl + Shift + left/right
+  // Split navigation — Ctrl + Shift + arrows (between editor groups)
   // =========================================================================
   {
     "key": "ctrl+shift+left",
-    "command": "workbench.action.moveEditorLeftInGroup"
+    "command": "workbench.action.focusLeftGroup"
   },
   {
     "key": "ctrl+shift+right",
+    "command": "workbench.action.focusRightGroup"
+  },
+  {
+    "key": "ctrl+shift+up",
+    "command": "workbench.action.focusAboveGroup"
+  },
+  {
+    "key": "ctrl+shift+down",
+    "command": "workbench.action.focusBelowGroup"
+  },
+
+  // =========================================================================
+  // Tab switching — Cmd + Shift + left/right (same as WezTerm)
+  // =========================================================================
+  // Editor tabs
+  {
+    "key": "cmd+shift+left",
+    "command": "workbench.action.previousEditor"
+  },
+  {
+    "key": "cmd+shift+right",
+    "command": "workbench.action.nextEditor"
+  },
+  // Chat tabs (conversations) — same keys, active when in chat
+  {
+    "key": "cmd+shift+left",
+    "command": "composer.selectPreviousComposer",
+    "when": "inChat && !editorTextFocus"
+  },
+  {
+    "key": "cmd+shift+right",
+    "command": "composer.selectNextComposer",
+    "when": "inChat && !editorTextFocus"
+  },
+
+  // =========================================================================
+  // Reorder tabs within group — Cmd + Alt + left/right
+  // =========================================================================
+  {
+    "key": "cmd+alt+left",
+    "command": "workbench.action.moveEditorLeftInGroup"
+  },
+  {
+    "key": "cmd+alt+right",
     "command": "workbench.action.moveEditorRightInGroup"
   },
 
   // =========================================================================
-  // Split creation — Cmd + d / Cmd + Shift + d (aligned with WezTerm/Obsidian)
+  // Split creation — Cmd+d / Cmd+Shift+d (same as WezTerm, context-aware)
   // =========================================================================
+  // Editor splits
   {
     "key": "cmd+d",
-    "command": "workbench.action.splitEditor"
+    "command": "workbench.action.splitEditor",
+    "when": "editorFocus"
   },
   {
     "key": "cmd+d",
@@ -137,7 +188,96 @@
   },
   {
     "key": "cmd+shift+d",
-    "command": "workbench.action.splitEditorDown"
+    "command": "workbench.action.splitEditorDown",
+    "when": "editorFocus"
+  },
+  // Terminal splits
+  {
+    "key": "cmd+d",
+    "command": "workbench.action.terminal.split",
+    "when": "terminalFocus"
+  },
+
+  // =========================================================================
+  // Terminal management — same keys as WezTerm when in terminal
+  // =========================================================================
+  // New terminal instance (Cmd+t, like WezTerm new tab)
+  {
+    "key": "cmd+t",
+    "command": "workbench.action.terminal.new",
+    "when": "terminalFocus"
+  },
+  // Kill terminal (Cmd+w, like WezTerm close pane)
+  {
+    "key": "cmd+w",
+    "command": "workbench.action.terminal.kill",
+    "when": "terminalFocus"
+  },
+  // Navigate split terminal panes (Ctrl+Shift, same tier as editor split nav)
+  {
+    "key": "ctrl+shift+left",
+    "command": "workbench.action.terminal.focusPreviousPane",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "ctrl+shift+right",
+    "command": "workbench.action.terminal.focusNextPane",
+    "when": "terminalFocus"
+  },
+  // Switch terminal instances (Cmd+Shift, same tier as editor tab switching)
+  {
+    "key": "cmd+shift+left",
+    "command": "workbench.action.terminal.focusPrevious",
+    "when": "terminalFocus"
+  },
+  {
+    "key": "cmd+shift+right",
+    "command": "workbench.action.terminal.focusNext",
+    "when": "terminalFocus"
+  },
+
+  // =========================================================================
+  // Cursor AI — accept / reject
+  // =========================================================================
+  // Inline chat (Cmd+K): accept changes
+  {
+    "key": "cmd+enter",
+    "command": "inlineChat.acceptChanges",
+    "when": "inlineChatVisible"
+  },
+  // Chat-applied diffs: accept / reject current file
+  {
+    "key": "cmd+shift+enter",
+    "command": "chatEditor.action.accept",
+    "when": "inChat && hasChatEdits"
+  },
+  {
+    "key": "cmd+shift+backspace",
+    "command": "chatEditor.action.reject",
+    "when": "inChat && hasChatEdits"
+  },
+  // Bulk: accept / reject ALL AI-edited files
+  {
+    "key": "cmd+ctrl+enter",
+    "command": "chatEditing.acceptAllFiles",
+    "when": "inChat"
+  },
+  {
+    "key": "cmd+ctrl+backspace",
+    "command": "chatEditing.discardAllFiles",
+    "when": "inChat"
+  },
+  // Agent mode: accept tool call (terminal command approval)
+  {
+    "key": "cmd+shift+enter",
+    "command": "workbench.action.chat.acceptTool",
+    "when": "inChat && chatRequestHasTool"
+  },
+  // Agent mode: cancel terminal tool call
+  {
+    "key": "cmd+shift+backspace",
+    "command": "composer.cancelTerminalToolCall",
+    "when": "inChat && chatRequestHasTool"
   },
 
   // =========================================================================
@@ -157,6 +297,16 @@
   // =========================================================================
   // Disable conflicting defaults
   // =========================================================================
+  // Ctrl+arrows freed from vscode-neovim via ctrlKeysForNormalMode in settings.json.
+  // Disable default Ctrl+Up/Down scroll (conflicts with zone/split nav)
+  {
+    "key": "ctrl+up",
+    "command": "-scrollLineUp"
+  },
+  {
+    "key": "ctrl+down",
+    "command": "-scrollLineDown"
+  },
   // Disable Ctrl+w+arrows from vscode-neovim (replaced by Ctrl+arrows above)
   {
     "key": "ctrl+w ctrl+left",

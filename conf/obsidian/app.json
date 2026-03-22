@@ -1,0 +1,11 @@
+{
+  "alwaysUpdateLinks": true,
+  "vimMode": true,
+  "showLineNumber": true,
+  "promptDelete": false,
+  "tabSize": 2,
+  "attachmentFolderPath": "Files",
+  "newFileLocation": "folder",
+  "newFileFolderPath": "0 - Main Notes",
+  "openBehavior": "daily"
+}

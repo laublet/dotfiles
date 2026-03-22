@@ -31,3 +31,23 @@
         [ -f conf/mac-apps/mouseless.yaml ] && mkdir -p "$MOUSELESS_DIR" && cp conf/mac-apps/mouseless.yaml "$MOUSELESS_DIR/config.yaml" || true
       description: Importing Mac app configs
       quiet: true
+
+    # Input source toggle: Ctrl+Option+Space → "Select previous input source"
+    # Symbolic hotkey 60 = "Select the previous input source"
+    # Parameters: (ASCII 32=Space, keycode 49=Space, modifier flags 786432=Ctrl+Option)
+    # Note: add "US International - PC" input source manually in System Settings > Keyboard > Input Sources
+    - command: |
+        PLIST=~/Library/Preferences/com.apple.symbolichotkeys.plist
+        /usr/libexec/PlistBuddy -c "Delete :AppleSymbolicHotKeys:60" "$PLIST" 2>/dev/null || true
+        /usr/libexec/PlistBuddy \
+          -c "Add :AppleSymbolicHotKeys:60 dict" \
+          -c "Add :AppleSymbolicHotKeys:60:enabled bool true" \
+          -c "Add :AppleSymbolicHotKeys:60:value dict" \
+          -c "Add :AppleSymbolicHotKeys:60:value:type string standard" \
+          -c "Add :AppleSymbolicHotKeys:60:value:parameters array" \
+          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 32" \
+          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 49" \
+          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 786432" \
+          "$PLIST"
+      description: Setting input source toggle shortcut (Ctrl+Option+Space)
+      quiet: true

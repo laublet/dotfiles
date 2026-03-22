@@ -34,10 +34,52 @@
       create: true
       path: conf/yazi
 
+    # obsidian (vault: ~/Documents/Main)
+    ~/Documents/Main/.obsidian.vimrc:
+      force: true
+      path: conf/obsidian/obsidian-vimrc
+    ~/Documents/Main/.obsidian/hotkeys.json:
+      force: true
+      path: conf/obsidian/hotkeys.json
+    ~/Documents/Main/.obsidian/app.json:
+      force: true
+      path: conf/obsidian/app.json
+    ~/Documents/Main/.obsidian/community-plugins.json:
+      force: true
+      path: conf/obsidian/community-plugins.json
+
+    # tridactyl (Firefox)
+    ~/.config/tridactyl/tridactylrc:
+      create: true
+      path: conf/tridactyl/tridactylrc
+
     # wezterm
     ~/.wezterm.lua:
       create: true
       path: conf/wezterm/.wezterm.lua
+
+    # atuin
+    ~/.config/atuin/config.toml:
+      create: true
+      force: true
+      path: conf/atuin/config.toml
+
+    # btop
+    ~/.config/btop/btop.conf:
+      create: true
+      force: true
+      path: conf/btop/btop.conf
+
+    # mise
+    ~/.config/mise/config.toml:
+      create: true
+      force: true
+      path: conf/mise/config.toml
+
+    # zellij
+    ~/.config/zellij:
+      create: true
+      path: conf/zellij
 
     # zsh
     ~/.zshrc:

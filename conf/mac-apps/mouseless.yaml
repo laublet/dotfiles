@@ -315,19 +315,19 @@ keymaps:
     right click: null
     right mouse button: R
     right mouse button (w/o overlay): null
-    show overlay: Ctrl+Alt+Cmd+z
+    show overlay: Ctrl+Alt+m
     subgrid nudge down:
     - D
-    - K
+    - J
     subgrid nudge left:
     - S
-    - J
+    - H
     subgrid nudge right:
     - F
     - L
     subgrid nudge up:
     - E
-    - I
+    - K
     switch monitor left: ShiftLeft tap
     switch monitor right: ShiftRight tap
     toggle app enabled: null

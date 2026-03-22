@@ -14,7 +14,6 @@ sudo apt install -y \
   fd-find \
   fzf \
   ripgrep \
-  direnv \
   zsh
 
 # bat and fd are installed as batcat / fdfind on Debian/Ubuntu.
@@ -22,6 +21,28 @@ sudo apt install -y \
 mkdir -p ~/.local/bin
 [[ ! -e ~/.local/bin/bat ]] && ln -s "$(which batcat)" ~/.local/bin/bat || true
 [[ ! -e ~/.local/bin/fd ]]  && ln -s "$(which fdfind)" ~/.local/bin/fd  || true
+
+# ── Cargo-based tools (atuin, dust, sd, procs, tokei, ouch, just) ─
+if ! command -v cargo &>/dev/null; then
+  echo "==> Installing Rust toolchain..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  source "$HOME/.cargo/env"
+fi
+
+for tool in atuin du-dust sd procs tokei ouch just zellij; do
+  bin_name="$tool"
+  [[ "$tool" == "du-dust" ]] && bin_name="dust"
+  if ! command -v "$bin_name" &>/dev/null; then
+    echo "==> Installing $bin_name (cargo)..."
+    cargo install "$tool"
+  fi
+done
+
+# ── mise (runtime version manager) ──────────────────────────────
+if ! command -v mise &>/dev/null; then
+  echo "==> Installing mise..."
+  curl https://mise.run | sh
+fi
 
 # ── Neovim (latest stable from PPA) ──────────────────────────────
 if ! command -v nvim &>/dev/null; then
@@ -35,12 +56,6 @@ fi
 if ! command -v starship &>/dev/null; then
   echo "==> Installing Starship..."
   curl -sS https://starship.rs/install.sh | sh -s -- -y
-fi
-
-# ── fnm (Node version manager) ──────────────────────────────────
-if ! command -v fnm &>/dev/null; then
-  echo "==> Installing fnm..."
-  curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
 fi
 
 # ── zoxide ───────────────────────────────────────────────────────

@@ -102,20 +102,27 @@ end)
 -- Kyria: Ctrl+Alt is comfortable (adjacent modifiers on left hand).
 -- Ctrl+Cmd was NOT: non-adjacent on Kyria (Ctrl | Alt | Cmd | Shift).
 --
--- Detects Neovim via IS_NVIM user var or process name.
--- If Neovim is focused, keys are forwarded to Neovim.
+-- Detects Neovim via IS_NVIM user var (set by smart-splits.nvim, lazy=false).
+-- No process name fallback — get_foreground_process_name() adds 500ms+ latency.
+--
+-- Cross-boundary Neovim → WezTerm navigation uses user var signaling:
+-- Neovim sets SMART_SPLITS_MOVE=<direction> via escape sequence (instant),
+-- WezTerm reacts via user-var-changed event (no subprocess round-trip).
 
 local function is_nvim(pane)
-  local vars = pane:get_user_vars()
-  if vars and vars.IS_NVIM == "true" then
-    return true
-  end
-  local process = pane:get_foreground_process_name()
-  if process then
-    return process:find("nvim") ~= nil
-  end
-  return false
+  return pane:get_user_vars().IS_NVIM == "true"
 end
+
+-- Handle cross-boundary navigation signal from Neovim's smart-splits
+wezterm.on("user-var-changed", function(window, pane, name, value)
+  if name == "SMART_SPLITS_MOVE" and value ~= "" then
+    local dir_map = { left = "Left", right = "Right", up = "Up", down = "Down" }
+    local dir = dir_map[value]
+    if dir then
+      window:perform_action(act.ActivatePaneDirection(dir), pane)
+    end
+  end
+end)
 
 local direction_keys = {
   LeftArrow = "Left",
@@ -372,13 +379,14 @@ config.keys = {
   split_nav("move", "UpArrow"),
   split_nav("move", "RightArrow"),
 
-  -- Smart-splits: pane resize (Cmd + Ctrl + arrows)
+  -- Smart-splits: pane resize (Ctrl + Alt + arrows)
   split_nav("resize", "LeftArrow"),
   split_nav("resize", "DownArrow"),
   split_nav("resize", "UpArrow"),
   split_nav("resize", "RightArrow"),
 
-  -- Split creation (aligned with Cursor: Cmd+d / Cmd+Shift+d)
+  -- Split creation: Cmd+d / Cmd+Shift+d (standard, no conflicts)
+  -- Neovim uses Space+| / Space+- (different level: app vs editor)
   {
     key = "d",
     mods = "CMD",
@@ -429,6 +437,15 @@ config.keys = {
     mods = "CMD|SHIFT",
     action = act.QuickSelect,
   },
+
+  -- Disable Ctrl-based defaults that conflict with home-row mods (Kyria CAGS).
+  -- Tab navigation already covered by Cmd+Shift+Left/Right, new tab by Cmd+t.
+  { key = "Tab", mods = "CTRL", action = act.SendKey({ key = "Tab" }) },
+  { key = "Tab", mods = "CTRL|SHIFT", action = act.SendKey({ key = "Tab" }) },
+  { key = "t", mods = "CTRL", action = act.SendKey({ key = "t", mods = "CTRL" }) },
+  { key = "t", mods = "CTRL|SHIFT", action = act.SendKey({ key = "t", mods = "CTRL|SHIFT" }) },
+  { key = "w", mods = "CTRL", action = act.SendKey({ key = "w", mods = "CTRL" }) },
+  { key = "w", mods = "CTRL|SHIFT", action = act.SendKey({ key = "w", mods = "CTRL|SHIFT" }) },
 
   -- Resurrect: save session
   {

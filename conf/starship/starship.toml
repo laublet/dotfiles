@@ -6,6 +6,7 @@
 palette = "dracula"
 
 add_newline = false
+scan_timeout = 100
 
 # ── Left prompt: directory + separator ───────────────────────────
 format = """
@@ -62,7 +63,7 @@ deleted = "✘${count} "
 style = "bold green"
 format = "[ $version]($style) "
 detect_files = ["package.json", ".node-version", ".nvmrc"]
-detect_folders = ["node_modules"]
+detect_folders = []
 
 # ── Command duration (only if > 3s) ─────────────────────────────
 [cmd_duration]

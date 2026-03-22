@@ -34,6 +34,7 @@ if [[ "$OSTYPE" == darwin* ]]; then
   export PATH="$PATH:$HOME/.local/bin"
 
   alias c="cursor ."
+  alias ff='open -a "Firefox Developer Edition"'
 
 elif [[ "$OSTYPE" == linux* ]]; then
   # Linux (Pop!_OS / MSI)
@@ -41,11 +42,6 @@ elif [[ "$OSTYPE" == linux* ]]; then
   alias lock="i3lock -t -e -i $HOME/Pictures/lock/gg"
   alias wifi="wicd-gtk"
   alias sound="pavucontrol"
-fi
-
-# ── FNM (Node version manager) ───────────────────────────────────
-if command -v fnm &>/dev/null; then
-  eval "$(fnm env --use-on-cd --shell zsh)"
 fi
 
 # ── fzf ──────────────────────────────────────────────────────────
@@ -63,17 +59,21 @@ fi
 
 export FZF_DEFAULT_OPTS='-m --height 40% --border'
 export FZF_CTRL_T_OPTS="--preview '(bat --style=numbers --color=always {} 2>/dev/null || cat {} || tree -C {}) 2>/dev/null | head -200' --select-1 --exit-0"
-export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} 2>/dev/null || tree -C {} | head -200'"
+
+# ── atuin (shell history, replaces fzf Ctrl+R) ───────────────────
+if command -v atuin &>/dev/null; then
+  eval "$(atuin init zsh --disable-up-arrow)"
+fi
 
 # ── zoxide ───────────────────────────────────────────────────────
 if command -v zoxide &>/dev/null; then
   eval "$(zoxide init zsh)"
 fi
 
-# ── direnv ───────────────────────────────────────────────────────
-if command -v direnv &>/dev/null; then
-  eval "$(direnv hook zsh)"
+# ── mise (runtime versions + env vars, replaces fnm + direnv) ────
+if command -v mise &>/dev/null; then
+  eval "$(mise activate zsh)"
 fi
 
 # ── Aliases (shared) ─────────────────────────────────────────────
@@ -112,6 +112,57 @@ alias rgh='rg --hidden'
 alias rgn='rg --no-ignore'
 
 alias tags="ctags -R ."
+
+# ── Obsidian (vault: ~/Documents/Main) ───────────────────────────
+OBSIDIAN_VAULT="$HOME/Documents/Main"
+
+# on <name> — open or create a note by name
+on() { open "obsidian://open?vault=Main&file=$1"; }
+
+# od — open today's daily note
+alias od='open "obsidian://daily?vault=Main"'
+
+# os — fuzzy search notes, open selected in Obsidian
+os() {
+  local note
+  note=$(fd -e md . "$OBSIDIAN_VAULT" --strip-cwd-prefix -x basename {} .md \
+    | fzf --preview "bat --style=plain --color=always $OBSIDIAN_VAULT/{}.md" \
+           --preview-window 'right,60%' \
+           --prompt 'Obsidian❯ ')
+  [[ -n "$note" ]] && open "obsidian://open?vault=Main&file=$note"
+}
+
+# oq "text" — quick capture: append to today's daily note
+oq() {
+  local today=$(date +"%d-%m-%Y")
+  local file="$OBSIDIAN_VAULT/Daily/${today}.md"
+  [[ ! -f "$file" ]] && echo "# ${today}\n" > "$file"
+  echo "- $(date +%H:%M) $*" >> "$file"
+  echo "Captured to $today"
+}
+
+# oe — open vault in Neovim
+alias oe='nvim "$OBSIDIAN_VAULT"'
+
+# cheatsheets browser
+cheat() {
+  local dir="$HOME/dev/perso/dotfiles/cheatsheets"
+  local favs="$dir/.favorites"
+  local file
+  file=$({
+    [[ -f "$favs" ]] && while IFS= read -r f; do
+      [[ -f "$dir/$f" ]] && echo "★ $f"
+    done < "$favs"
+    fd -e md . "$dir" -x basename {} | sort | while IFS= read -r f; do
+      grep -qxF "$f" "$favs" 2>/dev/null || echo "  $f"
+    done
+  } | fzf --preview "bat --style=plain --color=always $dir/{2}" \
+           --preview-window 'right,70%' \
+           --prompt 'Cheatsheets❯ ' \
+           --delimiter ' ' --nth 2 \
+    | awk '{print $NF}')
+  [[ -n "$file" ]] && bat --style=plain --paging=always "$dir/$file"
+}
 
 # ── Ripgrep + fzf functions ──────────────────────────────────────
 

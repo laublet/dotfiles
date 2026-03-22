@@ -14,6 +14,7 @@ opt.mouse = "a"
 opt.fileencoding = "utf-8"
 opt.updatetime = 300
 opt.timeoutlen = 300
+opt.ttimeoutlen = 5
 
 -- Search
 opt.hlsearch = true
@@ -46,15 +47,22 @@ if not vim.g.vscode then
   opt.number = true
   opt.relativenumber = true
   opt.cursorline = true
-  opt.cursorcolumn = true
   -- Block in normal/visual; bar in insert (terminal); VSCode UI ignores this
   opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50"
   opt.signcolumn = "yes"
   opt.showmode = false
   opt.cmdheight = 1
   opt.pumheight = 10
-  opt.conceallevel = 0
+  opt.conceallevel = 2
   opt.numberwidth = 4
   opt.autoread = true
   vim.cmd([[set whichwrap+=<,>,[,],h,l]])
+
+  -- Force conceallevel for markdown (some ftplugins reset it to 0)
+  vim.api.nvim_create_autocmd("FileType", {
+    pattern = "markdown",
+    callback = function()
+      vim.opt_local.conceallevel = 2
+    end,
+  })
 end

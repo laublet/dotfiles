@@ -1,0 +1,139 @@
+// Zellij configuration — server multiplexer
+// Mirrors the local keybinding philosophy: vim nav, Dracula theme
+
+theme "dracula"
+
+default_shell "zsh"
+default_layout "default"
+
+// Reattach to existing session or create new one
+on_force_close "detach"
+session_serialization true
+pane_frames false
+
+// Mouse support (like old tmux config)
+mouse_mode true
+
+// No extra UI clutter — show bar only in normal mode
+simplified_ui true
+default_mode "normal"
+
+// Copy mode uses system clipboard
+copy_on_select true
+scrollback_editor "nvim"
+
+keybinds clear-defaults=true {
+    // ── Normal mode (default) ────────────────────────────
+    normal {
+        // Prefix: Ctrl+a (same as old tmux config)
+        bind "Ctrl a" { SwitchToMode "tmux"; }
+    }
+
+    // ── Tmux-compatible mode (Ctrl+a then key) ───────────
+    tmux {
+        // Pane creation
+        bind "v" { NewPane "Right"; SwitchToMode "Normal"; }
+        bind "b" { NewPane "Down"; SwitchToMode "Normal"; }
+        bind "x" { CloseFocus; SwitchToMode "Normal"; }
+        bind "z" { ToggleFocusFullscreen; SwitchToMode "Normal"; }
+        bind "f" { ToggleFloatingPanes; SwitchToMode "Normal"; }
+
+        // Pane navigation (vim keys)
+        bind "h" { MoveFocus "Left"; SwitchToMode "Normal"; }
+        bind "j" { MoveFocus "Down"; SwitchToMode "Normal"; }
+        bind "k" { MoveFocus "Up"; SwitchToMode "Normal"; }
+        bind "l" { MoveFocus "Right"; SwitchToMode "Normal"; }
+
+        // Pane resize (Shift+vim)
+        bind "H" { Resize "Increase Left"; }
+        bind "J" { Resize "Increase Down"; }
+        bind "K" { Resize "Increase Up"; }
+        bind "L" { Resize "Increase Right"; }
+
+        // Tab management
+        bind "c" { NewTab; SwitchToMode "Normal"; }
+        bind "n" { GoToNextTab; SwitchToMode "Normal"; }
+        bind "p" { GoToPreviousTab; SwitchToMode "Normal"; }
+        bind "1" { GoToTab 1; SwitchToMode "Normal"; }
+        bind "2" { GoToTab 2; SwitchToMode "Normal"; }
+        bind "3" { GoToTab 3; SwitchToMode "Normal"; }
+        bind "4" { GoToTab 4; SwitchToMode "Normal"; }
+        bind "5" { GoToTab 5; SwitchToMode "Normal"; }
+        bind "," { SwitchToMode "RenameTab"; TabNameInput 0; }
+
+        // Session
+        bind "d" { Detach; }
+        bind "w" { SwitchToMode "Session"; }
+
+        // Copy mode (vim-like scrollback)
+        bind "[" { SwitchToMode "Scroll"; }
+
+        // Reload config
+        bind "r" { SwitchToMode "Normal"; }
+
+        // Back to normal
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Ctrl a" { SwitchToMode "Normal"; }
+    }
+
+    // ── Scroll / copy mode ───────────────────────────────
+    scroll {
+        bind "j" { ScrollDown; }
+        bind "k" { ScrollUp; }
+        bind "Ctrl d" { HalfPageScrollDown; }
+        bind "Ctrl u" { HalfPageScrollUp; }
+        bind "Ctrl f" { PageScrollDown; }
+        bind "Ctrl b" { PageScrollUp; }
+        bind "g" { ScrollToTop; }
+        bind "G" { ScrollToBottom; }
+        bind "v" { SwitchToMode "EnterSearch"; SearchInput 0; }
+        bind "/" { SwitchToMode "EnterSearch"; SearchInput 0; }
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "q" { SwitchToMode "Normal"; }
+    }
+
+    entersearch {
+        bind "Enter" { SwitchToMode "Search"; }
+        bind "Esc" { SwitchToMode "Scroll"; }
+    }
+
+    search {
+        bind "j" { ScrollDown; }
+        bind "k" { ScrollUp; }
+        bind "n" { Search "down"; }
+        bind "N" { Search "up"; }
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "q" { SwitchToMode "Normal"; }
+    }
+
+    renametab {
+        bind "Enter" { SwitchToMode "Normal"; }
+        bind "Esc" { UndoRenameTab; SwitchToMode "Normal"; }
+    }
+
+    session {
+        bind "d" { Detach; }
+        bind "Esc" { SwitchToMode "Normal"; }
+    }
+
+    shared_except "normal" {
+        bind "Ctrl c" { SwitchToMode "Normal"; }
+    }
+}
+
+// ── Dracula theme ────────────────────────────────────────────────
+themes {
+    dracula {
+        fg "#f8f8f2"
+        bg "#282a36"
+        black "#21222c"
+        red "#ff5555"
+        green "#50fa7b"
+        yellow "#f1fa8c"
+        blue "#bd93f9"
+        magenta "#ff79c6"
+        cyan "#8be9fd"
+        white "#f8f8f2"
+        orange "#ffb86c"
+    }
+}

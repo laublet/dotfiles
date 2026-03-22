@@ -1,4 +1,4 @@
-# Server — minimal setup (vim, zsh, nvim, git, tmux)
+# Server — minimal setup (vim, zsh, nvim, git, zellij)
 
 - defaults:
     link:
@@ -18,10 +18,9 @@
     ~/.config/nvim:
       force: true
       path: conf/nvim
-    ~/.mytheme.tmuxtheme: archive/tmux/mytheme.tmuxtheme
-    ~/.home.tmuxtheme: archive/tmux/home.tmuxtheme
-    ~/.tmux.conf: archive/tmux/tmux.conf
-    ~/.ctags: archive/ctags/ctags
+    ~/.config/zellij:
+      force: true
+      path: conf/zellij
     ~/.gitconfig:
        force: true
        path: conf/git/gitconfig

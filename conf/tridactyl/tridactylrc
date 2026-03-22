@@ -1,0 +1,82 @@
+" Tridactyl config — Loïc
+" Coherent with Kyria / Neovim / WezTerm / Cursor workflow
+"
+" Install native messenger first:  :installnative
+" Then config auto-loads on Firefox start.
+" Manual reload:  :source
+
+" ── Reset ────────────────────────────────────────────────────────
+sanitise tridactyllocal tridactylsync
+
+" ── General ──────────────────────────────────────────────────────
+set smoothscroll true
+set newtab about:blank
+set editorcmd wezterm start -- nvim %f
+set searchengine google
+
+" ── Hint characters (home row only → fast 2-char combos) ─────────
+" 9 chars = 81 combos with 2 keys, enough for most pages.
+" All on Kyria home row — zero reach.
+set hintchars asdfghjkl
+
+" ── Tab navigation (J/K like vim buffers) ────────────────────────
+bind J tabprev
+bind K tabnext
+bind gJ tabmove -1
+bind gK tabmove +1
+
+" d/u already close/undo-close tab (defaults)
+
+" ── Scrolling (vim defaults, nothing to change) ──────────────────
+" j/k = scroll down/up     h/l = scroll left/right
+" gg/G = top/bottom         Ctrl-d/u = half-page down/up
+" Ctrl-f/b = full page down/up
+
+" ── History (vim-like) ───────────────────────────────────────────
+" H/L already = back/forward (defaults)
+
+" ── Hints ────────────────────────────────────────────────────────
+" f = open link             F = open link in new tab
+" ;y = yank link URL        ;p = copy element text
+" ;i = open image           ;I = open image in new tab
+" ;s = save link            ;S = save as...
+
+" ── Quick marks (gX = open, gnX = new tab) ───────────────────────
+quickmark g https://github.com
+quickmark m https://mail.google.com
+quickmark c https://calendar.google.com
+quickmark t https://todoist.com
+quickmark y https://youtube.com
+quickmark o obsidian://open?vault=Main
+
+" ── Search shortcuts (:open gh <query>) ──────────────────────────
+set searchurls.gh https://github.com/search?q=%s&type=repositories
+set searchurls.mdn https://developer.mozilla.org/en-US/search?q=%s
+set searchurls.npm https://www.npmjs.com/search?q=%s
+set searchurls.crates https://crates.io/search?q=%s
+set searchurls.yt https://www.youtube.com/results?search_query=%s
+set searchurls.w https://en.wikipedia.org/wiki/Special:Search/%s
+set searchurls.rs https://doc.rust-lang.org/std/?search=%s
+
+" ── Input mode ───────────────────────────────────────────────────
+" Ctrl+[ = Escape (vim habit)
+bind --mode=insert <C-[> composite unfocus | mode normal
+" gi = focus first input (default)
+
+" ── Obsidian Web Clipper ────────────────────────────────────────
+" ;o = trigger Obsidian Web Clipper (extension must be installed)
+bind ;o js document.querySelector('#obsidian-web-clipper-button')?.click() || browser.runtime.sendMessage("clipper@obsidian.md", {action: "clip"})
+
+" ── Passthrough (sites with their own keyboard shortcuts) ────────
+autocmd DocStart mail.google.com mode ignore
+autocmd DocStart docs.google.com mode ignore
+autocmd DocStart sheets.google.com mode ignore
+autocmd DocStart slides.google.com mode ignore
+autocmd DocStart calendar.google.com mode ignore
+autocmd DocStart notion.so mode ignore
+autocmd DocStart figma.com mode ignore
+autocmd DocStart excalidraw.com mode ignore
+autocmd DocStart todoist.com mode ignore
+
+" ── Theme ────────────────────────────────────────────────────────
+colourscheme dark

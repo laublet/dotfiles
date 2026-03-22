@@ -33,3 +33,14 @@
         fi
       description: Applying Pop Shell keybindings
       quiet: true
+
+    # Input sources: US + US-International, toggle with Ctrl+Alt+Space
+    - command: |
+        if command -v gsettings &>/dev/null; then
+          echo "Configuring input sources (US + US-International)..."
+          gsettings set org.gnome.desktop.input-sources sources "[('xkb', 'us'), ('xkb', 'us+intl')]"
+          gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Ctrl><Alt>space']"
+          gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "['<Ctrl><Alt><Shift>space']"
+        fi
+      description: Configuring input sources and toggle shortcut
+      quiet: true

@@ -28,4 +28,13 @@ vim.opt.rtp:prepend(lazypath)
 -- Load plugin specs from lua/plugins/*.lua
 require("lazy").setup("plugins", {
   change_detection = { notify = false },
+  checker = { enabled = true, notify = false },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "gzip", "matchit", "matchparen", "netrwPlugin",
+        "tarPlugin", "tohtml", "tutor", "zipPlugin",
+      },
+    },
+  },
 })

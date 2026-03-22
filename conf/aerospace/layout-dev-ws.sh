@@ -1,5 +1,5 @@
 #!/bin/bash
-# Arrange workspace 1 (Dev) in 2 columns of stacks:
+# Arrange workspace 2 (Dev) in 2 columns of stacks:
 #   Left column:  WezTerm (top) / Cursor (bottom)
 #   Right column: Firefox Dev (top) / Obsidian (bottom)
 #
@@ -8,15 +8,15 @@
 
 A=/opt/homebrew/bin/aerospace
 
-$A workspace 1
+$A workspace 2
 $A flatten-workspace-tree
 
 wid_by_bundle() {
-  $A list-windows --workspace 1 --app-bundle-id "$1" --format '%{window-id}' 2>/dev/null | head -1
+  $A list-windows --workspace 2 --app-bundle-id "$1" --format '%{window-id}' 2>/dev/null | head -1
 }
 
 wid_by_name() {
-  $A list-windows --workspace 1 --format '%{window-id}|%{app-name}' 2>/dev/null \
+  $A list-windows --workspace 2 --format '%{window-id}|%{app-name}' 2>/dev/null \
     | grep -i "$1" | head -1 | cut -d'|' -f1
 }
 
@@ -47,5 +47,5 @@ if [ -n "$ff" ] && [ -n "$obs" ]; then
   $A join-with right
 fi
 
-$A balance-sizes --workspace 1
+$A balance-sizes --workspace 2
 [ -n "$wt" ] && $A focus --window-id "$wt"

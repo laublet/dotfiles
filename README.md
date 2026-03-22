@@ -104,7 +104,7 @@ on both platforms — keyd handles the translation on Linux.
 | sd | sed | Intuitive find & replace (`sd 'from' 'to' file`) |
 | tokei | cloc | Fast code line counter by language |
 | zoxide | cd | `z` for smart directory jumping |
-| yazi | ranger/vifm | Terminal file manager, vi keys (`y`) |
+| yazi | — | Terminal file manager, vi keys (`y`) |
 | delta | — | Git diff viewer (side-by-side, Dracula theme) |
 | lazygit | — | TUI git client (`lg`) |
 | lazydocker | — | TUI Docker client (`lzd`) |

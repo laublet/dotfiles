@@ -17,15 +17,15 @@ after-login-command = [
     'exec-and-forget sleep 2 && open -a "Calendar"',
     'exec-and-forget sleep 2 && open -a "Todoist"',
 
-    # Wave 2 — 5s: dev tools (WS 1, medium weight)
+    # Wave 2 — 5s: dev tools (WS 2, medium weight)
     'exec-and-forget sleep 5 && open -a "WezTerm"',
     'exec-and-forget sleep 5 && open -a "Firefox Developer Edition"',
     'exec-and-forget sleep 5 && open -a "Obsidian"',
 
-    # Wave 3 — 12s: IDE (WS 1, heaviest)
+    # Wave 3 — 12s: IDE (WS 2, heaviest)
     'exec-and-forget sleep 12 && open -a "Cursor"',
 
-    # Wave 4 — 20s: arrange WS 1 in 2-column layout after all apps are ready
+    # Wave 4 — 20s: arrange WS 2 in 2-column layout after all apps are ready
     'exec-and-forget sleep 20 && ~/.config/aerospace/layout-dev-ws.sh',
 ]
 after-startup-command = [
@@ -222,45 +222,50 @@ if.app-id = 'com.apple.podcasts'
 check-further-callbacks = true
 run = ['move-node-to-workspace 0']
 
-# --- WS 1: Dev ---
-[[on-window-detected]]
-if.app-id = 'com.github.wez.wezterm'
-check-further-callbacks = true
-run = ['move-node-to-workspace 1']
-
-[[on-window-detected]]
-if.app-name-regex-substring = 'Cursor'
-check-further-callbacks = true
-run = ['move-node-to-workspace 1']
-
-[[on-window-detected]]
-if.app-id = 'org.mozilla.firefoxdeveloperedition'
-check-further-callbacks = true
-run = ['move-node-to-workspace 1']
-
-[[on-window-detected]]
-if.app-id = 'md.obsidian'
-check-further-callbacks = true
-run = ['move-node-to-workspace 1']
-
-[[on-window-detected]]
-if.app-id = 'com.anthropic.claudefordesktop'
-check-further-callbacks = true
-run = ['move-node-to-workspace 1']
-
-# --- WS 2: Work / Comms ---
+# --- WS 1: Work / Comms ---
 [[on-window-detected]]
 if.app-id = 'com.tinyspeck.slackmacgap'
 check-further-callbacks = true
-run = ['move-node-to-workspace 2']
+run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
 check-further-callbacks = true
-run = ['move-node-to-workspace 2']
+run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
 if.app-id = 'org.whispersystems.signal-desktop'
+check-further-callbacks = true
+run = ['move-node-to-workspace 1']
+
+[[on-window-detected]]
+if.app-id = 'org.mozilla.Thunderbird'
+check-further-callbacks = true
+run = ['move-node-to-workspace 1']
+
+# --- WS 2: Dev ---
+[[on-window-detected]]
+if.app-id = 'com.github.wez.wezterm'
+check-further-callbacks = true
+run = ['move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-name-regex-substring = 'Cursor'
+check-further-callbacks = true
+run = ['move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-id = 'org.mozilla.firefoxdeveloperedition'
+check-further-callbacks = true
+run = ['move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-id = 'md.obsidian'
+check-further-callbacks = true
+run = ['move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-id = 'com.anthropic.claudefordesktop'
 check-further-callbacks = true
 run = ['move-node-to-workspace 2']
 

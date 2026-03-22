@@ -7,12 +7,29 @@ return {
     { "<leader>f", function() require("fzf-lua").files() end, desc = "Find files" },
     { "<leader>g", function() require("fzf-lua").live_grep_native() end, desc = "Live grep" },
     { "<leader>b", function() require("fzf-lua").buffers() end, desc = "Buffers" },
-    { "<leader>o", function() require("fzf-lua").oldfiles() end, desc = "Recent files" },
+    { "<leader>r", function() require("fzf-lua").oldfiles() end, desc = "Recent files" },
     { "<leader>/", function() require("fzf-lua").grep_curbuf() end, desc = "Search in buffer" },
     { "<leader>s", function() require("fzf-lua").lsp_document_symbols() end, desc = "Document symbols" },
     { "<leader>S", function() require("fzf-lua").lsp_workspace_symbols() end, desc = "Workspace symbols" },
     { "<leader>:", function() require("fzf-lua").command_history() end, desc = "Command history" },
-    { "<leader>?", function() require("fzf-lua").keymaps() end, desc = "Keymaps (cheatsheet)" },
+    { "<leader>?", function() require("fzf-lua").keymaps() end, desc = "Keymaps" },
+    {
+      "<leader>H",
+      function()
+        require("fzf-lua").files({
+          cwd = vim.fn.expand("~/dev/perso/dotfiles/cheatsheets"),
+          prompt = "Cheatsheets❯ ",
+          actions = {
+            ["default"] = function(selected)
+              local file = selected[1]:match("[^%s]+$") or selected[1]
+              local path = vim.fn.expand("~/dev/perso/dotfiles/cheatsheets/") .. file
+              vim.cmd("edit " .. vim.fn.fnameescape(path))
+            end,
+          },
+        })
+      end,
+      desc = "Cheatsheets",
+    },
   },
   config = function()
     -- Workaround: Neovim 0.11 has a bug with require() in -l (script) mode

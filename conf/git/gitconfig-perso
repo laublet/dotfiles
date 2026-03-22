@@ -1,0 +1,8 @@
+[user]
+  email = dev@loicaublet.com
+  name = Loïc Aublet
+  signingkey = 4693CD38D1F1F0EB
+[commit]
+	gpgsign = true
+[gpg]
+	program = gpg

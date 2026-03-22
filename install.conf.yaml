@@ -14,6 +14,12 @@
       path: conf/git/gitconfig
     ~/.gitignore:
       path: conf/git/gitignore
+    ~/dev/perso/.gitconfig-perso:
+      path: conf/git/gitconfig-perso
+
+    # ssh (config only — keys are NOT tracked)
+    ~/.ssh/config:
+      path: conf/ssh/config
 
     # neovim
     ~/.config/nvim:

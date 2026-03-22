@@ -7,6 +7,8 @@ return {
       { "<leader>h", group = "git hunk" },
       { "<leader>l", group = "lsp" },
       { "<leader>o", group = "obsidian" },
+      { "<leader>?", desc = "keymaps" },
+      { "<leader>H", desc = "cheatsheets" },
     },
   },
 }

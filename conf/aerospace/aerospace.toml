@@ -196,8 +196,8 @@ l = ['exec-and-forget ~/.config/aerospace/layout-dev-ws.sh', 'mode main']
 # Manual override: cmd-alt-shift-N to move a window wherever you want.
 #
 # WS 0 — Dashboard / Planning
-# WS 1 — Dev (main workspace)
-# WS 2 — Work / Comms
+# WS 1 — Work / Comms
+# WS 2 — Dev (main workspace)
 # WS 3 — Test / Browse
 # WS 4 — Settings (secondary monitor / Mac screen)
 
@@ -256,6 +256,11 @@ run = ['move-node-to-workspace 2']
 
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
+check-further-callbacks = true
+run = ['move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-id = 'org.whispersystems.signal-desktop'
 check-further-callbacks = true
 run = ['move-node-to-workspace 2']
 

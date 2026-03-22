@@ -30,6 +30,7 @@ just
 | Editor (standalone) | Neovim | Neovim |
 | Editor (server) | Vim (minimal) | Vim (minimal) |
 | Multiplexer (server) | Zellij | Zellij |
+| Email | Thunderbird (tbkeys-lite) | Thunderbird (tbkeys-lite) |
 | Notes | Obsidian (vim mode) | Obsidian (vim mode) |
 | Shell | zsh + Prezto + Starship | zsh + Prezto + Starship |
 | Theme | Dracula everywhere | Dracula everywhere |
@@ -227,7 +228,8 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 └── conf/
     ├── aerospace/         # Tiling WM (macOS)
     ├── cursor/            # Keybindings + settings
-    ├── git/               # gitconfig + gitignore
+    ├── git/               # gitconfig + gitignore + gitconfig-perso
+    ├── ssh/               # SSH config (NO keys — keys are secrets)
     ├── nvim/              # Neovim (lazy.nvim, shared with Cursor)
     ├── obsidian/          # Obsidian vim bindings
     ├── keyd/              # macOS-like modifier remapping (Linux)
@@ -239,3 +241,15 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
     ├── zellij/            # Multiplexer config (server, Dracula theme)
     └── zsh/               # zshrc + Prezto
 ```
+
+## Security
+
+**Never commit secrets to this repo.** Files that must stay out:
+
+- `~/.ssh/*` private keys (`github_perso`, `gitlab_pro`, etc.)
+- `~/.ssh/*.pub` public keys (fingerprint exposure)
+- `~/.gnupg/` (GPG private keys, trust DB)
+- `~/dev/work/.gitconfig-work` (work identity, employer info)
+- `.env`, credentials, tokens, API keys
+
+Only configuration (paths, hostnames, key IDs) goes in the repo — never the actual key material.

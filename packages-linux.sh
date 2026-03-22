@@ -179,6 +179,7 @@ if command -v flatpak &>/dev/null; then
     org.videolan.VLC \
     com.todoist.Todoist \
     com.getpostman.Postman \
+    org.mozilla.Thunderbird \
     us.zoom.Zoom \
     2>/dev/null || true
 fi

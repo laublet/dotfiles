@@ -282,5 +282,5 @@ run = ['move-node-to-workspace 4']
 
 # --- Always floating (popups, utilities) ---
 [[on-window-detected]]
-if.app-id = 'io.github.hluk.CopyQ'
+if.app-id = 'org.p0deje.Maccy'
 run = ['layout floating']

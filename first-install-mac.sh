@@ -18,7 +18,7 @@ brew install bitwarden
 
 # Install Casks
 brew install --cask nikitabobko/tap/aerospace
-brew install --cask chatgpt copyq cursor choosy discord docker-desktop firefox firefox@developer-edition google-chrome obsidian postman raycast slack steermouse todoist wezterm zoom
+brew install --cask chatgpt cursor choosy discord docker-desktop firefox firefox@developer-edition google-chrome maccy obsidian postman raycast slack steermouse todoist wezterm zoom
 
 brew install --cask aws-vpn-client
 

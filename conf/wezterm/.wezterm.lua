@@ -89,14 +89,30 @@ config.cursor_blink_ease_out = "Constant"
 -- Scrollback
 config.scrollback_lines = 50000
 
--- Maximize on startup
+-- Maximize on startup + macOS dev layout
+local is_mac = (wezterm.target_triple or ""):find("apple") ~= nil
+
 wezterm.on("gui-startup", function(cmd)
-  local btm_tab, _, window = mux.spawn_window({ args = { "btm" } })
-  btm_tab:set_title("btm")
-  local work_tab = window:spawn_tab({ cwd = wezterm.home_dir .. "/dev/work/blank" })
-  local perso_tab = window:spawn_tab({ cwd = wezterm.home_dir .. "/dev/perso" })
-  work_tab:activate()
-  window:gui_window():maximize()
+  if is_mac then
+    local btop_tab, _, window = mux.spawn_window({ args = { "btop" } })
+    btop_tab:set_title("btop")
+
+    local work_dir = wezterm.home_dir .. "/dev/work/blank"
+    local work_tab, work_pane, _ = window:spawn_tab({ cwd = work_dir })
+    work_pane:split({ direction = "Right", cwd = work_dir })
+    work_pane:send_text("nvim\n")
+
+    local perso_dir = wezterm.home_dir .. "/dev/perso"
+    local perso_tab, perso_pane, _ = window:spawn_tab({ cwd = perso_dir })
+    perso_pane:split({ direction = "Right", cwd = perso_dir })
+    perso_pane:send_text("nvim\n")
+
+    work_tab:activate()
+    window:gui_window():maximize()
+  else
+    local _, _, window = mux.spawn_window(cmd or {})
+    window:gui_window():maximize()
+  end
 end)
 
 -- =============================================================================

@@ -24,6 +24,8 @@ zle -N zle-line-init
 
 # ── Editor ───────────────────────────────────────────────────────
 export EDITOR=nvim
+export VISUAL=nvim
+export SUDO_EDITOR=nvim
 export GPG_TTY=$(tty)
 
 # ── Secrets (tokens, API keys — never version this file) ─────────

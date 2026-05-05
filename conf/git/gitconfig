@@ -3,7 +3,7 @@
 [includeIf "gitdir:~/dev/work/**"]
     path = ~/dev/work/.gitconfig-work
 [core]
-	editor = vim
+	editor = nvim
 	excludesFile = ~/.gitignore
 	pager = delta
 [interactive]
@@ -18,6 +18,6 @@
 	tool = fugitive
 	conflictstyle = zdiff3
 [mergetool "fugitive"]
-	cmd = vim -f -c \"Gvdiff\" \"$MERGED\":
+	cmd = nvim -f -c \"Gvdiff\" \"$MERGED\":
 [diff]
 	colorMoved = default

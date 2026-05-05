@@ -1,4 +1,4 @@
-# lazygit config
+# https://github.com/jesseduffield/lazygit
 # Docs: https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
 
 gui:
@@ -12,8 +12,7 @@ gui:
       - "#44475a"
   showIcons: true
   nerdFontsVersion: "3"
-
 git:
-  paging:
-    colorArg: always
-    pager: delta --dark --paging=never
+  pagers:
+    - colorArg: always
+      pager: delta --dark --paging=never

@@ -1,0 +1,197 @@
+// https://zed.dev/docs/key-bindings
+// Zed keymap v1 — Loïc
+// Mirrors Cursor v6 + Neovim leader layer. base_keymap = "Cursor" handles
+// most Cmd-prefixed editor bindings (Cmd+P, Cmd+Shift+P, Cmd+B, Cmd+J, etc.).
+//
+// Architecture (consistent with Cursor v6 / WezTerm / Neovim):
+//   Pane / dock nav     → Ctrl + arrows (sidebar ← editor → AI, terminal ↕ editor)
+//                          Zed unifies docks + splits in one pane tree, so a
+//                          single ActivatePane{Left,Right,Up,Down} call walks
+//                          everything (no separate zone vs split tier needed).
+//   Tab switching       → Cmd + Shift + left/right (editor + terminal tabs)
+//   Tab reorder         → Cmd + Alt + left/right (pane::SwapItem*)
+//   Split creation      → Cmd+d (right), Cmd+Shift+d (down)
+//   AI accept / reject  → Cmd+Shift+Enter (keep all) / Cmd+Shift+Backspace (reject all)
+//   Leader layer        → Space + key (vim normal mode, mirrors Neovim)
+//     space e  explorer    space f  file finder    space g  search in files
+//     space t  terminal    space v  git panel      space c  AI agent
+//     space b  buffers     space d  debugger       space w  save
+//     space q  close       space z  zen / center
+//
+// Spatial model:
+//   [ProjectPanel] ←Ctrl+Left— [Editor] —Ctrl+Right→ [AgentPanel]
+//                                  ↕ Ctrl+Down / Ctrl+Up
+//                              [Terminal]
+//
+// Quick discovery:
+//   - `dev: open key context view` (cmd palette) shows the active context tree.
+//   - `zed: open default keymap` shows all defaults you may want to override.
+[
+  // =========================================================================
+  // Pane / dock navigation — Ctrl + arrows (works editor ↔ docks ↔ splits)
+  // =========================================================================
+  {
+    "bindings": {
+      "ctrl-left": "workspace::ActivatePaneLeft",
+      "ctrl-right": "workspace::ActivatePaneRight",
+      "ctrl-up": "workspace::ActivatePaneUp",
+      "ctrl-down": "workspace::ActivatePaneDown"
+    }
+  },
+
+  // =========================================================================
+  // Tab switching — Cmd + Shift + left/right
+  // =========================================================================
+  {
+    "context": "Pane",
+    "bindings": {
+      "cmd-shift-left": "pane::ActivatePreviousItem",
+      "cmd-shift-right": "pane::ActivateNextItem"
+    }
+  },
+
+  // =========================================================================
+  // Tab reorder within group — Cmd + Alt + left/right
+  // =========================================================================
+  {
+    "context": "Pane",
+    "bindings": {
+      "cmd-alt-left": "pane::SwapItemLeft",
+      "cmd-alt-right": "pane::SwapItemRight"
+    }
+  },
+
+  // =========================================================================
+  // Splits — Cmd+d (right) / Cmd+Shift+d (down) — same as WezTerm / Cursor
+  // =========================================================================
+  {
+    "context": "Editor",
+    "bindings": {
+      "cmd-d": "pane::SplitRight",
+      "cmd-shift-d": "pane::SplitDown"
+    }
+  },
+
+  // =========================================================================
+  // Save — Cmd+S and Ctrl+S
+  // =========================================================================
+  {
+    "bindings": {
+      "ctrl-s": "workspace::Save"
+    }
+  },
+
+  // =========================================================================
+  // Vim normal mode — leader layer (Space + key)
+  // Mirrors Neovim keymaps.lua and Cursor's leader layer.
+  // =========================================================================
+  {
+    "context": "Editor && vim_mode == normal && !VimWaiting && !menu",
+    "bindings": {
+      // Files & navigation
+      "space e": "project_panel::ToggleFocus",
+      "space f": "file_finder::Toggle",
+      "space p p": "file_finder::Toggle",
+      "space g": "pane::DeploySearch",
+      "space b": "tab_switcher::Toggle",
+
+      // Zones / panels
+      "space t": "terminal_panel::ToggleFocus",
+      "space v": "git_panel::ToggleFocus",
+      "space c": "agent::ToggleFocus",
+      "space d": "debug_panel::ToggleFocus",
+
+      // Actions
+      "space w": "workspace::Save",
+      "space q": "pane::CloseActiveItem",
+      "space z": "workspace::ToggleCenteredLayout",
+
+      // Splits (alternative to Cmd+d, mirrors Neovim <leader>| / <leader>-)
+      "space \\": "pane::SplitRight",
+      "space -": "pane::SplitDown",
+      "space x": "pane::CloseActiveItem"
+    }
+  },
+
+  // =========================================================================
+  // Vim — empty pane fallback (so leader still works when no editor is open)
+  // =========================================================================
+  {
+    "context": "EmptyPane || SharedScreen",
+    "bindings": {
+      "space e": "project_panel::ToggleFocus",
+      "space f": "file_finder::Toggle",
+      "space g": "pane::DeploySearch",
+      "space t": "terminal_panel::ToggleFocus",
+      "space v": "git_panel::ToggleFocus",
+      "space c": "agent::ToggleFocus"
+    }
+  },
+
+  // =========================================================================
+  // Vim — LSP shortcuts (gd / gi / gr / gh) — Zed already provides g d / g I /
+  // g A / g h via vim mode core; explicit aliases here keep parity with Neovim.
+  // =========================================================================
+  {
+    "context": "Editor && vim_mode == normal && !VimWaiting",
+    "bindings": {
+      "g r": "editor::FindAllReferences",
+      "g i": "editor::GoToImplementation"
+    }
+  },
+
+  // =========================================================================
+  // AI agent — accept / reject edits (Zed AgentDiff context)
+  // Action names verified against assets/keymaps/default-macos.json.
+  // Keep / Reject all live on AgentDiff (when reviewing inline edits).
+  // =========================================================================
+  {
+    "context": "AgentDiff",
+    "bindings": {
+      "cmd-shift-enter": "agent::KeepAll",
+      "cmd-shift-backspace": "agent::RejectAll"
+    }
+  },
+  {
+    "context": "Editor && editor_agent_diff",
+    "bindings": {
+      "cmd-shift-enter": "agent::KeepAll",
+      "cmd-shift-backspace": "agent::RejectAll"
+    }
+  },
+
+  // =========================================================================
+  // Terminal — match WezTerm muscle memory
+  // =========================================================================
+  {
+    "context": "Terminal",
+    "bindings": {
+      "cmd-t": "workspace::NewTerminal",
+      "cmd-w": "pane::CloseActiveItem",
+      "cmd-d": "pane::SplitRight",
+      "cmd-shift-d": "pane::SplitDown"
+    }
+  },
+
+  // =========================================================================
+  // Project panel — vim-style file tree (mirrors Neovim neo-tree feel)
+  // =========================================================================
+  {
+    "context": "ProjectPanel && not_editing",
+    "bindings": {
+      "h": "project_panel::CollapseSelectedEntry",
+      "l": "project_panel::ExpandSelectedEntry",
+      "j": "menu::SelectNext",
+      "k": "menu::SelectPrev",
+      "o": "project_panel::Open",
+      "a": "project_panel::NewFile",
+      "shift-a": "project_panel::NewDirectory",
+      "r": "project_panel::Rename",
+      "d": "project_panel::Delete",
+      "x": "project_panel::Cut",
+      "c": "project_panel::Copy",
+      "p": "project_panel::Paste",
+      "?": "project_panel::ToggleFocus"
+    }
+  }
+]

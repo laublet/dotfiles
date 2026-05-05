@@ -10,12 +10,13 @@ just bootstrap         # full setup: packages + dotfiles
 just link              # re-link dotfiles only (detects OS)
 
 # ── Servers ─────────────────────────────────────────
-just server            # minimal: vim, zsh, git, zellij, starship
-just homeserver        # minimal + neovim, lazygit, docker, dev tools
+just server            # dotfiles: vim, zsh, git, zellij, starship
+just homeserver        # same dotfiles as server (see packages-homeserver for Docker)
 
 # ── Package install by profile (Linux only) ─────────
-just packages-minimal     # server basics
-just packages-homeserver  # + dev tools
+just packages-minimal     # headless server (Debian/ARM-safe)
+just packages-server      # same as packages-minimal
+just packages-homeserver  # server + Docker + btop
 just packages             # full desktop (default)
 
 # ── List all tasks ──────────────────────────────────
@@ -25,21 +26,18 @@ just
 ### Profiles
 
 ```
-Minimal Server        Home Server          Pop!_OS Desktop
-  vim                   + neovim (lazy)      + WezTerm
-  zsh + prezto          + lazygit            + Cursor
-  starship              + lazydocker         + Obsidian
-  git + delta           + btop               + Albert (launcher)
-  zellij                + atuin              + GPaste (clipboard)
-  bat, eza, fd          + yazi               + keyd (modifier remap)
-  fzf, ripgrep          + docker, mise       + FiraCode Nerd Font
-  zoxide, tlrc          + dust, sd, procs    + Signal, Slack, VLC…
-                        + tokei, ouch, just
-                        + glow
+Headless server       Home server (packages)   Pop!_OS Desktop
+  vim, zsh, git       + Docker, btop           + WezTerm
+  starship            (dotfiles = same         + Cursor
+  zellij, tmux, mosh   as server)              + Obsidian
+  bat, eza, fd                                   + Albert (launcher)
+  fzf, ripgrep                                   + Maccy / Greenclip
+  zoxide                                         + keyd, fonts, apps…
 ```
 
-Each profile is layered — home server includes everything from minimal,
-desktop includes everything from home server.
+`packages-homeserver` layers on `packages-server` (Docker + btop). Optional
+Neovim/yazi/lazygit-style configs remain in `server/install-full.conf.yaml`
+for manual Dotbot if needed on a dev machine.
 
 ## Architecture
 
@@ -47,6 +45,8 @@ desktop includes everything from home server.
 
 | Layer | macOS | Linux (Pop!_OS) |
 |-------|-------|-----------------|
+| Launcher | Albert | Rofi |
+| Clipboard | Maccy | Greenclip + Rofi |
 | Window manager | AeroSpace | Pop Shell (GNOME) |
 | Terminal | WezTerm | WezTerm |
 | Editor (IDE) | Cursor (vscode-neovim) | Cursor (vscode-neovim) |
@@ -176,26 +176,32 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 
 | Key | Action | Plugin |
 |-----|--------|--------|
-| `f` | Find file | fzf-lua |
-| `g` | Live grep | fzf-lua |
+| `Ctrl+P` | Quick open files (same as `pp`) | fzf-lua |
+| `pp` | Find files (default) | fzf-lua |
+| `pH` / `pI` / `pd` / `pf` / `pg` | Find variants (hidden, no ignore, dirs, files only, glob) | fzf-lua |
+| `ff` | Live grep (project) | fzf-lua |
+| `fi` / `fw` / `fh` / `fn` / `fF` / `fg` / `fr` | Grep variants (see `ripgrep.md`) | fzf-lua |
+| `f/` / `/` | Search in buffer | fzf-lua |
+| `gg` | Lazygit | — |
+| `gs` / `gc` / `gb` / `gf` | Git status / commits / branches / tracked files | fzf-lua |
 | `b` | Buffers | fzf-lua |
-| `o` | Recent files | fzf-lua |
-| `/` | Search in buffer | fzf-lua |
+| `r` | Recent files (MRU); with LSP buffer: rename symbol | fzf-lua / LSP |
 | `s` | Document symbols | fzf-lua |
 | `e` | Toggle file tree | neo-tree |
 | `E` | Reveal in tree | neo-tree |
 | `d` | Diagnostics (workspace) | trouble |
 | `D` | Diagnostics (buffer) | trouble |
-| `r` | Rename symbol | LSP |
-| `a` | Code action | LSP |
+| `la` | Code action | LSP |
 | `lf` | Format buffer | conform |
 | `t` | Floating terminal | — |
-| `lg` | Lazygit | — |
+| `lg` | Toggle LTeX grammar | ltex |
+| `c` | Clear search highlight (`:noh`) | — |
 | `w` | Save | — |
 | `q` | Close buffer | — |
 | `z` | Zoom toggle | — |
 | `?` | Keymaps cheatsheet | fzf-lua |
 | `H` | CLI cheatsheets | fzf-lua |
+| `K` | Keymaps hub + navigation sheet | fzf-lua |
 
 ### Neovim navigation (no leader)
 

@@ -4,7 +4,8 @@
   "editor:focus-top":   [{"modifiers": ["Ctrl"], "key": "ArrowUp"}],
   "editor:focus-bottom":[{"modifiers": ["Ctrl"], "key": "ArrowDown"}],
 
-  "file-explorer:reveal-active-file": [{"modifiers": ["Ctrl", "Shift"], "key": "ArrowLeft"}],
+  "notebook-navigator:reveal-file": [{"modifiers": ["Ctrl", "Shift"], "key": "ArrowLeft"}],
+  "notebook-navigator:open": [{"modifiers": ["Mod", "Shift"], "key": "E"}],
 
   "workspace:split-vertical":   [{"modifiers": ["Mod"], "key": "D"}],
   "workspace:split-horizontal": [{"modifiers": ["Mod", "Shift"], "key": "D"}],
@@ -12,7 +13,7 @@
   "workspace:close":        [{"modifiers": ["Mod"], "key": "W"}],
   "workspace:next-tab":     [{"modifiers": ["Mod", "Shift"], "key": "ArrowRight"}],
   "workspace:previous-tab": [{"modifiers": ["Mod", "Shift"], "key": "ArrowLeft"}],
-  "file-explorer:new-file": [{"modifiers": ["Mod"], "key": "T"}],
+  "notebook-navigator:new-note": [{"modifiers": ["Mod"], "key": "T"}],
 
   "workspace:goto-tab-1": [{"modifiers": ["Mod"], "key": "1"}],
   "workspace:goto-tab-2": [{"modifiers": ["Mod"], "key": "2"}],
@@ -24,12 +25,11 @@
   "workspace:goto-tab-8": [{"modifiers": ["Mod"], "key": "8"}],
   "workspace:goto-last-tab": [{"modifiers": ["Mod"], "key": "9"}],
 
-  "app:toggle-left-sidebar":  [{"modifiers": ["Mod"], "key": "E"}],
-  "app:toggle-right-sidebar": [{"modifiers": ["Mod", "Shift"], "key": "E"}],
+  "notebook-navigator:toggle-left-sidebar": [{"modifiers": ["Mod"], "key": "E"}],
+  "app:toggle-right-sidebar": [{"modifiers": ["Mod", "Shift"], "key": "R"}],
 
   "switcher:open":        [{"modifiers": ["Mod"], "key": "P"}],
   "command-palette:open": [{"modifiers": ["Mod", "Shift"], "key": "P"}],
-  "global-search:open":   [{"modifiers": ["Mod", "Shift"], "key": "F"}],
 
   "templater-obsidian:create-new-note-from-template": [{"modifiers": ["Mod", "Shift"], "key": "N"}]
 }

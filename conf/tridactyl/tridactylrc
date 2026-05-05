@@ -1,3 +1,4 @@
+" https://github.com/tridactyl/tridactyl
 " Tridactyl config — Loïc
 " Coherent with Kyria / Neovim / WezTerm / Cursor workflow
 "
@@ -9,6 +10,7 @@
 sanitise tridactyllocal tridactylsync
 
 " ── General ──────────────────────────────────────────────────────
+set configpath ~/.config/tridactyl/tridactylrc
 set smoothscroll true
 set newtab about:blank
 set editorcmd wezterm start -- nvim %f
@@ -77,7 +79,29 @@ autocmd DocStart notion.so mode ignore
 autocmd DocStart figma.com mode ignore
 autocmd DocStart excalidraw.com mode ignore
 autocmd DocStart todoist.com mode ignore
+
+" ── YouTube ─────────────────────────────────────────────────────
+" Mode ignore + bindings tridactyl sélectifs
+" Toutes les touches non bindées passent à YouTube (< > j k space etc.)
+" DocStart = chargement initial; UriChange = navigations SPA (sans reload) sinon
+" mode ignore ne se réapplique pas → g/F captés par Tridactyl au lieu de la page
 autocmd DocStart youtube.com mode ignore
+autocmd UriChange youtube.com mode ignore
+
+" Garder les commandes tridactyl utiles en mode ignore sur YouTube
+" Majuscules et préfixes pour éviter conflits avec champs de texte
+bindurl youtube.com --mode=ignore ;f hint
+bindurl youtube.com --mode=ignore ;F hint -t
+bindurl youtube.com --mode=ignore J tabprev
+bindurl youtube.com --mode=ignore K tabnext
+bindurl youtube.com --mode=ignore H back
+bindurl youtube.com --mode=ignore L forward
+bindurl youtube.com --mode=ignore D tabclose
+bindurl youtube.com --mode=ignore U undo
+bindurl youtube.com --mode=ignore gg scrollto 0
+bindurl youtube.com --mode=ignore G scrollto 100
+bindurl youtube.com --mode=ignore : fillcmdline_notrail
+bindurl youtube.com --mode=ignore yy clipboard yank
 
 " ── Theme ────────────────────────────────────────────────────────
 colourscheme dark

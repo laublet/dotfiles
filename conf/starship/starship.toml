@@ -7,6 +7,8 @@ palette = "dracula"
 
 add_newline = false
 scan_timeout = 100
+# Prevent sporadic timeout on external version commands (e.g. mise node)
+command_timeout = 2_000
 
 # ── Left prompt: directory + separator ───────────────────────────
 format = """

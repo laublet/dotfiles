@@ -1,0 +1,176 @@
+// https://zed.dev/docs/configuring-zed
+// Zed settings — Loïc
+// Mirrors the Cursor + Neovim feel: Dracula, vim mode, leader layer in keymap.json.
+// Keymap architecture (full reference): see conf/zed/keymap.json header.
+{
+  // =========================================================================
+  // Session / workspace
+  // =========================================================================
+  "cli_default_open_behavior": "new_window",
+  "session": {
+    "trust_all_worktrees": true
+  },
+  "restore_on_startup": "last_session",
+
+  // =========================================================================
+  // Appearance
+  // =========================================================================
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "Dracula"
+  },
+  "icon_theme": "Zed (Default)",
+  "ui_font_size": 16,
+  "buffer_font_family": "FiraCode Nerd Font",
+  "buffer_font_size": 16.0,
+  "buffer_font_features": {
+    "calt": true,
+    "liga": true
+  },
+  "auto_install_extensions": {
+    "dracula": true
+  },
+
+  // =========================================================================
+  // Editor — General
+  // =========================================================================
+  "tab_size": 2,
+  "format_on_save": "on",
+  "ensure_final_newline_on_save": true,
+  "remove_trailing_whitespace_on_save": true,
+  "code_actions_on_format": {
+    "source.organizeImports": true,
+    "source.fixAll": true
+  },
+  "autosave": {
+    "after_delay": {
+      "milliseconds": 1000
+    }
+  },
+  "show_edit_predictions": true,
+  "edit_predictions": {
+    "mode": "subtle"
+  },
+
+  // =========================================================================
+  // Gutter / numbers (mirror Neovim: relative numbers)
+  // =========================================================================
+  "relative_line_numbers": "enabled",
+  "gutter": {
+    "line_numbers": true
+  },
+
+  // =========================================================================
+  // Vim mode (custom maps live in keymap.json)
+  // =========================================================================
+  "vim_mode": true,
+  "base_keymap": "Cursor",
+  "vim": {
+    "use_smartcase_find": true,
+    "toggle_relative_line_numbers": true,
+    "highlight_on_yank_duration": 150
+  },
+
+  // =========================================================================
+  // Status bar (Cursor hides it; Zed status bar shows vim mode + LSP — keep it)
+  // =========================================================================
+  "status_bar": {
+    "experimental.show": false
+  },
+
+  // =========================================================================
+  // Tabs / panels
+  // =========================================================================
+  "tabs": {
+    "git_status": true,
+    "file_icons": true
+  },
+  "tab_bar": {
+    "show_nav_history_buttons": false
+  },
+  "project_panel": {
+    "dock": "left",
+    "default_width": 260,
+    "auto_reveal_entries": true,
+    "git_status": true
+  },
+  "outline_panel": {
+    "dock": "left"
+  },
+  "agent": {
+    "dock": "right",
+    "default_width": 480
+  },
+  "git_panel": {
+    "dock": "left"
+  },
+  "terminal": {
+    "dock": "bottom",
+    "copy_on_select": false,
+    "shell": "system",
+    "font_family": "FiraCode Nerd Font",
+    "blinking": "off"
+  },
+
+  // =========================================================================
+  // Git
+  // =========================================================================
+  "git": {
+    "inline_blame": {
+      "enabled": true,
+      "delay_ms": 500
+    },
+    "git_gutter": "tracked_files"
+  },
+
+  // =========================================================================
+  // LSP / inlays
+  // =========================================================================
+  "inlay_hints": {
+    "enabled": false,
+    "show_type_hints": true,
+    "show_parameter_hints": true,
+    "show_other_hints": true
+  },
+  "diagnostics": {
+    "include_warnings": true
+  },
+
+  // =========================================================================
+  // Languages — formatters mirror Cursor (.prettier for ts/json/yaml)
+  // =========================================================================
+  "languages": {
+    "TypeScript": {
+      "formatter": "prettier",
+      "code_actions_on_format": {
+        "source.organizeImports": true,
+        "source.fixAll": true
+      }
+    },
+    "TSX": {
+      "formatter": "prettier"
+    },
+    "JavaScript": {
+      "formatter": "prettier"
+    },
+    "JSON": {
+      "formatter": "prettier"
+    },
+    "YAML": {
+      "formatter": "prettier"
+    },
+    "Markdown": {
+      "format_on_save": "off",
+      "soft_wrap": "editor_width"
+    }
+  },
+
+  // =========================================================================
+  // Telemetry
+  // =========================================================================
+  "telemetry": {
+    "diagnostics": false,
+    "metrics": false
+  }
+}

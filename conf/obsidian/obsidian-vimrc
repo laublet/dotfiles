@@ -1,3 +1,4 @@
+" https://github.com/esm7/obsidian-vimrc-support
 " .obsidian.vimrc — Loïc
 " Aligné sur l'architecture keybindings arrows-only
 " Plugin requis : obsidian-vimrc-support
@@ -49,17 +50,17 @@ nmap <Space>q :closeTab
 exmap globalSearch obcommand global-search:open
 nmap <Space>g :globalSearch
 
-exmap searchReplace obcommand editor:open-search-replace
-nmap <Space>r :searchReplace
-
 " --- Sidebar / zones ---
-exmap toggleLeftSidebar obcommand app:toggle-left-sidebar
+exmap toggleLeftSidebar obcommand notebook-navigator:toggle-left-sidebar
 nmap <Space>e :toggleLeftSidebar
 
-exmap toggleRightSidebar obcommand app:toggle-right-sidebar
-nmap <Space>E :toggleRightSidebar
+exmap focusNavigator obcommand notebook-navigator:open
+nmap <Space>E :focusNavigator
 
-exmap revealFile obcommand file-explorer:reveal-active-file
+exmap toggleRightSidebar obcommand app:toggle-right-sidebar
+nmap <Space>r :toggleRightSidebar
+
+exmap revealFile obcommand notebook-navigator:reveal-file
 nmap <Space>R :revealFile
 
 " --- Navigation notes ---
@@ -134,5 +135,5 @@ nmap zR :unfoldAll
 "
 " Les splits (Cmd+D / Cmd+Shift+D) sont aussi dans hotkeys.json.
 "
-" Ce fichier gère uniquement ce qui se passe DANS l'éditeur (vim motions,
-" leader layer, navigation notes). La couche "zones" est dans les hotkeys Obsidian.
+" Ce fichier gère surtout l'éditeur (vim motions, leader, navigation notes).
+" Navigation sidebar : Cmd+Shift+E (focus navigator), Cmd+Shift+R (toggle right).

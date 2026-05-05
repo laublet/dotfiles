@@ -1,3 +1,4 @@
+# https://github.com/anishathalye/dotbot
 # Shared dotfiles — linked on all platforms (macOS, Linux, server)
 # OS-specific links live in install-mac.conf.yaml / install-linux.conf.yaml
 
@@ -53,6 +54,9 @@
     ~/dev/perso/vaults/Main/.obsidian/community-plugins.json:
       force: true
       path: conf/obsidian/community-plugins.json
+    ~/dev/perso/vaults/Main/.obsidian/plugins/notebook-navigator/data.json:
+      force: true
+      path: conf/obsidian/notebook-navigator.json
 
     # tridactyl (Firefox)
     ~/.config/tridactyl/tridactylrc:
@@ -63,6 +67,16 @@
     ~/.config/wezterm/wezterm.lua:
       create: true
       path: conf/wezterm/.wezterm.lua
+
+    # zed (XDG on macOS + Linux)
+    ~/.config/zed/settings.json:
+      create: true
+      force: true
+      path: conf/zed/settings.json
+    ~/.config/zed/keymap.json:
+      create: true
+      force: true
+      path: conf/zed/keymap.json
 
     # atuin
     ~/.config/atuin/config.toml:

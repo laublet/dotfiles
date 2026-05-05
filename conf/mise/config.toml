@@ -1,2 +1,10 @@
 [settings]
 auto_install = true
+experimental = true
+idiomatic_version_file_enable_tools = ['node']
+
+[hooks]
+cd = "mise install --quiet 2>/dev/null || true"
+
+# No global node version — use .nvmrc from each project
+# Install a fallback manually: mise install node@lts

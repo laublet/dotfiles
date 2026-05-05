@@ -18,7 +18,7 @@ link:
 server:
     ./install-server
 
-[doc("Home server setup (minimal + neovim, lazygit, docker, dev tools)")]
+[doc("Home server dotfiles (same as server); use packages-homeserver for Docker + btop")]
 homeserver:
     ./install-homeserver
 
@@ -34,12 +34,17 @@ packages:
 packages:
     bash packages-linux.sh desktop
 
-[doc("Install Linux minimal server packages")]
+[doc("Minimal headless server packages (Debian/ARM-safe; same as packages-server)")]
 [linux]
 packages-minimal:
-    bash packages-linux.sh minimal
+    bash packages-linux.sh server
 
-[doc("Install Linux home server packages")]
+[doc("Minimal headless server (Pi, VPS): tmux, zellij, mosh, starship…")]
+[linux]
+packages-server:
+    bash packages-linux.sh server
+
+[doc("Home server packages: server + Docker + btop")]
 [linux]
 packages-homeserver:
     bash packages-linux.sh homeserver

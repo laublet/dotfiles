@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Package installation for Pop!_OS / Ubuntu
+# Package installation for Debian / Ubuntu (Pop!_OS) and headless servers.
 # Layered profiles: each level includes the previous one.
 #
 # Usage:
-#   ./packages-linux.sh minimal     # server basics (vim, zsh, bat, fzf, rg…)
-#   ./packages-linux.sh homeserver  # + neovim, lazygit, docker, dev tools
+#   ./packages-linux.sh server      # minimal headless server (Debian/ARM-safe, Pi, VPS…)
+#   ./packages-linux.sh minimal     # alias for server (legacy name)
+#   ./packages-linux.sh homeserver  # server + Docker (+ btop); no dev/IDE stack
 #   ./packages-linux.sh desktop     # + GUI apps, fonts, keyd, Albert
 #   ./packages-linux.sh             # defaults to "desktop"
 
@@ -13,165 +14,131 @@ set -e
 PROFILE="${1:-desktop}"
 mkdir -p ~/.local/bin
 
+# ── Zellij release tarball suffix per machine (musl static builds) ─────────
+_zellij_release_suffix() {
+  case "$(uname -m)" in
+    x86_64)        echo "x86_64-unknown-linux-musl" ;;
+    aarch64|arm64) echo "aarch64-unknown-linux-musl" ;;
+    armv7l)        echo "armv7-unknown-linux-gnueabihf" ;;
+    *)             echo "" ;;
+  esac
+}
+
 # ═══════════════════════════════════════════════════════════════════
-# MINIMAL — base server (vim, zsh, shell tools)
+# SERVER — minimal headless (Debian / Raspberry Pi OS / ARM + amd64)
+# tmux: lightweight multiplexer, always in repos.
+# zellij: matches dotfiles server/ config; prebuilt binary (no Rust compile on Pi).
+# mosh: optional; helps flaky Wi-Fi (UDP). Use: mosh user@host
 # ═══════════════════════════════════════════════════════════════════
-install_minimal() {
-  echo "==> [minimal] Updating apt..."
+install_server() {
+  echo "==> [server] machine: $(uname -m)"
+  echo "==> [server] Updating apt..."
   sudo apt update
 
-  echo "==> [minimal] Installing apt packages..."
+  echo "==> [server] Installing apt packages..."
   sudo apt install -y \
     bat \
     curl \
     fd-find \
     fzf \
     git \
+    htop \
+    mosh \
     ripgrep \
+    tmux \
     unzip \
     vim \
     wget \
     zsh
 
   # bat/fd are installed as batcat/fdfind on Debian/Ubuntu
-  [[ ! -e ~/.local/bin/bat ]] && ln -sf "$(which batcat 2>/dev/null)" ~/.local/bin/bat || true
-  [[ ! -e ~/.local/bin/fd ]]  && ln -sf "$(which fdfind 2>/dev/null)" ~/.local/bin/fd  || true
+  [[ ! -e ~/.local/bin/bat ]] && ln -sf "$(command -v batcat 2>/dev/null)" ~/.local/bin/bat || true
+  [[ ! -e ~/.local/bin/fd ]]  && ln -sf "$(command -v fdfind 2>/dev/null)" ~/.local/bin/fd  || true
 
-  # Rust toolchain (needed for cargo installs in both minimal and homeserver)
-  if ! command -v cargo &>/dev/null; then
-    echo "==> [minimal] Installing Rust toolchain..."
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-    source "$HOME/.cargo/env"
+  # git-delta: use Debian package when available (all supported arches on Bookworm+)
+  if ! command -v delta &>/dev/null; then
+    if apt-cache show git-delta &>/dev/null; then
+      echo "==> [server] Installing git-delta (apt)..."
+      sudo apt install -y git-delta
+    else
+      echo "==> [server] git-delta: no apt package; skip (install from source if needed)."
+    fi
   fi
 
-  # zellij (terminal multiplexer)
+  # eza: third-party repo (amd64/arm64); skip if install fails
+  if ! command -v eza &>/dev/null; then
+    echo "==> [server] Installing eza (apt repo)..."
+    if [[ ! -f /etc/apt/sources.list.d/gierens.list ]]; then
+      sudo mkdir -p /etc/apt/keyrings
+      wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+      echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+      sudo apt update
+    fi
+    sudo apt install -y eza 2>/dev/null || echo "==> [server] eza: skipped (unsupported arch or repo)."
+  fi
+
+  # Zellij — prebuilt release (no cargo on small ARM boards)
   if ! command -v zellij &>/dev/null; then
-    echo "==> [minimal] Installing zellij (cargo)..."
-    cargo install zellij
+    local suffix zj_tag zj_url tmpdir zj_bin
+    suffix="$(_zellij_release_suffix)"
+    if [[ -n "$suffix" ]]; then
+      echo "==> [server] Installing zellij (GitHub release, ${suffix})..."
+      zj_tag=$(curl -sL https://api.github.com/repos/zellij-org/zellij/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4)
+      zj_url="https://github.com/zellij-org/zellij/releases/download/${zj_tag}/zellij-${suffix}.tar.gz"
+      tmpdir=$(mktemp -d)
+      if curl -fsSL -o /tmp/zellij.tgz "$zj_url"; then
+        tar -xzf /tmp/zellij.tgz -C "$tmpdir"
+        zj_bin=$(find "$tmpdir" -name zellij -type f 2>/dev/null | head -1)
+        if [[ -n "$zj_bin" ]]; then
+          install -m 755 "$zj_bin" ~/.local/bin/zellij
+        else
+          echo "==> [server] zellij: binary not found in archive; use tmux."
+        fi
+        rm -rf "$tmpdir" /tmp/zellij.tgz
+      else
+        echo "==> [server] zellij: download failed for ${suffix}; install manually or use tmux only."
+        rm -rf "$tmpdir"
+      fi
+    else
+      echo "==> [server] zellij: unsupported arch $(uname -m); use tmux."
+    fi
   fi
 
-  # starship prompt
+  # Starship + zoxide (install scripts support arm64 / amd64)
   if ! command -v starship &>/dev/null; then
-    echo "==> [minimal] Installing Starship..."
+    echo "==> [server] Installing Starship..."
     curl -sS https://starship.rs/install.sh | sh -s -- -y
   fi
 
-  # zoxide (smart cd)
   if ! command -v zoxide &>/dev/null; then
-    echo "==> [minimal] Installing zoxide..."
+    echo "==> [server] Installing zoxide..."
     curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
   fi
 
-  # eza (ls replacement)
-  if ! command -v eza &>/dev/null; then
-    echo "==> [minimal] Installing eza..."
-    sudo mkdir -p /etc/apt/keyrings
-    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-    sudo apt update
-    sudo apt install -y eza
-  fi
-
-  # git-delta (diff viewer)
-  if ! command -v delta &>/dev/null; then
-    echo "==> [minimal] Installing git-delta..."
-    DELTA_VERSION=$(curl -sL https://api.github.com/repos/dandavison/delta/releases/latest | grep tag_name | cut -d '"' -f4)
-    curl -sLO "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/git-delta_${DELTA_VERSION}_amd64.deb"
-    sudo dpkg -i "git-delta_${DELTA_VERSION}_amd64.deb"
-    rm -f "git-delta_${DELTA_VERSION}_amd64.deb"
-  fi
-
-  # tlrc (tldr client)
-  if ! command -v tldr &>/dev/null; then
-    echo "==> [minimal] Installing tlrc (cargo)..."
-    cargo install tlrc
-  fi
-
-  echo "==> [minimal] Done."
+  echo "==> [server] Done."
+  echo "    Sessions: tmux new -A -s main   or   zellij"
+  echo "    Resilient SSH: mosh user@host   (after: sudo apt install mosh on both ends)"
 }
 
 # ═══════════════════════════════════════════════════════════════════
-# HOMESERVER — dev tools on top of minimal
+# HOMESERVER — server + Docker (Pi-hole, Jellyfin, stacks). Strict minimum.
 # ═══════════════════════════════════════════════════════════════════
 install_homeserver() {
-  install_minimal
+  install_server
 
-  echo "==> [homeserver] Installing dev tools..."
-
-  # Cargo-based CLI tools
-  for tool in atuin du-dust sd procs tokei ouch just; do
-    bin_name="$tool"
-    [[ "$tool" == "du-dust" ]] && bin_name="dust"
-    if ! command -v "$bin_name" &>/dev/null; then
-      echo "==> [homeserver] Installing $bin_name (cargo)..."
-      cargo install "$tool"
-    fi
-  done
-
-  # Neovim (latest stable from PPA)
-  if ! command -v nvim &>/dev/null; then
-    echo "==> [homeserver] Installing Neovim..."
-    sudo add-apt-repository -y ppa:neovim-ppa/stable
-    sudo apt update
-    sudo apt install -y neovim
-  fi
-
-  # mise (runtime version manager)
-  if ! command -v mise &>/dev/null; then
-    echo "==> [homeserver] Installing mise..."
-    curl https://mise.run | sh
-  fi
-
-  # lazygit
-  if ! command -v lazygit &>/dev/null; then
-    echo "==> [homeserver] Installing lazygit..."
-    LAZYGIT_VERSION=$(curl -sL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep tag_name | cut -d '"' -f4 | tr -d v)
-    curl -sLo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-    tar xf lazygit.tar.gz lazygit
-    install -m 755 lazygit ~/.local/bin/lazygit
-    rm -f lazygit lazygit.tar.gz
-  fi
-
-  # lazydocker
-  if ! command -v lazydocker &>/dev/null; then
-    echo "==> [homeserver] Installing lazydocker..."
-    curl -sL https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
-  fi
-
-  # btop
-  if ! command -v btop &>/dev/null; then
-    echo "==> [homeserver] Installing btop..."
-    sudo apt install -y btop
-  fi
-
-  # glow (markdown viewer)
-  if ! command -v glow &>/dev/null; then
-    echo "==> [homeserver] Installing glow..."
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list
-    sudo apt update
-    sudo apt install -y glow
-  fi
-
-  # yazi (terminal file manager)
-  if ! command -v yazi &>/dev/null; then
-    echo "==> [homeserver] Installing yazi..."
-    YAZI_VERSION=$(curl -sL https://api.github.com/repos/sxyazi/yazi/releases/latest | grep tag_name | cut -d '"' -f4)
-    curl -sLo /tmp/yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip"
-    unzip -qo /tmp/yazi.zip -d /tmp/yazi
-    install -m 755 /tmp/yazi/yazi-x86_64-unknown-linux-gnu/yazi ~/.local/bin/yazi
-    rm -rf /tmp/yazi /tmp/yazi.zip
-  fi
-
-  # Docker
+  echo "==> [homeserver] Installing Docker..."
   if ! command -v docker &>/dev/null; then
-    echo "==> [homeserver] Installing Docker..."
     curl -fsSL https://get.docker.com | sh
     sudo usermod -aG docker "$USER"
   fi
 
+  if ! command -v btop &>/dev/null; then
+    echo "==> [homeserver] Installing btop (monitoring)..."
+    sudo apt install -y btop
+  fi
+
   echo "==> [homeserver] Done."
+  echo "    Log out and back in (or newgrp docker) for the docker group."
 }
 
 # ═══════════════════════════════════════════════════════════════════
@@ -263,14 +230,14 @@ install_desktop() {
 # DISPATCH
 # ═══════════════════════════════════════════════════════════════════
 case "$PROFILE" in
-  minimal)    install_minimal ;;
-  homeserver) install_homeserver ;;
-  desktop)    install_desktop ;;
+  server|minimal) install_server ;;
+  homeserver)     install_homeserver ;;
+  desktop)        install_desktop ;;
   *)
-    echo "Usage: $0 {minimal|homeserver|desktop}"
-    echo "  minimal     — server basics (vim, zsh, bat, fzf, rg, zellij…)"
-    echo "  homeserver  — minimal + neovim, lazygit, docker, dev tools"
-    echo "  desktop     — homeserver + GUI apps, fonts, keyd, Albert"
+    echo "Usage: $0 {server|minimal|homeserver|desktop}"
+    echo "  server|minimal — headless server (Debian/ARM-safe: tmux, zellij, mosh, starship…)"
+    echo "  homeserver     — server + Docker + btop"
+    echo "  desktop        — homeserver + GUI apps, fonts, keyd, Albert"
     exit 1
     ;;
 esac

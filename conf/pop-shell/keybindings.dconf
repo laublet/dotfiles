@@ -1,3 +1,4 @@
+# https://github.com/pop-os/shell
 # Pop Shell + GNOME settings — identical modifier architecture to AeroSpace
 #
 # Apply:  dconf load / < conf/pop-shell/keybindings.dconf
@@ -109,9 +110,9 @@ toggle-fullscreen=['<Super><Primary><Alt>f']
 # Close window (Ctrl+Q → physical Super+Q via keyd)
 close=['<Primary>q']
 
-# Input source switch
-switch-input-source=['<Super>space']
-switch-input-source-backward=['<Super><Shift>space']
+# Input source switch — Ctrl+Cmd+Alt+I (physical) → <Super><Primary><Alt>i via keyd
+switch-input-source=['<Super><Primary><Alt>i']
+switch-input-source-backward=['<Super><Primary><Alt><Shift>i']
 
 # Disable defaults that conflict
 move-to-side-n=@as []

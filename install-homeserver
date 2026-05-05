@@ -1,20 +1,9 @@
 #!/usr/bin/env bash
-# Home server setup — chains minimal server + full server dotbot configs.
-# Symlinks vim, zsh, git, zellij, starship (minimal)
-# then adds neovim, btop, atuin, mise, yazi (full).
+# Home server — same dotfiles as install-server (shell, vim, git, zellij, starship).
+# Extra dev/editor configs (neovim, yazi, …) live in server/install-full.conf.yaml;
+# run Dotbot on that file manually if you need them on a machine.
 
 set -e
 
-DOTBOT_DIR="dotbot"
-DOTBOT_BIN="bin/dotbot"
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-cd "${BASEDIR}"
-git -C "${DOTBOT_DIR}" submodule sync --quiet --recursive
-git submodule update --init --recursive "${DOTBOT_DIR}"
-
-# Minimal server symlinks (vim, zsh, git, zellij, starship)
-"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "server/install.conf.yaml" "${@}"
-
-# Home server additions (neovim, btop, atuin, mise, yazi)
-"${BASEDIR}/${DOTBOT_DIR}/${DOTBOT_BIN}" -d "${BASEDIR}" -c "server/install-full.conf.yaml" "${@}"
+exec "${BASEDIR}/install-server" "${@}"

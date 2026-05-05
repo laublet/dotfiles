@@ -1,0 +1,64 @@
+/* Dracula theme for rofi */
+
+* {
+    bg: #282a36;
+    bg-alt: #44475a;
+    fg: #f8f8f2;
+    fg-alt: #6272a4;
+    accent: #bd93f9;
+    urgent: #ff5555;
+    
+    background-color: @bg;
+    text-color: @fg;
+    border-color: @accent;
+}
+
+window {
+    width: 600px;
+    border: 2px;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+inputbar {
+    children: [prompt, entry];
+    padding: 10px;
+    background-color: @bg-alt;
+    border-radius: 8px;
+    margin: 0 0 10px 0;
+}
+
+prompt {
+    padding: 0 10px 0 0;
+    text-color: @accent;
+}
+
+entry {
+    placeholder: "Search...";
+    placeholder-color: @fg-alt;
+}
+
+listview {
+    lines: 8;
+    scrollbar: false;
+    spacing: 5px;
+}
+
+element {
+    padding: 10px;
+    border-radius: 6px;
+}
+
+element selected {
+    background-color: @bg-alt;
+    text-color: @accent;
+}
+
+element-icon {
+    size: 24px;
+    margin: 0 10px 0 0;
+}
+
+element-text {
+    vertical-align: 0.5;
+}

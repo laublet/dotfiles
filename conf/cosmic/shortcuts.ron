@@ -1,3 +1,4 @@
+// https://github.com/pop-os/cosmic-epoch
 // COSMIC custom keybindings — identical modifier architecture to AeroSpace
 //
 // Deployed to: ~/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom
@@ -135,7 +136,7 @@
     // ═══════════════════════════════════════════════════════════════
     (modifiers: [Super]): System(Launcher),
     (modifiers: [Super], key: "slash"): System(Launcher),
-    (modifiers: [Super], key: "space"): System(InputSourceSwitch),
+    (modifiers: [Super, Ctrl, Alt], key: "i"): System(InputSourceSwitch),
     (modifiers: [Super], key: "a"): System(AppLibrary),
     (modifiers: [Super], key: "w"): System(WorkspaceOverview),
 

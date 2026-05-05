@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Clipboard history via rofi + greenclip
+# Bind to Ctrl+Shift+V in your window manager
+
+rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'

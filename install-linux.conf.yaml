@@ -1,3 +1,4 @@
+# https://github.com/anishathalye/dotbot
 # Linux desktop (Pop!_OS / Ubuntu) — extends shared install.conf.yaml
 
 - defaults:
@@ -24,11 +25,19 @@
       create: true
       path: conf/lazydocker/config.yml
 
-    # albert (Linux path — ~/.config instead of ~/Library/Preferences)
-    ~/.config/albert/config:
+    # rofi (launcher + clipboard via greenclip)
+    ~/.config/rofi:
       create: true
-      force: true
-      path: conf/albert/config
+      path: conf/rofi
+
+    # greenclip (clipboard manager for rofi)
+    ~/.config/greenclip.toml:
+      path: conf/greenclip/greenclip.toml
+
+    # clipboard script for rofi
+    ~/.local/bin/clipboard-rofi:
+      create: true
+      path: bin/clipboard-rofi
 
 - shell:
     # keyd: macOS-like modifiers (requires root)

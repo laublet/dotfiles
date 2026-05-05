@@ -1,0 +1,17 @@
+/* Rofi config — Dracula theme */
+
+configuration {
+    modi: "drun,run,window,clipboard:greenclip print";
+    show-icons: true;
+    icon-theme: "Papirus";
+    terminal: "wezterm";
+    font: "FiraCode Nerd Font 14";
+    
+    /* Keybindings */
+    kb-cancel: "Escape,Control+g";
+    kb-accept-entry: "Return,KP_Enter";
+    kb-row-up: "Up,Control+k";
+    kb-row-down: "Down,Control+j";
+}
+
+@theme "dracula"

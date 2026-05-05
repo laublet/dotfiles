@@ -1,0 +1,21 @@
+[greenclip]
+# Max history size
+max_history_length = 50
+
+# Max selection size (bytes)
+max_selection_size_bytes = 0
+
+# Trim trailing whitespace
+trim_space_from_selection = true
+
+# Use primary selection (middle-click paste)
+use_primary_selection_as_input = false
+
+# Blacklist apps (passwords managers)
+blacklisted_applications = ["1password", "KeePassXC", "keepassxc", "Bitwarden", "bitwarden", "LastPass", "seahorse"]
+
+# Static history (pinned items)
+static_history = []
+
+# Image support
+image_cache_directory = "/tmp/greenclip"

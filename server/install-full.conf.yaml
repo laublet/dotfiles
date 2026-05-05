@@ -1,6 +1,7 @@
-# Home server — additional symlinks on top of server/install.conf.yaml
-# Adds neovim, btop, atuin, mise, yazi configs.
-# Run via: ./install-homeserver (which chains both configs)
+# https://github.com/anishathalye/dotbot
+# Optional dev/editor layer — NOT run by ./install-homeserver by default.
+# Symlink neovim, btop, atuin, mise, yazi, lazygit, etc.
+# Run manually: dotbot -c server/install-full.conf.yaml
 
 - defaults:
     link:

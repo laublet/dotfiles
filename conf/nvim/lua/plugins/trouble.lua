@@ -1,3 +1,5 @@
+-- https://github.com/folke/trouble.nvim
+
 return {
   "folke/trouble.nvim",
   cond = not vim.g.vscode,

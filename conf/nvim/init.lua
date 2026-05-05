@@ -1,3 +1,5 @@
+-- https://neovim.io/doc/user/
+-- https://github.com/folke/lazy.nvim
 -- =============================================================================
 -- Neovim config — Loïc
 -- Shared between Neovim standalone and Cursor (via vscode-neovim)

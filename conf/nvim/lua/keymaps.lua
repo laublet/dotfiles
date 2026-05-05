@@ -1,3 +1,4 @@
+-- https://neovim.io/doc/user/map.html
 -- =============================================================================
 -- Keymaps
 -- =============================================================================
@@ -23,9 +24,12 @@ map("v", ">", ">gv", opts)
 map("x", "J", ":move '>+1<CR>gv-gv", opts)
 map("x", "K", ":move '<-2<CR>gv-gv", opts)
 
--- Buffer navigation
-map("n", "<S-h>", ":bprevious<CR>", opts)
-map("n", "<S-l>", ":bnext<CR>", opts)
+-- Buffer navigation (bufferline tabs)
+map("n", "<C-Tab>", ":bnext<CR>", opts)
+map("n", "<C-S-Tab>", ":bprevious<CR>", opts)
+-- Terminal fallback: Ctrl+Tab is translated to Ctrl+PageDown/PageUp in WezTerm
+map("n", "<C-PageDown>", ":bnext<CR>", opts)
+map("n", "<C-PageUp>", ":bprevious<CR>", opts)
 
 -- =============================================================================
 -- VSCode-specific keymaps (via vscode-neovim)
@@ -40,8 +44,9 @@ if vim.g.vscode then
   map("n", "gr", function() vscode.action("editor.action.goToReferences") end, opts)
   map("n", "gh", function() vscode.action("editor.action.showHover") end, opts)
 
-  -- Leader layer — files & navigation
-  map("n", "<leader>f", function() vscode.action("workbench.action.quickOpen") end, opts)
+  -- Leader layer — files & navigation (align with Neovim: pp = quick open, like Cmd+P)
+  map("n", "<C-p>", function() vscode.action("workbench.action.quickOpen") end, opts)
+  map("n", "<leader>pp", function() vscode.action("workbench.action.quickOpen") end, opts)
   map("n", "<leader>g", function() vscode.action("workbench.action.findInFiles") end, opts)
   map("n", "<leader>b", function() vscode.action("workbench.action.showAllEditorsByMostRecentlyUsed") end, opts)
   map("n", "<leader>e", function() vscode.action("workbench.action.toggleSidebarVisibility") end, opts)
@@ -62,6 +67,9 @@ if vim.g.vscode then
 -- =============================================================================
 
 else
+  -- Clear search highlight (hlsearch) — leader c = clean; frees c vs vscode-neovim chat
+  map("n", "<leader>c", ":noh<CR>", { desc = "Clear search highlight" })
+
   -- Save
   map("n", "<C-s>", ":w<CR>", opts)
   map("n", "<leader>w", ":w!<CR>", opts)
@@ -72,6 +80,20 @@ else
   map("n", "<leader>|", ":vsplit<CR>", { desc = "Vertical split" })
   map("n", "<leader>-", ":split<CR>", { desc = "Horizontal split" })
   map("n", "<leader>x", "<C-w>q", { desc = "Close split" })
+
+  -- Tab pages (also: gt / gT next/prev; <leader>t is terminal)
+  map("n", "<leader>Tn", ":tabnew<CR>", { desc = "New tab" })
+  map("n", "<leader>Tc", ":tabclose<CR>", { desc = "Close tab" })
+  map("n", "<leader>To", ":tabonly<CR>", { desc = "Close other tabs" })
+
+  -- Stuck float / fzf after pane switch: refocus (force) or close all floats
+  local float = require("utils.float")
+  map({ "n", "i", "t" }, "<leader>Ur", function()
+    float.refocus({ force = true })
+  end, { desc = "Refocus float UI (fzf, which-key, …)" })
+  map({ "n", "i", "t" }, "<leader>Ux", function()
+    float.close_all_floats()
+  end, { desc = "Close all floating windows (escape hatch)" })
 
   -- Zoom toggle (maximize current split / restore original sizes)
   local saved_layout = nil
@@ -125,8 +147,8 @@ else
   map("n", "<leader>t", toggle_terminal, { desc = "Toggle terminal" })
   map("t", "<C-\\>", toggle_terminal, { desc = "Toggle terminal" })
 
-  -- Lazygit in floating window
-  map("n", "<leader>lg", function()
+  -- Lazygit in floating window (<leader>lg is LTeX; git prefix is <leader>g — see fzf-lua)
+  map("n", "<leader>gg", function()
     local buf = vim.api.nvim_create_buf(false, true)
     local w = math.floor(vim.o.columns * 0.9)
     local h = math.floor(vim.o.lines * 0.9)
@@ -146,5 +168,5 @@ else
       end,
     })
     vim.cmd("startinsert")
-  end, { desc = "Lazygit" })
+  end, { desc = "Git: Lazygit" })
 end

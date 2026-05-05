@@ -1,3 +1,4 @@
+-- https://github.com/echasnovski/mini.nvim (mini.surround)
 -- =============================================================================
 -- mini.surround — add/delete/change surroundings (brackets, quotes, tags)
 -- =============================================================================

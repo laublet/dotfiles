@@ -1,3 +1,5 @@
+-- https://github.com/goolord/alpha-nvim
+
 return {
   "goolord/alpha-nvim",
   cond = not vim.g.vscode,
@@ -19,9 +21,9 @@ return {
 
     dashboard.section.buttons.val = {
       dashboard.button("s", "  Restore session", [[<cmd>lua require("persistence").load()<cr>]]),
-      dashboard.button("f", "  Find file", "<cmd>FzfLua files<cr>"),
+      dashboard.button("p", "  Quick open (pp / Ctrl+P)", "<cmd>FzfLua files<cr>"),
       dashboard.button("o", "  Recent files", "<cmd>FzfLua oldfiles<cr>"),
-      dashboard.button("g", "  Live grep", "<cmd>FzfLua live_grep<cr>"),
+      dashboard.button("g", "  Live grep (ff)", "<cmd>FzfLua live_grep_native<cr>"),
       dashboard.button("e", "  File tree", "<cmd>Neotree toggle<cr>"),
       dashboard.button("?", "  Keymaps", "<cmd>FzfLua keymaps<cr>"),
       dashboard.button("h", "  Cheatsheets", "<cmd>FzfLua files cwd=~/dev/perso/dotfiles/cheatsheets<cr>"),

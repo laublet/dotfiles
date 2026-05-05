@@ -1,3 +1,6 @@
+-- https://github.com/MeanderingProgrammer/render-markdown.nvim
+-- https://github.com/ellisonleao/glow.nvim
+
 return {
   {
     "MeanderingProgrammer/render-markdown.nvim",

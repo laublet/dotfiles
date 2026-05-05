@@ -1,3 +1,5 @@
+-- https://github.com/supermaven-inc/supermaven-nvim
+
 return {
   "supermaven-inc/supermaven-nvim",
   cond = not vim.g.vscode,

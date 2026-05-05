@@ -1,3 +1,5 @@
+-- https://github.com/folke/persistence.nvim
+
 return {
   "folke/persistence.nvim",
   cond = not vim.g.vscode,

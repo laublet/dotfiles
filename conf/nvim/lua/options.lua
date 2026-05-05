@@ -1,3 +1,4 @@
+-- https://neovim.io/doc/user/options.html
 -- =============================================================================
 -- Options
 -- =============================================================================
@@ -5,6 +6,7 @@
 local opt = vim.opt
 
 -- General
+opt.hidden = true
 opt.backup = false
 opt.swapfile = false
 opt.writebackup = false
@@ -59,11 +61,26 @@ if not vim.g.vscode then
   vim.cmd([[set whichwrap+=<,>,[,],h,l]])
 
   -- Auto-reload files changed outside Neovim (e.g. by Cursor, git, etc.)
-  vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold" }, {
+  vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold" }, {
     callback = function()
       if vim.fn.getcmdwintype() == "" then
         vim.cmd("checktime")
       end
+    end,
+  })
+
+  -- After switching WezTerm panes (or another app), terminal focus events move the
+  -- cursor to the buffer under a float; the picker (fzf-lua, which-key, …) stays
+  -- visible but no longer receives keys. Refocus the right floating window.
+  local float = require("utils.float")
+  vim.api.nvim_create_autocmd("FocusGained", {
+    callback = function()
+      if vim.fn.getcmdwintype() == "" then
+        vim.cmd("checktime")
+      end
+      vim.schedule(function()
+        float.refocus({ force = false })
+      end)
     end,
   })
 

@@ -1,3 +1,7 @@
+-- https://github.com/lukas-reineke/indent-blankline.nvim
+-- https://github.com/stevearc/dressing.nvim
+-- https://github.com/nvim-tree/nvim-web-devicons
+
 return {
   {
     "lukas-reineke/indent-blankline.nvim",

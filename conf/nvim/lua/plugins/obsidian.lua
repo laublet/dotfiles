@@ -1,3 +1,5 @@
+-- https://github.com/epwalsh/obsidian.nvim
+
 return {
   "epwalsh/obsidian.nvim",
   version = "*",
@@ -9,7 +11,7 @@ return {
   },
   opts = {
     workspaces = {
-      { name = "main", path = "~/Documents/Main" },
+      { name = "main", path = "~/dev/perso/vaults/Main" },
     },
     daily_notes = {
       folder = "Daily",

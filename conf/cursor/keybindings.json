@@ -1,3 +1,4 @@
+// https://code.visualstudio.com/docs/getstarted/keybindings
 // Cursor keybindings v6 — Loïc
 // Architecture (modifier escalation, consistent with/without splits):
 //   Zone navigation     → Ctrl + arrows (always: sidebar ← editor → chat, terminal ↕ editor)
@@ -23,6 +24,10 @@
 //
 // Webview limitation: Cmd+Shift+arrows and Ctrl+Left do NOT work inside the
 // AI chat panel (webview captures keys at DOM level). Use Escape to exit chat.
+//
+// Chat / Composer input field: Shift+Enter inserts a newline; Enter sends the message.
+// If that does not match your build, open Keyboard Shortcuts and search for "newline"
+// or "chat" (exact command ids change between Cursor versions — not duplicated here).
 //
 // CHANGE v6: Terminal management (split, kill, new, navigate panes/instances).
 //   Cmd+d/w/t context-aware: editor vs terminal. Same keys as WezTerm.

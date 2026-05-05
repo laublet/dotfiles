@@ -1,0 +1,10 @@
+---
+description: User profile and interaction preferences for Loïc
+alwaysApply: true
+---
+
+# User profile
+
+All preferences, interaction style, and CLI tools are defined in the shared agent config.
+
+Read **`AGENTS.md` at the workspace root** for the full reference — single source of truth; keep it up to date when preferences or tools change.

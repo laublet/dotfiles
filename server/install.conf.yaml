@@ -1,6 +1,7 @@
 # https://github.com/anishathalye/dotbot
-# Minimal server — vim, zsh, git, zellij, starship
-# For full dev setup (neovim, yazi, btop…) use install-homeserver instead.
+# Minimal server — shell, editors (nvim default + vim fallback), git, zellij,
+# starship, plus the daily goodies (atuin, mise, lazygit). Heavier configs
+# (yazi, lazydocker, btop, bottom) live in install-full.conf.yaml.
 
 - defaults:
     link:
@@ -18,7 +19,11 @@
       force: true
       path: conf/zsh/prezto/zpreztorc
 
-    # vim (minimal editor for server)
+    # editors
+    ~/.config/nvim:
+      create: true
+      force: true
+      path: conf/nvim
     ~/.vimrc: conf/vim/vimrc
 
     # git
@@ -36,6 +41,23 @@
     ~/.config/zellij:
       create: true
       path: conf/zellij
+
+    # atuin (shell history search)
+    ~/.config/atuin/config.toml:
+      create: true
+      force: true
+      path: conf/atuin/config.toml
+
+    # mise (runtime versions)
+    ~/.config/mise/config.toml:
+      create: true
+      force: true
+      path: conf/mise/config.toml
+
+    # lazygit
+    ~/.config/lazygit/config.yml:
+      create: true
+      path: conf/lazygit/config.yml
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]

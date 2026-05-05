@@ -14,7 +14,7 @@ bootstrap:
 link:
     ./install
 
-[doc("Minimal server setup (vim, zsh, git, zellij, starship)")]
+[doc("Minimal server dotfiles (nvim+vim, zsh, git, zellij, starship, atuin, mise, lazygit)")]
 server:
     ./install-server
 

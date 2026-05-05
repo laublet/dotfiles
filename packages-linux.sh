@@ -26,9 +26,12 @@ _zellij_release_suffix() {
 
 # ═══════════════════════════════════════════════════════════════════
 # SERVER — minimal headless (Debian / Raspberry Pi OS / ARM + amd64)
+# Editors: neovim is the default; vim stays as a small fallback.
 # tmux: lightweight multiplexer, always in repos.
 # zellij: matches dotfiles server/ config; prebuilt binary (no Rust compile on Pi).
 # mosh: optional; helps flaky Wi-Fi (UDP). Use: mosh user@host
+# Goodies (atuin, mise, lazygit, prezto) are installed here so the shell feels
+# the same on every box. Yazi/lazydocker/btop live in install-full.conf.yaml.
 # ═══════════════════════════════════════════════════════════════════
 install_server() {
   echo "==> [server] machine: $(uname -m)"
@@ -38,12 +41,16 @@ install_server() {
   echo "==> [server] Installing apt packages..."
   sudo apt install -y \
     bat \
+    build-essential \
+    ca-certificates \
     curl \
     fd-find \
     fzf \
     git \
     htop \
+    jq \
     mosh \
+    neovim \
     ripgrep \
     tmux \
     unzip \
@@ -115,9 +122,61 @@ install_server() {
     curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh
   fi
 
+  # mise — runtime versions + env (replaces fnm + direnv); installs to ~/.local/bin
+  if ! command -v mise &>/dev/null; then
+    echo "==> [server] Installing mise..."
+    curl -fsSL https://mise.run | sh
+  fi
+
+  # atuin — shell history search (Ctrl+R), syncable; install to ~/.atuin/bin
+  if ! command -v atuin &>/dev/null && [[ ! -x "$HOME/.atuin/bin/atuin" ]]; then
+    echo "==> [server] Installing atuin..."
+    curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --no-modify-path
+  fi
+
+  # lazygit — TUI for git; no apt package on stable Debian, use GitHub release
+  if ! command -v lazygit &>/dev/null; then
+    local lg_arch lg_ver lg_url
+    case "$(uname -m)" in
+      x86_64)        lg_arch="Linux_x86_64" ;;
+      aarch64|arm64) lg_arch="Linux_arm64"  ;;
+      armv7l)        lg_arch="Linux_armv6"  ;;
+      *)             lg_arch="" ;;
+    esac
+    if [[ -n "$lg_arch" ]]; then
+      echo "==> [server] Installing lazygit (GitHub release, ${lg_arch})..."
+      lg_ver=$(curl -sL https://api.github.com/repos/jesseduffield/lazygit/releases/latest | grep '"tag_name"' | head -1 | cut -d'"' -f4 | tr -d v)
+      lg_url="https://github.com/jesseduffield/lazygit/releases/download/v${lg_ver}/lazygit_${lg_ver}_${lg_arch}.tar.gz"
+      if curl -fsSL -o /tmp/lazygit.tgz "$lg_url"; then
+        tar -xzf /tmp/lazygit.tgz -C /tmp lazygit
+        install -m 755 /tmp/lazygit ~/.local/bin/lazygit
+        rm -f /tmp/lazygit /tmp/lazygit.tgz
+      else
+        echo "==> [server] lazygit: download failed; skip."
+      fi
+    else
+      echo "==> [server] lazygit: unsupported arch $(uname -m); skip."
+    fi
+  fi
+
+  # prezto — zsh framework used by conf/zsh/zshrc
+  if [[ ! -d "$HOME/.zprezto" ]]; then
+    echo "==> [server] Cloning prezto..."
+    git clone --recursive https://github.com/sorin-ionescu/prezto.git "$HOME/.zprezto"
+  fi
+
+  # Default shell → zsh (only if needed; chsh may prompt for password)
+  local zsh_path
+  zsh_path="$(command -v zsh || true)"
+  if [[ -n "$zsh_path" && "$SHELL" != "$zsh_path" ]]; then
+    echo "==> [server] Setting default shell to zsh..."
+    chsh -s "$zsh_path" || echo "    chsh failed; run manually: chsh -s $zsh_path"
+  fi
+
   echo "==> [server] Done."
   echo "    Sessions: tmux new -A -s main   or   zellij"
   echo "    Resilient SSH: mosh user@host   (after: sudo apt install mosh on both ends)"
+  echo "    Editor: nvim (vim available as fallback)."
 }
 
 # ═══════════════════════════════════════════════════════════════════

@@ -1,6 +1,6 @@
 # https://github.com/anishathalye/dotbot
-# Optional dev/editor layer — NOT run by ./install-homeserver by default.
-# Symlink neovim, btop, atuin, mise, yazi, lazygit, etc.
+# Optional heavier layer — NOT run by ./install-homeserver by default.
+# Adds yazi (file manager), lazydocker, btop / bottom monitors.
 # Run manually: dotbot -c server/install-full.conf.yaml
 
 - defaults:
@@ -9,39 +9,16 @@
       relink: true
 
 - link:
-    # neovim (full lazy.nvim config)
-    ~/.config/nvim:
-      create: true
-      force: true
-      path: conf/nvim
-
     # btop
     ~/.config/btop/btop.conf:
       create: true
       force: true
       path: conf/btop/btop.conf
 
-    # atuin
-    ~/.config/atuin/config.toml:
-      create: true
-      force: true
-      path: conf/atuin/config.toml
-
-    # mise
-    ~/.config/mise/config.toml:
-      create: true
-      force: true
-      path: conf/mise/config.toml
-
     # yazi
     ~/.config/yazi:
       create: true
       path: conf/yazi
-
-    # lazygit (XDG path)
-    ~/.config/lazygit/config.yml:
-      create: true
-      path: conf/lazygit/config.yml
 
     # lazydocker (XDG path)
     ~/.config/lazydocker/config.yml:

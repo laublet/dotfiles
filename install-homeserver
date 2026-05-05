@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Home server — same dotfiles as install-server (shell, vim, git, zellij, starship).
-# Extra dev/editor configs (neovim, yazi, …) live in server/install-full.conf.yaml;
-# run Dotbot on that file manually if you need them on a machine.
+# Home server — same dotfiles as install-server (shell, nvim+vim, git, zellij,
+# starship, atuin, mise, lazygit). Heavier extras (yazi, lazydocker, btop,
+# bottom) live in server/install-full.conf.yaml; run dotbot on that file
+# manually if you need them on a machine.
 
 set -e
 

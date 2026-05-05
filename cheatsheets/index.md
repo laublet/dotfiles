@@ -2,6 +2,18 @@
 
 > Quick reference: "I want to do X" → use this tool.
 > Run `cheat <tool>` for the full cheatsheet of any tool listed here.
+> Keyboard shortcuts across apps: [keymaps-hub.md](keymaps-hub.md) → [keyboard-navigation.md](keyboard-navigation.md). Firefox + Tridactyl (by task): [tridactyl.md](tridactyl.md).
+
+## Launcher & clipboard
+
+| I want to... | Command | Tool |
+|--------------|---------|------|
+| Launch app / search web (macOS) | `Cmd+Space` | [albert](albert.md) |
+| Launch app (Linux) | `Super+Space` | [rofi](rofi.md) |
+| Clipboard history | `Cmd+Shift+V` / `Ctrl+Shift+V` | [clipboard](clipboard.md) |
+| Search Kagi | `k query` in Albert | albert |
+| Translate (DeepL) | `tr texte` in Albert | albert |
+| Manage windows (macOS) | `Ctrl+Cmd+Alt + arrows` | [aerospace](aerospace.md) |
 
 ## Find & navigate
 

@@ -12,6 +12,16 @@ Ctrl + Cmd + Alt  → AeroSpace focus / layout (LCAG)
 LCAG + Shift      → AeroSpace move / resize (HYPR)
 ```
 
+## System (macOS / Linux)
+
+| Shortcut | Action |
+|---|---|
+| Ctrl + Cmd + Alt + I | Switch input source (language) |
+| Ctrl + Cmd + Alt + M | Mouseless: show overlay |
+| Ctrl + Cmd + Alt + V | Mouseless: execute mouse move (uppercase V) |
+| Ctrl + Cmd + Alt + Z | Mouseless: toggle free mode (free cursor without grid) |
+| Cmd + Alt + J / K | Mouseless: move overlay between monitors (overlay visible; not LCAG) |
+
 ## AeroSpace (window manager)
 
 | Shortcut | Action |
@@ -38,15 +48,33 @@ Service mode: `Esc` reload + exit, `R` flatten, `E` tiles, `=` balance, `L` re-a
 |---|---|
 | Ctrl + arrows | Navigate panes (smart-splits, crosses into Neovim) |
 | Ctrl + Alt + arrows | Resize panes |
+| Ctrl + Alt + Shift + arrows | Swap with neighbor in that direction (2 panes: rotate; 3+: picker) |
 | Cmd + D | Split horizontal |
 | Cmd + Shift + D | Split vertical |
 | Cmd + W | Close pane |
 | Cmd + Z | Zoom pane |
+| Cmd + Shift + X | Rotate panes (2 = swap; 3+ = cycle order) |
 | Cmd + Shift + Left/Right | Prev/next tab |
+| Ctrl + Shift + R / Cmd + R | Reload WezTerm config (defaults) |
+| Cmd + Shift + S / O | Resurrect: save session / restore session (fuzzy) |
+| Cmd + Backspace | Sends Ctrl+U (kill line backward in zsh / vim insert) |
 | Cmd + T | New tab |
 | Cmd + 1-9 | Go to tab |
 
+Scrollback search: **Cmd+F** (overlay, bottom bar — Ctrl+Shift+C copy per WezTerm docs). **Copy mode** (Cmd+Shift+Space) then **`/`** (defaults): type pattern, **Enter** confirms (dotfiles: AcceptPattern), then Ctrl+n/p / arrows; **y** copy if your `search_mode` build includes it.
+
+### iTerm2 (same ⌘⌫ behavior)
+
+Settings → Profiles → Keys → **+** → Shortcut **⌘⌫** → Action **Send Hex Code** `0x15` (same as Ctrl+U).
+
 ## Cursor IDE
+
+### Chat / Composer input
+
+| Shortcut | Action |
+|---|---|
+| Shift + Enter | New line in the chat or Composer prompt (does not send) |
+| Enter | Send the message |
 
 ### Spatial model
 
@@ -130,20 +158,40 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 
 ### Leader layer (Space + key)
 
+**Builtin Vim prefixes (`g`, `z`, `[`, `]`, `"`, `'`, …):** type the key in normal mode and pause — which-key shows the preset popup. **Space + V** opens a **complete Vim command reference** (a-z, A-Z, symbols) with short descriptions; selecting opens the which-key popup if sub-commands exist.
+
 | Key | Action |
 |---|---|
-| Space + F | Fuzzy find files (fzf-lua) |
-| Space + G | Live grep |
+| Ctrl+P | Quick open files (same as Space + PP) (fzf-lua) |
+| Space + PP | Find files — default (fzf-lua) |
+| Space + PH, PI, PD, PF, PG | Find variants: hidden, no ignore, dirs, files only, glob (`fd.md`) |
+| Space + FF | Live grep project (fzf-lua) |
+| Space + F + second key | More grep modes: I/W/H/N/glob/resume/fixed (`ripgrep.md`; `fF` = fixed string) |
+| Space + F / | Search in buffer (fzf-lua) |
+| Space + G + G | Open Lazygit |
+| Space + G + S/C/B/F | Git status / commits / branches / tracked files (fzf-lua) |
+| Space + H + n / N | Next / previous hunk |
+| Space + H + p/s/r/u | Hunk preview / stage / reset / undo stage |
+| Space + H + S / R | Hunk stage/reset for whole buffer |
+| Space + H + b / B | Hunk blame line / full blame |
+| Space + H + d | Hunk diff this |
+| Space + C | Clear search highlight (`:noh`) |
+| Space + H | Cheatsheets folder (fzf-lua) |
+| Space + K | Keymaps hub + keyboard-navigation (fzf-lua) |
 | Space + B | Buffers |
 | Space + E | Toggle Neo-tree |
 | Space + W | Save |
 | Space + Q | Close buffer |
 | Space + T | Toggle floating terminal |
 | Space + Z | Zoom toggle (maximize split) |
+| Space + u | Undo tree (Undotree) |
+| Space + Ur | Refocus float UI (fzf, which-key, …) — **Shift+u**, then `r` |
+| Space + Ux | Close all floating windows — **Shift+u**, then `x` |
 | Space + \| | Vertical split |
 | Space + - | Horizontal split |
 | Space + X | Close split |
-| Space + LG | Lazygit |
+| Space + LG | Toggle LTeX grammar (buffer) |
+| Space + V + key | Vim command reference — all commands a-z, A-Z, symbols with descriptions |
 
 ### Obsidian (Space + O, in markdown files)
 
@@ -168,7 +216,9 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | gi | Go to implementation |
 | gr | Go to references |
 | gh | Show hover |
-| Shift + H / L | Prev/next buffer |
+| Leader + l + a | Code action (LSP / LTeX fixes) — not Leader + a (Avante) |
+| Ctrl + Tab / Ctrl + Shift + Tab | Prev/next buffer |
+| Ctrl + PageDown / Ctrl + PageUp | Prev/next buffer (terminal fallback) |
 
 ### Splits
 
@@ -189,11 +239,22 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | Cmd + T | New note |
 | Cmd+Shift + Left/Right | Prev/next tab |
 | Cmd + E | Toggle left sidebar |
-| Cmd+Shift + E | Toggle right sidebar |
+| Cmd+Shift + E | Focus Notebook Navigator |
+| Cmd+Shift + R | Toggle right sidebar |
 | Cmd + P | Quick switcher |
-| Cmd+Shift + P | Command palette |
-| Cmd+Shift + F | Global search |
+| Cmd+Shift + P | Command palette (also for sidebar views) |
 | Cmd+Shift + N | New note from template |
+| Ctrl+Shift + Left | Reveal active file in Notebook Navigator |
+
+### Notebook Navigator (arrows navigation)
+
+| Shortcut | Action |
+|---|---|
+| Up / Down | Move selection |
+| Left / Right | Collapse/expand folder, switch panes |
+| Enter | Open selected note |
+| Tab / Shift+Tab | Switch between navigation and list panes |
+| Shift + arrows | Extend selection |
 
 ### Vim mode (Space leader, via obsidian-vimrc)
 
@@ -203,9 +264,10 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | Space + G | Global search |
 | Space + W | Save |
 | Space + Q | Close |
-| Space + E | Toggle left sidebar |
-| Space + Shift+E | Toggle right sidebar |
-| Space + R | Reveal in explorer |
+| Space + e | Toggle left sidebar |
+| Space + E | Focus Notebook Navigator |
+| Space + r | Toggle right sidebar |
+| Space + R | Reveal in Notebook Navigator |
 | Space + D | Daily note |
 | Space + ]/[ | Next/prev daily |
 | Space + P | Command palette |
@@ -218,6 +280,8 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | za / zM / zR | Toggle fold / fold all / unfold all |
 
 ## Tridactyl (Firefox)
+
+Task-oriented detail: [tridactyl.md](tridactyl.md).
 
 | Key | Action |
 |---|---|
@@ -240,8 +304,16 @@ Hint chars: `asdfghjkl` (home row only).
 
 ## Mouseless
 
-| Trigger | Ctrl + Alt + M |
+**LCAG** (`Ctrl+Cmd+Alt+…`) for overlay, execute move, free mode; **`Cmd+Alt+J/K`** for moving the overlay between monitors (those are **not** LCAG). Full table: [conf/mac-apps/README.md § Mouseless](../conf/mac-apps/README.md#mouseless).
+
+| Shortcut | Action |
 |---|---|
+| Ctrl + Cmd + Alt + M | Show overlay (`m` lowercase in config; if a letter hotkey ever misbehaves, try uppercase per Mouseless docs) |
+| Ctrl + Cmd + Alt + V | Execute mouse move |
+| Ctrl + Cmd + Alt + Z | Toggle free mode (cursor + scroll without grid) |
+| Cmd + Alt + J / K | Move overlay prev / next monitor (only while overlay is up) |
+
+If nothing happens: app must be running (menu bar), Accessibility enabled for Mouseless + app restarted, then see [conf/mac-apps/README.md § Mouseless](../conf/mac-apps/README.md#mouseless) (Secure Input, conflicts, debug).
 
 Once overlay active:
 
@@ -252,10 +324,10 @@ Once overlay active:
 | R | Right click |
 | E | Middle click |
 | Arrows | Move cursor |
-| Hold A (Ctrl) | Slow down |
-| Hold F (Shift) | Speed up |
-| Hold D (Cmd) | Drag |
-| Hold S (Alt) | Move mode |
+| Hold Ctrl (left) | Slow down |
+| Hold Shift (left) | Speed up |
+| Hold Cmd (left) | Drag |
+| Hold Option (left) | Move mode (hold for move) |
 | M / , / . / / | Scroll up/down/left/right |
 | Escape | Close overlay |
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# https://github.com/nikitabobko/AeroSpace
 # Arrange workspace 2 (Dev) in 2 columns of stacks:
 #   Left column:  WezTerm (top) / Cursor (bottom)
 #   Right column: Firefox Dev (top) / Obsidian (bottom)

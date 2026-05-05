@@ -63,9 +63,13 @@ cask "steermouse"
 cask "thunderbird"
 cask "todoist-app"
 cask "wezterm"
+cask "zed"
 
 # ── Keyboard ─────────────────────────────────────────────────────
 cask "qmk-toolbox"
+
+# Albert (Homebrew cask `albertlauncher/albert/albert`): widgetsboxmodel needs QtStateMachine
+brew "qtscxml"
 
 # ── Mac App Store (requires `mas`) ───────────────────────────────
 mas "Amphetamine", id: 937984704

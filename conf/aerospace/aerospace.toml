@@ -1,3 +1,4 @@
+# https://github.com/nikitabobko/AeroSpace
 # ~/.aerospace.toml — Loïc
 #
 # Modifier architecture:
@@ -34,7 +35,8 @@ automatically-unhide-macos-hidden-apps = true
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 accordion-padding = 30
-default-root-container-layout = 'tiles'
+# Stack windows by workspace (accordion at root level).
+default-root-container-layout = 'accordion'
 default-root-container-orientation = 'auto'
 key-mapping.preset = 'qwerty'
 
@@ -63,7 +65,7 @@ cmd-h = []
 ctrl-cmd-alt-enter = 'exec-and-forget open -n -a WezTerm'
 ctrl-cmd-alt-backtick = '''exec-and-forget osascript -e 'tell application "WezTerm" to activate' '''
 
-# --- Focus window (LCAG + arrows, wrap-around) ---
+# --- Focus window (LCAG + arrows, wrap-around) — Mouseless overlay captures keys while visible, so no fight with LCAG+←/→ ---
 ctrl-cmd-alt-left  = 'focus --boundaries-action wrap-around-the-workspace left'
 ctrl-cmd-alt-down  = 'focus --boundaries-action wrap-around-the-workspace down'
 ctrl-cmd-alt-up    = 'focus --boundaries-action wrap-around-the-workspace up'

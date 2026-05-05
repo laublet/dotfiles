@@ -1,14 +1,62 @@
 [General]
-enabled_plugins=applications, clipboard, calculator_qalculate, websearch, system, files, obsidian, homebrew, snippets, datetime, hash, ssh
-hotkey=Meta+Space
-showTray=false
+enabled_plugins=websearch, system, files, datetime, hash, snippets, ssh, obsidian
+hotkey=Ctrl+Space
+showTray=true
 telemetry=false
 
 [applications]
-fuzzy_matching=true
+enabled=false
+
+[calculator_qalculate]
+enabled=false
+
+[clipboard]
+enabled=false
+
+[datetime]
+enabled=true
+show_date_on_empty_query=false
+
+[dictionary]
+enabled=true
 
 [files]
+enabled=true
 fuzzy_matching=true
+paths=@Invalid()
+
+[hash]
+enabled=true
+
+[homebrew]
+enabled=true
+
+[mediaremote]
+enabled=true
+
+[menubar]
+enabled=true
+
+[obsidian]
+enabled=true
+
+[ssh]
+enabled=true
+
+[system]
+enabled=true
+
+[timer]
+enabled=true
+
+[timezones]
+enabled=true
+
+[urlhandler]
+enabled=true
+
+[websearch]
+enabled=true
 
 [widgetsboxmodel]
 action_item_padding=6

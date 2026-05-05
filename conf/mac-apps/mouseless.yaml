@@ -1,3 +1,4 @@
+# https://mouseless.app
 app_version: 0.4.3
 behavior_configs:
 - base_move_speed: 7
@@ -282,7 +283,7 @@ keymaps:
     edit config: Tab
     enter free mode: null
     execute mouse action: Space
-    execute mouse move: OptionLeft tap
+    execute mouse move: Ctrl+Cmd+Alt+V
     exit free mode: Escape
     forward click: null
     forward mouse button: Q
@@ -315,7 +316,7 @@ keymaps:
     right click: null
     right mouse button: R
     right mouse button (w/o overlay): null
-    show overlay: Ctrl+Alt+m
+    show overlay: Ctrl+Cmd+Alt+m
     subgrid nudge down:
     - D
     - J
@@ -328,12 +329,12 @@ keymaps:
     subgrid nudge up:
     - E
     - K
-    switch monitor left: ShiftLeft tap
-    switch monitor right: ShiftRight tap
+    switch monitor left: Cmd+Alt+K
+    switch monitor right: Cmd+Alt+J
     toggle app enabled: null
     toggle continuous mode: null
     toggle continuous mode until closed: '1'
-    toggle free mode: OptionLeft tap
+    toggle free mode: Ctrl+Cmd+Alt+Z
     toggle overlay: null
     toggle overlay lock: null
     undo last key: Backspace

@@ -1,3 +1,4 @@
+# https://github.com/anishathalye/dotbot
 # macOS-specific dotfiles
 
 - defaults:
@@ -11,11 +12,14 @@
       create: true
       path: conf/aerospace
 
-    # albert
+    # albert (macOS-specific config - 'applications' plugin disabled)
     ~/Library/Preferences/albert/config:
       create: true
       force: true
-      path: conf/albert/config
+      path: conf/albert/config-macos
+    ~/Library/Preferences/albert/websearch:
+      create: true
+      path: conf/albert/websearch
 
     # lazygit (macOS path)
     ~/Library/Application Support/lazygit/config.yml:
@@ -43,15 +47,17 @@
         [ -f conf/mac-apps/steermouse.plist ] && defaults import jp.plentycom.app.SteerMouse conf/mac-apps/steermouse.plist || true
         [ -f conf/mac-apps/languagetool.plist ] && defaults import org.languagetool.desktop conf/mac-apps/languagetool.plist || true
         [ -f conf/mac-apps/amphetamine.plist ] && defaults import com.if.Amphetamine conf/mac-apps/amphetamine.plist || true
+        [ -f conf/mac-apps/maccy.plist ] && defaults import org.p0deje.Maccy conf/mac-apps/maccy.plist || true
         MOUSELESS_DIR=~/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs
         [ -f conf/mac-apps/mouseless.yaml ] && mkdir -p "$MOUSELESS_DIR" && cp conf/mac-apps/mouseless.yaml "$MOUSELESS_DIR/config.yaml" || true
       description: Importing Mac app configs
       quiet: true
 
-    # Input source toggle: Ctrl+Option+Space → "Select previous input source"
+    # Input source toggle: Ctrl+Cmd+Alt+I → "Select previous input source"
     # Symbolic hotkey 60 = "Select the previous input source"
-    # Parameters: (ASCII 32=Space, keycode 49=Space, modifier flags 786432=Ctrl+Option)
+    # Parameters: (ASCII 105=i, keycode 34=I, modifier flags 1835008=Ctrl+Cmd+Alt)
     # Note: add "US International - PC" input source manually in System Settings > Keyboard > Input Sources
+    # A logout/login is required for macOS to pick up the new shortcut.
     - command: |
         PLIST=~/Library/Preferences/com.apple.symbolichotkeys.plist
         /usr/libexec/PlistBuddy -c "Delete :AppleSymbolicHotKeys:60" "$PLIST" 2>/dev/null || true
@@ -61,9 +67,9 @@
           -c "Add :AppleSymbolicHotKeys:60:value dict" \
           -c "Add :AppleSymbolicHotKeys:60:value:type string standard" \
           -c "Add :AppleSymbolicHotKeys:60:value:parameters array" \
-          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 32" \
-          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 49" \
-          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 786432" \
+          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 105" \
+          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 34" \
+          -c "Add :AppleSymbolicHotKeys:60:value:parameters: integer 1835008" \
           "$PLIST"
-      description: Setting input source toggle shortcut (Ctrl+Option+Space)
+      description: Setting input source toggle shortcut (Ctrl+Cmd+Alt+I)
       quiet: true

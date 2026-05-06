@@ -45,7 +45,7 @@ vimcmd_replace_symbol = "[‹](bold orange)"
 [username]
 style_user = "bold yellow"
 style_root = "bold red"
-format = "[ ](bold orange)[$user]($style)"
+format = "[ ](bold orange)[$user]($style)"
 show_always = false
 disabled = false
 

@@ -165,6 +165,13 @@ install_server() {
     git clone --recursive https://github.com/sorin-ionescu/prezto.git "$HOME/.zprezto"
   fi
 
+  # fzf-tab — fzf-powered tab completion; loaded as a prezto contrib module
+  # (see conf/zsh/prezto/zpreztorc → 'fzf-tab' in pmodule list).
+  if [[ ! -d "$HOME/.zprezto/contrib/fzf-tab" ]]; then
+    echo "==> [server] Cloning fzf-tab..."
+    git clone https://github.com/Aloxaf/fzf-tab "$HOME/.zprezto/contrib/fzf-tab"
+  fi
+
   # Default shell → zsh (only if needed; chsh may prompt for password)
   local zsh_path
   zsh_path="$(command -v zsh || true)"

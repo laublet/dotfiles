@@ -34,6 +34,12 @@ if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]]; then
   git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 fi
 
+# ── Install fzf-tab (loaded as a prezto contrib module) ──────────
+if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto/contrib/fzf-tab" ]]; then
+  echo "==> Installing fzf-tab..."
+  git clone https://github.com/Aloxaf/fzf-tab "${ZDOTDIR:-$HOME}/.zprezto/contrib/fzf-tab"
+fi
+
 # ── Link dotfiles ─────────────────────────────────────────────────
 echo "==> Linking dotfiles..."
 bash "$BASEDIR/install"

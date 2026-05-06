@@ -61,3 +61,14 @@
 
 - shell:
     - [git submodule update --init --recursive, Installing submodules]
+    # prezto + fzf-tab contrib (zpreztorc references 'fzf-tab' in pmodule).
+    # Idempotent: clones only when missing. Keeps install-server self-healing
+    # without requiring a full packages-linux.sh run.
+    - command: |
+        if [ ! -d "$HOME/.zprezto" ]; then
+          git clone --recursive https://github.com/sorin-ionescu/prezto.git "$HOME/.zprezto"
+        fi
+        if [ ! -d "$HOME/.zprezto/contrib/fzf-tab" ]; then
+          git clone https://github.com/Aloxaf/fzf-tab "$HOME/.zprezto/contrib/fzf-tab"
+        fi
+      description: Ensuring prezto and fzf-tab are installed

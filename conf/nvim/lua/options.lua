@@ -12,6 +12,23 @@ opt.swapfile = false
 opt.writebackup = false
 opt.undofile = true
 opt.clipboard = "unnamedplus"
+-- In SSH sessions (e.g. homeserver), the remote system clipboard is unreachable.
+-- Use OSC 52: nvim emits an escape sequence, the local terminal (WezTerm, iTerm2, …)
+-- writes it into the host clipboard. Requires terminal support for OSC 52 read/write.
+if vim.env.SSH_TTY ~= nil then
+  local osc52 = require("vim.ui.clipboard.osc52")
+  vim.g.clipboard = {
+    name = "OSC 52",
+    copy = {
+      ["+"] = osc52.copy("+"),
+      ["*"] = osc52.copy("*"),
+    },
+    paste = {
+      ["+"] = osc52.paste("+"),
+      ["*"] = osc52.paste("*"),
+    },
+  }
+end
 opt.mouse = "a"
 opt.fileencoding = "utf-8"
 opt.updatetime = 300

@@ -10,8 +10,13 @@ scan_timeout = 100
 # Prevent sporadic timeout on external version commands (e.g. mise node)
 command_timeout = 2_000
 
-# ── Left prompt: directory + separator ───────────────────────────
+# ── Left prompt: [SSH icon + user@host] + directory + separator ──
+# Username + hostname only render in SSH sessions (or as root); local prompt
+# stays unchanged. The SSH icon lives in the username format and is gated by
+# show_always=false, so it only appears alongside the user.
 format = """
+$username\
+$hostname\
 $directory\
 $character"""
 
@@ -31,6 +36,28 @@ error_symbol = "[›](bold red)"
 vimcmd_symbol = "[‹](bold yellow)"
 vimcmd_replace_one_symbol = "[‹](bold orange)"
 vimcmd_replace_symbol = "[‹](bold orange)"
+
+# ── Username (SSH/root only) ─────────────────────────────────────
+# show_always=false → renders only when SSH session or running as root.
+# The leading SSH icon (Nerd Font: nf-fa-server) is part of the format and
+# inherits a bold-orange style independent of $user, so the icon stays
+# orange even when the user is non-root.
+[username]
+style_user = "bold yellow"
+style_root = "bold red"
+format = "[ ](bold orange)[$user]($style)"
+show_always = false
+disabled = false
+
+# ── Hostname (SSH only) ──────────────────────────────────────────
+# Renders "@hostname" right after the username, only in SSH sessions
+# (regardless of the source IP — works fine over Tailscale).
+[hostname]
+ssh_only = true
+ssh_symbol = ""
+format = "[@$hostname]($style) "
+style = "bold orange"
+disabled = false
 
 # ── Directory ────────────────────────────────────────────────────
 [directory]

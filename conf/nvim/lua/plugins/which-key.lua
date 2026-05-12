@@ -55,6 +55,8 @@ return {
       { "<leader>o", group = "obsidian", mode = { "n", "v" } },
       { "<leader>p", group = "find files / fd (fzf-lua)", mode = { "n", "v" } },
       { "<leader>q", group = "session (persistence)", mode = { "n", "v" } },
+      { "<leader>s", desc = "Document symbols (fzf-lua)" },
+      { "<leader>S", desc = "Workspace symbols (fzf-lua)" },
       { "<leader>u", desc = "Undo tree" },
       { "<leader>v", group = "vim commands", mode = { "n", "v" } },
       { "<leader>T", group = "tab pages" },

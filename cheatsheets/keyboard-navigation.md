@@ -52,7 +52,7 @@ Service mode: `Esc` reload + exit, `R` flatten, `E` tiles, `=` balance, `L` re-a
 | Cmd + D | Split horizontal |
 | Cmd + Shift + D | Split vertical |
 | Cmd + W | Close pane |
-| Cmd + Z | Zoom pane |
+| Cmd + Shift + Z | Zoom pane (Cmd+Z stays free for undo) |
 | Cmd + Shift + X | Rotate panes (2 = swap; 3+ = cycle order) |
 | Cmd + Shift + Left/Right | Prev/next tab |
 | Ctrl + Shift + R / Cmd + R | Reload WezTerm config (defaults) |

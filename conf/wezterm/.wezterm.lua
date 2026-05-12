@@ -14,10 +14,11 @@
 --                              Ctrl+n/p, arrows; Cmd+F = separate scrollback overlay (see cheatsheet)
 --   Cmd + d/D                → split horizontal/vertical
 --   Cmd + w                  → close pane
---   Cmd + z                  → zoom pane
+--   Cmd + Shift + z          → zoom pane (Cmd+z stays free for undo)
 --   Cmd + Shift + x          → rotate panes (2 panes = swap positions; 3+ = cycle)
 --   Cmd + t / 1-9            → new tab / tab by number
---   Cmd + Shift + f          → quick select (URLs, paths, hashes)
+--   Cmd + Shift + f          → quick select (URLs, paths, hashes, words 3+)
+--   (in copy mode) s         → quick select (easymotion-style jump to any word)
 --   Cmd + Shift + p          → command palette
 --   (recharger la config : défauts WezTerm — Ctrl+Shift+R, Cmd+R)
 --   Cmd + Shift + s/o        → save / restore session (resurrect; o/O for restore)
@@ -620,10 +621,10 @@ config.keys = {
     action = act.CloseCurrentPane({ confirm = true }),
   },
 
-  -- Zoom pane
+  -- Zoom pane (Cmd+Shift+Z so Cmd+Z passes through to undo in shell / vim)
   {
     key = "z",
-    mods = "CMD",
+    mods = "CMD|SHIFT",
     action = act.TogglePaneZoomState,
   },
 
@@ -722,53 +723,64 @@ config.keys = {
   },
 }
 
--- Copy mode: / ? → EditPattern (defaults).
--- search_mode: Enter → AcceptPattern; Escape → CloseWithoutClear (#3502 / #4924 — default_key_tables still expose Close).
--- copy_mode default Escape = ScrollToBottom + Close, so after a scrollback search you jump to the prompt; use CloseWithoutClear.
--- Fallback when wezterm.gui is nil at config load: do not bind plain `n` in search_mode — it would steal pattern typing.
+-- search_mode: Enter → AcceptPattern (exit to copy_mode at current match);
+-- Escape → Close. Wezterm's default Enter is PriorMatch (cycles inside
+-- search_mode), so we override explicitly. Since wezterm/wezterm#4924
+-- (merged 2024-07), `Close` no longer scrolls back to the prompt — the
+-- `CloseWithoutClear` name from the PR description was renamed to `Close`
+-- before merge and never shipped.
+--
+-- We hardcode the table instead of patching default_key_tables() because
+-- some wezterm builds return mods values that fail our `mods == "NONE" or nil`
+-- check, silently skipping the override and leaving Enter on PriorMatch.
+-- Printable chars are appended to the search pattern by wezterm even without
+-- an explicit binding, so this minimal table is sufficient.
 local function build_search_mode_accept_pattern()
-  if wezterm.gui then
-    local defaults = wezterm.gui.default_key_tables()
-    if defaults and defaults.search_mode then
-      local out = {}
-      for _, b in ipairs(defaults.search_mode) do
-        if b.key == "Enter" and (b.mods == "NONE" or b.mods == nil) then
-          table.insert(out, { key = "Enter", mods = "NONE", action = act.CopyMode("AcceptPattern") })
-        elseif b.key == "Escape" and (b.mods == "NONE" or b.mods == nil) then
-          table.insert(out, { key = "Escape", mods = "NONE", action = act.CopyMode("CloseWithoutClear") })
-        else
-          table.insert(out, b)
-        end
-      end
-      return out
-    end
-  end
   return {
-    { key = "Enter", mods = "NONE", action = act.CopyMode("AcceptPattern") },
-    { key = "Escape", mods = "NONE", action = act.CopyMode("CloseWithoutClear") },
-    { key = "n", mods = "CTRL", action = act.CopyMode("NextMatch") },
-    { key = "p", mods = "CTRL", action = act.CopyMode("PriorMatch") },
-    { key = "r", mods = "CTRL", action = act.CopyMode("CycleMatchType") },
-    { key = "u", mods = "CTRL", action = act.CopyMode("ClearPattern") },
-    { key = "PageUp", mods = "NONE", action = act.CopyMode("PriorMatchPage") },
-    { key = "PageDown", mods = "NONE", action = act.CopyMode("NextMatchPage") },
-    { key = "UpArrow", mods = "NONE", action = act.CopyMode("PriorMatch") },
+    { key = "Enter", mods = "NONE", action = act.Multiple({
+        act.CopyMode("AcceptPattern"),
+        act.CopyMode("ClearSelectionMode"),
+    }) },
+    { key = "Escape",    mods = "NONE", action = act.CopyMode("Close") },
+    { key = "n",         mods = "CTRL", action = act.CopyMode("NextMatch") },
+    { key = "p",         mods = "CTRL", action = act.CopyMode("PriorMatch") },
+    { key = "r",         mods = "CTRL", action = act.CopyMode("CycleMatchType") },
+    { key = "u",         mods = "CTRL", action = act.CopyMode("ClearPattern") },
+    { key = "PageUp",    mods = "NONE", action = act.CopyMode("PriorMatchPage") },
+    { key = "PageDown",  mods = "NONE", action = act.CopyMode("NextMatchPage") },
+    { key = "UpArrow",   mods = "NONE", action = act.CopyMode("PriorMatch") },
     { key = "DownArrow", mods = "NONE", action = act.CopyMode("NextMatch") },
   }
 end
 
-local function build_copy_mode_escape_close_without_clear()
+-- copy_mode default Escape = ScrollToBottom + Close, so after a scrollback
+-- search you jump to the prompt. Replace with a vim-style smart Escape:
+--   - if a selection is active → clear it (stay in copy mode)
+--   - otherwise → close copy mode (since wezterm/wezterm#4924, Close keeps
+--     the viewport; no need for CloseWithoutClear here)
+local function copy_mode_smart_escape()
+  return wezterm.action_callback(function(window, pane)
+    local sel = window:get_selection_text_for_pane(pane)
+    if sel and #sel > 0 then
+      window:perform_action(act.CopyMode("ClearSelectionMode"), pane)
+    else
+      window:perform_action(act.CopyMode("Close"), pane)
+    end
+  end)
+end
+
+local function build_copy_mode_smart_escape()
   if wezterm.gui then
     local defaults = wezterm.gui.default_key_tables()
     if defaults and defaults.copy_mode then
       local out = {}
       for _, b in ipairs(defaults.copy_mode) do
-        if b.key == "Escape" and (b.mods == "NONE" or b.mods == nil) then
-          table.insert(out, { key = "Escape", mods = "NONE", action = act.CopyMode("CloseWithoutClear") })
-        else
+        -- Drop every existing Escape binding; ours is appended below
+        if b.key ~= "Escape" then
           table.insert(out, b)
         end
       end
+      table.insert(out, { key = "Escape", mods = "NONE", action = copy_mode_smart_escape() })
       return out
     end
   end
@@ -777,6 +789,21 @@ end
 
 config.key_tables = config.key_tables or {}
 config.key_tables.search_mode = build_search_mode_accept_pattern()
-config.key_tables.copy_mode = build_copy_mode_escape_close_without_clear()
+config.key_tables.copy_mode = build_copy_mode_smart_escape()
+
+-- Quick select — easymotion-like jump-to-word. Defaults already match URLs,
+-- paths, hashes, IPs, file:line; we add plain words (3+ chars) so any visible
+-- token gets a label. Trigger: Cmd+Shift+F (top-level), or `s` inside copy mode.
+config.quick_select_patterns = {
+  "\\b\\w{3,}\\b",
+}
+
+if config.key_tables.copy_mode then
+  -- `s` triggers QuickSelect from copy mode (easymotion-style copy)
+  table.insert(config.key_tables.copy_mode, { key = "s", mods = "NONE", action = act.QuickSelect })
+  -- Defensive: ensure `/` opens search-mode from copy-mode. Some wezterm builds
+  -- return incomplete defaults from gui.default_key_tables(), losing this binding.
+  table.insert(config.key_tables.copy_mode, { key = "/", mods = "NONE", action = act.CopyMode("EditPattern") })
+end
 
 return config

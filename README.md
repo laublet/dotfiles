@@ -161,7 +161,7 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 | Create horizontal | `Cmd+d` | `Space -` | `Cmd+d` |
 | Create vertical | `Cmd+Shift+d` | `Space \|` | `Cmd+Shift+d` |
 | Close split | `Cmd+w` | `Space x` | `Cmd+w` |
-| Zoom split | `Cmd+z` | `Space z` | — |
+| Zoom split | `Cmd+Shift+z` | `Space z` | — |
 
 ### Tabs / Buffers
 

@@ -28,6 +28,9 @@ export VISUAL=nvim
 export SUDO_EDITOR=nvim
 export GPG_TTY=$(tty)
 
+# bob (neovim version manager) — prepend its bin so `nvim` resolves to the pinned version
+[[ -d "$HOME/.local/share/bob/nvim-bin" ]] && export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
+
 # ── Secrets (tokens, API keys — never version this file) ─────────
 [[ -f ~/.secrets ]] && source ~/.secrets
 

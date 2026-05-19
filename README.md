@@ -36,7 +36,7 @@ Headless server       Home server (packages)   Pop!_OS Desktop
 ```
 
 `packages-homeserver` layers on `packages-server` (Docker + btop). Optional
-Neovim/yazi/lazygit-style configs remain in `server/install-full.conf.yaml`
+Neovim/yazi/gitui/neogit-style configs remain in `server/install-full.conf.yaml`
 for manual Dotbot if needed on a dev machine.
 
 ## Architecture
@@ -97,7 +97,7 @@ on both platforms — keyd handles the translation on Linux.
 │   Ctrl+Alt + arrows       → resize / move editor groups     │
 │   Cmd+d / Cmd+Shift+d     → create split (horiz / vert)      │
 │   Cmd+Shift + ←/→         → prev / next tab                 │
-│   Cmd+Shift + Space       → copy mode (WezTerm)             │
+│   Cmd+Alt + Space         → copy mode (WezTerm)             │
 │   Space + key             → leader layer (files, LSP, etc.) │
 ├─────────────────────────────────────────────────────────────┤
 │ TEXT EDITING (preserved on both platforms)                   │
@@ -129,12 +129,18 @@ on both platforms — keyd handles the translation on Linux.
 | zoxide | cd | `z` for smart directory jumping |
 | yazi | — | Terminal file manager, vi keys (`y`) |
 | delta | — | Git diff viewer (side-by-side, Dracula theme) |
-| lazygit | — | TUI git client (`lg`) |
+| difftastic | — | Structural diff (AST-aware) on demand (`git dft`) |
+| gitui | lazygit | Standalone git TUI (Rust, `gu`) |
+| glab | — | GitLab CLI (MR, CI, issues) |
 | lazydocker | — | TUI Docker client (`lzd`) |
 | starship | — | Prompt with vi-mode indicator |
 | mise | fnm/direnv/asdf | Runtime versions + env vars + tasks (auto-install) |
 | zellij | tmux | Terminal multiplexer for servers (`Ctrl+a` prefix) |
 | tldr (tlrc) | man | Community-maintained command cheatsheets |
+| hyperfine | time | Statistical command-line benchmarking |
+| fx | jq | Interactive JSON viewer (TUI, JS expressions) |
+| posting | Postman | TUI HTTP client (trial — see [posting.md](cheatsheets/posting.md)) |
+| arttime | — | ASCII art clock / pomodoro (cosmetic) |
 
 ### Documentation
 
@@ -182,13 +188,15 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 | `ff` | Live grep (project) | fzf-lua |
 | `fi` / `fw` / `fh` / `fn` / `fF` / `fg` / `fr` | Grep variants (see `ripgrep.md`) | fzf-lua |
 | `f/` / `/` | Search in buffer | fzf-lua |
-| `gg` | Lazygit | — |
+| `gg` | Neogit status (full magit-style) | neogit |
 | `gs` / `gc` / `gb` / `gf` | Git status / commits / branches / tracked files | fzf-lua |
 | `b` | Buffers | fzf-lua |
 | `r` | Recent files (MRU); with LSP buffer: rename symbol | fzf-lua / LSP |
 | `s` | Document symbols | fzf-lua |
-| `e` | Toggle file tree | neo-tree |
-| `E` | Reveal in tree | neo-tree |
+| `e` | Toggle file tree (sidebar, orientation) | neo-tree |
+| `E` | Reveal current file in tree | neo-tree |
+| `-` | Open parent dir as buffer (bulk edits) | oil.nvim |
+| `o` | File explorer (floating, manipulation) | oil.nvim |
 | `d` | Diagnostics (workspace) | trouble |
 | `D` | Diagnostics (buffer) | trouble |
 | `la` | Code action | LSP |
@@ -232,11 +240,14 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 
 | Key | Action |
 |-----|--------|
-| `Cmd+Shift+Space` | Copy mode (vim-like selection) |
+| `Cmd+Alt+Space` | Copy mode (vim-like selection) |
 | `Cmd+Shift+f` | Quick select (URLs, paths, hashes) |
 | `Cmd+Shift+p` | Command palette |
-| `Cmd+Shift+s` | Save session |
-| `Cmd+Shift+r` | Restore session |
+| `Cmd+Shift+s` | Save session (resurrect) |
+| `Cmd+Shift+o` | Restore session (resurrect, fuzzy) |
+| `Cmd+Shift+l` | Switch workspace (fuzzy launcher) |
+| `Cmd+Shift+n` | New/switch workspace by name |
+| `Cmd+Shift+,` | Rename current tab |
 | `Cmd+1-9` | Switch to tab N |
 
 ## Repo structure

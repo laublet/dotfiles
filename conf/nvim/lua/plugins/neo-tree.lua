@@ -1,69 +1,60 @@
 -- https://github.com/nvim-neo-tree/neo-tree.nvim
--- E95 "Buffer with this name already exists" (renderer.lua nvim_buf_set_name): orphan neo-tree
--- buffers left after :close/:q or races with follow_current_file + debounced navigate (#1415, #1365).
--- Match by bufname prefix too: ft may not be set yet on a stale buffer; name is what nvim_buf_set_name collides on.
-local function neo_tree_cleanup_orphan_buffers()
-  local shown = {}
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    local b = vim.api.nvim_win_get_buf(win)
-    if vim.api.nvim_buf_is_valid(b) then
-      shown[b] = true
-    end
-  end
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if not shown[buf] and vim.api.nvim_buf_is_valid(buf) then
-      local ok_bt, bt = pcall(vim.api.nvim_get_option_value, "buftype", { buf = buf })
-      if ok_bt and bt == "nofile" then
-        local name = vim.fn.bufname(buf)
-        local ok_ft, ft = pcall(vim.api.nvim_get_option_value, "filetype", { buf = buf })
-        local looks_neo_tree = (ok_ft and ft == "neo-tree") or (name ~= "" and name:match("^neo-tree "))
-        if looks_neo_tree then
-          pcall(vim.api.nvim_buf_delete, buf, { force = true })
-        end
-      end
-    end
-  end
-end
-
-local function neo_tree_cleanup_orphan_buffers_scheduled()
-  neo_tree_cleanup_orphan_buffers()
-  vim.schedule(neo_tree_cleanup_orphan_buffers)
-end
+-- Sidebar file tree (orientation only). `follow_current_file` is OFF on purpose:
+-- it triggers a debounced `filesystem_navigate` whose internal renderer calls
+-- `nvim_buf_set_name` and races into E95 "Buffer with this name already exists"
+-- (#1415, #1365). Manual reveal via <leader>E is fine because it runs once,
+-- not on every BufEnter, so no race.
+--
+-- For filesystem manipulation (bulk rename, create, move, etc.), use oil.nvim
+-- (open via `-`). Neo-tree stays read-mostly: navigate + open files.
 
 return {
   "nvim-neo-tree/neo-tree.nvim",
   branch = "v3.x",
   cond = not vim.g.vscode,
+  main = "neo-tree", -- explicit so lazy.nvim picks the right module to setup()
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-tree/nvim-web-devicons",
     "MunifTanjim/nui.nvim",
   },
+  -- Load eagerly. `event = "VimEnter"` previously created a race where the
+  -- VimEnter autocmd in `init` could call :Neotree before lazy finished setup,
+  -- leaving `neo-tree.config` nil → E5108 on toggle_node/open ("attempt to
+  -- index field 'config' (a nil value)" in fs_scan.lua).
+  lazy = false,
   cmd = "Neotree",
-  event = "VimEnter",
   keys = {
     { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle file tree" },
-    { "<leader>E", "<cmd>Neotree reveal<cr>", desc = "Reveal current file" },
+    { "<leader>E", "<cmd>Neotree reveal<cr>", desc = "Reveal current file in tree" },
   },
   init = function()
-    -- Open neo-tree on startup (only when opening a directory or no file args)
     vim.api.nvim_create_autocmd("VimEnter", {
       callback = function()
         if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
-          vim.schedule(function()
-            neo_tree_cleanup_orphan_buffers_scheduled()
-            vim.cmd("Neotree show")
-          end)
+          vim.schedule(function() pcall(vim.cmd, "Neotree show") end)
         end
       end,
+    })
+  end,
+  -- Explicit config callback (instead of opts) makes setup failures visible
+  -- as errors instead of silently leaving config = nil.
+  config = function(_, opts)
+    require("neo-tree").setup(opts)
+    -- Global timeoutlen is 300ms (options.lua), too short to type `zR`/`zM`
+    -- in two keystrokes on a Kyria with layered tap-holds. Bump it locally
+    -- to 600ms inside the neo-tree buffer so multi-char fold mappings fire.
+    vim.api.nvim_create_autocmd("FileType", {
+      group = vim.api.nvim_create_augroup("NeoTreeTimeoutlen", { clear = true }),
+      pattern = "neo-tree",
+      callback = function() vim.opt_local.timeoutlen = 600 end,
     })
   end,
   opts = {
     close_if_last_window = true,
     filesystem = {
       bind_to_cwd = true,
-      follow_current_file = { enabled = true },
-      -- Libuv watcher + debounced navigate can race and trigger E95 (duplicate buffer name). Prefer stable fs polling.
+      follow_current_file = { enabled = false }, -- DO NOT enable: source of E95 race
       use_libuv_file_watcher = false,
       filtered_items = {
         hide_dotfiles = false,
@@ -79,6 +70,22 @@ return {
         ["<Left>"] = "close_node",
         ["<CR>"] = "open",
         ["P"] = { "toggle_preview", config = { use_float = true, use_image_nvim = false } },
+        -- Fold-style expand/collapse, mirrors vim fold mnemonics.
+        -- Uppercase (zR/zM) = whole tree; lowercase (zr/zm) = current subtree only.
+        -- zo/zc toggle the node under cursor. NOTE: neo-tree has no `open_node`
+        -- action; `toggle_node` is the right one (no-op if already open/closed).
+        ["zR"] = "expand_all_nodes",
+        ["zM"] = "close_all_nodes",
+        ["zr"] = "expand_all_subnodes",
+        ["zm"] = "close_all_subnodes",
+        ["zo"] = "toggle_node",
+        ["zc"] = "close_node",
+        -- Single-key alternatives (no timeoutlen risk on Kyria layers):
+        -- Shift+arrows expand/collapse the whole tree; +/= work on current node.
+        ["<S-Right>"] = "expand_all_nodes",
+        ["<S-Left>"]  = "close_all_nodes",
+        ["+"]         = "expand_all_subnodes",
+        ["="]         = "close_all_subnodes",
       },
     },
     event_handlers = {
@@ -89,19 +96,6 @@ return {
             vim.cmd("wincmd =")
           end
         end,
-      },
-      -- Before (re)open: drop orphan buffers so nvim_buf_set_name cannot hit E95.
-      {
-        event = "neo_tree_window_before_open",
-        handler = neo_tree_cleanup_orphan_buffers_scheduled,
-      },
-      {
-        event = "neo_tree_window_after_close",
-        handler = neo_tree_cleanup_orphan_buffers,
-      },
-      {
-        event = "neo_tree_buffer_leave",
-        handler = neo_tree_cleanup_orphan_buffers,
       },
     },
     default_component_configs = {

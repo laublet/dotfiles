@@ -73,8 +73,21 @@ else
   -- Save
   map("n", "<C-s>", ":w<CR>", opts)
   map("n", "<leader>w", ":w!<CR>", opts)
-  -- Close buffer
-  map("n", "<leader>q", ":bd<CR>", opts)
+  -- Close buffer while keeping the window/split alive: switch to the previous
+  -- buffer first, then delete the original. Without this, `:bd` closes the
+  -- window too (annoying when a split layout is set up).
+  map("n", "<leader>q", function()
+    local buf = vim.api.nvim_get_current_buf()
+    if vim.bo[buf].modified then
+      vim.notify("Buffer has unsaved changes (use :bd! to force)", vim.log.levels.WARN)
+      return
+    end
+    vim.cmd("bprevious")
+    if vim.api.nvim_buf_is_valid(buf) then
+      pcall(vim.api.nvim_buf_delete, buf, { force = false })
+    end
+  end, { desc = "Close buffer (keep window)" })
+  map("n", "<leader>Q", ":bd!<CR>", { desc = "Close buffer + window (force)" })
 
   -- Split creation (| = vertical line, - = horizontal line)
   map("n", "<leader>|", ":vsplit<CR>", { desc = "Vertical split" })
@@ -94,6 +107,10 @@ else
   map({ "n", "i", "t" }, "<leader>Ux", function()
     float.close_all_floats()
   end, { desc = "Close all floating windows (escape hatch)" })
+
+  -- (Removed) <leader>ac standalone cursor-agent split: now redundant because
+  -- avante.nvim uses cursor-agent as its provider via ACP (see avante.lua).
+  -- Use <leader>aa (ask) or <leader>at (toggle) — same backend, integrated UI.
 
   -- Zoom toggle (maximize current split / restore original sizes)
   local saved_layout = nil
@@ -144,29 +161,59 @@ else
     end
     vim.cmd("startinsert")
   end
-  map("n", "<leader>t", toggle_terminal, { desc = "Toggle terminal" })
-  map("t", "<C-\\>", toggle_terminal, { desc = "Toggle terminal" })
+  map("n", "<leader>t", toggle_terminal, { desc = "Toggle floating terminal" })
+  map("t", "<C-\\>", toggle_terminal, { desc = "Toggle floating terminal" })
 
-  -- Lazygit in floating window (<leader>lg is LTeX; git prefix is <leader>g — see fzf-lua)
-  map("n", "<leader>gg", function()
-    local buf = vim.api.nvim_create_buf(false, true)
-    local w = math.floor(vim.o.columns * 0.9)
-    local h = math.floor(vim.o.lines * 0.9)
-    local win = vim.api.nvim_open_win(buf, true, {
-      relative = "editor",
-      width = w,
-      height = h,
-      col = math.floor((vim.o.columns - w) / 2),
-      row = math.floor((vim.o.lines - h) / 2),
-      style = "minimal",
-      border = "rounded",
-    })
-    vim.fn.termopen("lazygit", {
-      on_exit = function()
-        if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
-        if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
-      end,
-    })
+  -- Bottom-split terminal toggle (persistent buffer, same shell across toggles).
+  -- Differs from the floating one above: stays visible while you code, takes a
+  -- horizontal slice at the bottom (uses `splitbelow = true` from options.lua).
+  local bterm_buf, bterm_win
+  local function toggle_bottom_terminal()
+    if bterm_win and vim.api.nvim_win_is_valid(bterm_win) then
+      vim.api.nvim_win_close(bterm_win, true)
+      bterm_win = nil
+      return
+    end
+    if not bterm_buf or not vim.api.nvim_buf_is_valid(bterm_buf) then
+      bterm_buf = vim.api.nvim_create_buf(false, true)
+    end
+    vim.cmd("botright " .. math.floor(vim.o.lines * 0.3) .. "split")
+    bterm_win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(bterm_win, bterm_buf)
+    if vim.bo[bterm_buf].buftype ~= "terminal" then
+      vim.fn.termopen(vim.o.shell)
+    end
     vim.cmd("startinsert")
-  end, { desc = "Git: Lazygit" })
+  end
+  -- <leader>; for bottom terminal: avoids the <leader>T group conflict with tab
+  -- pages (<leader>Tn/Tc/To). Mnemonic: ; sits on the home row, mirrors the
+  -- statusline position visually (bottom edge).
+  map("n", "<leader>;", toggle_bottom_terminal, { desc = "Toggle bottom terminal (split)" })
+
+  -- Fluid one-key exit from ANY terminal (floating, bottom split, or ad-hoc
+  -- :term like <leader>ac for cursor-agent). <C-q> chosen because:
+  --   - <C-t> is widely used by fzf-lua / oil (open-in-new-tab action)
+  --   - <C-\> is awkward on the user's Kyria layout
+  --   - Q = Quit is mnemonic, and <C-q> is unused in normal mode workflows
+  local function close_active_terminal()
+    local cur_win = vim.api.nvim_get_current_win()
+    if term_win and vim.api.nvim_win_is_valid(term_win) and cur_win == term_win then
+      toggle_terminal()
+    elseif bterm_win and vim.api.nvim_win_is_valid(bterm_win) and cur_win == bterm_win then
+      toggle_bottom_terminal()
+    else
+      vim.cmd([[stopinsert]])
+      pcall(vim.api.nvim_win_close, cur_win, false)
+    end
+  end
+  map("t", "<C-q>", close_active_terminal, { desc = "Close active terminal" })
+  map("n", "<C-q>", close_active_terminal, { desc = "Close active terminal" })
+
+  -- Easy exit from terminal-insert mode WITHOUT closing the window: Esc Esc
+  -- → normal mode (then you can scroll, copy, use :q, switch splits…). Single
+  -- Esc stays untouched so it still reaches TUIs (htop, fzf, vim inside term).
+  map("t", "<Esc><Esc>", [[<C-\><C-n>]], { desc = "Exit terminal-insert mode" })
+
+  -- Git: <leader>g* prefix handled in lua/plugins/neogit.lua (status, commit,
+  -- log, diffview) and lua/plugins/fzf-lua.lua (branches, commits, files).
 end

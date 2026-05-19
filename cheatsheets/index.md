@@ -1,8 +1,9 @@
 # CLI toolbox — what to use for what
 
 > Quick reference: "I want to do X" → use this tool.
-> Run `cheat <tool>` for the full cheatsheet of any tool listed here.
-> Keyboard shortcuts across apps: [keymaps-hub.md](keymaps-hub.md) → [keyboard-navigation.md](keyboard-navigation.md). Firefox + Tridactyl (by task): [tridactyl.md](tridactyl.md).
+> Run `cheat <tool>` for the full cheatsheet of any tool listed here, or `tui` to fuzzy-launch a TUI directly.
+> For TUI-by-task overview with launch contexts: [tui-guide.md](tui-guide.md).
+> Keyboard shortcuts across apps: [keymaps-hub.md](keymaps-hub.md) → [keyboard-navigation.md](keyboard-navigation.md). Firefox + Tridactyl (by task): [tridactyl.md](tridactyl.md). Kyria QMK keymap — current → [kyria.md](kyria.md) ; next iteration design (FR/EN/ES, Arcane on thumbs) → [kyria-next.md](kyria-next.md).
 
 ## Launcher & clipboard
 
@@ -27,6 +28,8 @@
 | Jump to a directory interactively | `Ctrl+F` | fzf |
 | Browse files visually | `y` | yazi |
 | Find previous command | `Ctrl+R` | atuin |
+| Browse cheatsheets | `cheat` | cheatsheets/ |
+| Launch any installed TUI | `tui` | [tui-guide](tui-guide.md) |
 
 ## View & inspect
 
@@ -40,8 +43,22 @@
 | Full system dashboard | `btop` | btop |
 | Lightweight system monitor | `btm` | bottom |
 | See git diff nicely | `git diff` (uses delta) | delta |
-| Git TUI client | `lg` | lazygit |
+| Structural diff (AST-aware) | `git dft` | [difftastic](difftastic.md) |
+| Git TUI in Neovim | `<leader>gg` | [neogit](neogit.md) |
+| Git TUI standalone (Cursor / shell) | `gu` | [gitui](gitui.md) |
+| GitLab MR / CI from terminal | `glab mr list`, `glab ci view` | [glab](glab.md) |
 | Docker TUI client | `lzd` | lazydocker |
+| HTTP client (TUI Postman) | `posting` | [posting](posting.md) |
+
+## Benchmark, diff & explore data
+
+| I want to... | Command | Tool |
+|--------------|---------|------|
+| Benchmark a command | `hyperfine 'cmd'` | [hyperfine](hyperfine.md) |
+| Compare two commands | `hyperfine 'cmd-a' 'cmd-b' --warmup 3` | hyperfine |
+| Structural diff (AST) | `git dft HEAD~1` | [difftastic](difftastic.md) |
+| Explore a JSON payload | `cat file.json \| fx` | [fx](fx.md) |
+| Query JSON one-shot (scriptable) | `jq '.field' file.json` | jq |
 
 ## Edit & transform
 
@@ -89,7 +106,7 @@
 | `cat` | syntax-highlighted viewer (bat) |
 | `z dir` | smart cd (zoxide) |
 | `y` | file manager (yazi) |
-| `lg` | lazygit |
+| `gu` | gitui (standalone git TUI) |
 | `lzd` | lazydocker |
 | `v` | neovim |
 | `just` | list dotfiles tasks |

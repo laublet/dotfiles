@@ -35,6 +35,26 @@ atuin search --before "1w ago"       # older than 1 week
 | `Enter` | execute selected command |
 | `Tab` | insert into prompt (edit before running) |
 | `Ctrl+D` | delete entry from history |
+| `Ctrl+O` | toggle **Inspect** panel (see below) |
+
+## Inspect mode
+
+`Ctrl+O` from the search view opens the **inspector** for the currently selected command. It shows everything atuin recorded around that execution and every previous run of the same command — perfect for "how long did this migration take last time?", "did that deploy actually exit 0?", or "from which directory did I run that?".
+
+Panel contents:
+
+- **Stats** — execution count, success rate, average duration
+- **Context** — host, user, session id, cwd, exit code, duration, timestamp
+- **History** — every prior execution of the same command, navigable with arrows
+
+Keys inside Inspect:
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+O` / `Esc` | back to search |
+| `↑` / `↓` | navigate previous executions |
+| `Enter` | run the highlighted execution |
+| `Ctrl+D` | delete the highlighted execution |
 
 ## Stats & management
 

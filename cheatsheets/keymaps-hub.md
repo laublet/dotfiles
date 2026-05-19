@@ -22,6 +22,6 @@ Sections below match headings in [keyboard-navigation.md](keyboard-navigation.md
 8. [Tridactyl (Firefox)](keyboard-navigation.md#tridactyl-firefox) — detailed **by task**: [tridactyl.md](tridactyl.md)
 9. [Mouseless](keyboard-navigation.md#mouseless)
 10. [Terminal aliases (zsh)](keyboard-navigation.md#terminal-aliases-zsh)
-11. [Kyria layers (quick reference)](keyboard-navigation.md#kyria-layers-quick-reference)
+11. [Kyria layers (quick reference)](keyboard-navigation.md#kyria-layers-quick-reference) — quick map; **full reference (every layer, combo, OSM, arcane, debug) lives in [kyria.md](kyria.md)**. Next iteration design (FR/EN/ES, Arcane-on-thumbs): [kyria-next.md](kyria-next.md).
 
 Related: **iTerm2 (same ⌘⌫ behavior)** — subsection under WezTerm in the same file (search the heading if the outline does not list it).

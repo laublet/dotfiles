@@ -1,0 +1,26 @@
+# TUI / CLI registry — consumed by the `tui` zsh function (see ../conf/zsh/zshrc).
+# Format: TOOL|CATEGORY|DESCRIPTION
+# - TOOL must match a binary in PATH (or `nvim:<thing>` for nvim-only entries).
+# - CATEGORY is freeform but kept short (used as column in fzf).
+# - DESCRIPTION is shown next to the tool name.
+# Lines starting with `#` and empty lines are ignored.
+# The fzf preview reads ../cheatsheets/<TOOL>.md (if present).
+
+gitui|git|Standalone git TUI (Rust, vim keys)
+posting|http|HTTP client TUI (Postman replacement candidate)
+btop|sys|System dashboard (CPU/RAM/net/proc)
+btm|sys|Lightweight system monitor (bottom)
+procs|sys|Process tree with color (htop-like)
+dust|fs|Disk usage tree
+yazi|fs|File manager with previews
+lazydocker|docker|Docker containers / compose TUI
+atuin|shell|Shell history TUI (also Ctrl+R)
+fx|json|Interactive JSON viewer
+glow|markdown|Markdown reader
+arttime|misc|ASCII art clock / pomodoro
+nvim:neogit|git|Open Neovim and launch :Neogit
+hyperfine|bench|Statistical command benchmarking (interactive prompt)
+glab|gitlab|GitLab CLI (MR / CI / issues)
+difft|git|Structural diff (AST-aware); prefer `git dft` from a repo
+tokei|stats|Count lines of code by language
+tldr|docs|Community man pages (tlrc)

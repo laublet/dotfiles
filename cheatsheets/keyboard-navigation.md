@@ -55,13 +55,16 @@ Service mode: `Esc` reload + exit, `R` flatten, `E` tiles, `=` balance, `L` re-a
 | Cmd + Shift + Z | Zoom pane (Cmd+Z stays free for undo) |
 | Cmd + Shift + X | Rotate panes (2 = swap; 3+ = cycle order) |
 | Cmd + Shift + Left/Right | Prev/next tab |
+| Cmd + Shift + , | Rename current tab (empty input = reset, persisted via resurrect) |
 | Ctrl + Shift + R / Cmd + R | Reload WezTerm config (defaults) |
 | Cmd + Shift + S / O | Resurrect: save session / restore session (fuzzy) |
+| Cmd + Shift + L | Switch workspace (fuzzy launcher, lists existing) |
+| Cmd + Shift + N | New/switch workspace by name (prompt) |
 | Cmd + Backspace | Sends Ctrl+U (kill line backward in zsh / vim insert) |
 | Cmd + T | New tab |
 | Cmd + 1-9 | Go to tab |
 
-Scrollback search: **Cmd+F** (overlay, bottom bar — Ctrl+Shift+C copy per WezTerm docs). **Copy mode** (Cmd+Shift+Space) then **`/`** (defaults): type pattern, **Enter** confirms (dotfiles: AcceptPattern), then Ctrl+n/p / arrows; **y** copy if your `search_mode` build includes it.
+Scrollback search: **Cmd+F** (overlay, bottom bar — Ctrl+Shift+C copy per WezTerm docs). **Copy mode** (Cmd+Alt+Space) then **`/`** or **`?`** to start a pattern; **Enter** accepts and auto-selects the current match (press **`y`** to copy immediately). Navigate matches with **`n`** / **`Shift+n`** (vim-style; `Ctrl+n`/`Ctrl+p` and arrows also work). **`Esc`** clears the pattern + closes — important: wezterm retriggers search on every terminal redraw, so a leftover pattern would periodically yank the cursor back to the first match.
 
 ### iTerm2 (same ⌘⌫ behavior)
 
@@ -179,12 +182,33 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | Space + H | Cheatsheets folder (fzf-lua) |
 | Space + K | Keymaps hub + keyboard-navigation (fzf-lua) |
 | Space + B | Buffers |
-| Space + E | Toggle Neo-tree |
-| Space + W | Save |
-| Space + Q | Close buffer |
-| Space + T | Toggle floating terminal |
-| Space + Z | Zoom toggle (maximize split) |
-| Space + u | Undo tree (Undotree) |
+| Space + e | Toggle Neo-tree (sidebar; arbo, repère visuel) |
+| Space + E | Reveal current file in Neo-tree |
+| (in tree) `zR` / `zM` | Expand / close ALL nodes (vim-fold mnemonic) |
+| (in tree) `zr` / `zm` | Expand / close subtree under cursor |
+| (in tree) `zo` / `zc` | Toggle / close node under cursor |
+| (in tree) `Shift+Right` / `Shift+Left` | Single-key alternative to `zR`/`zM` (no timeout) |
+| (in tree) `+` / `=` | Single-key alternative to `zr`/`zm` |
+
+> Note : à l'intérieur du buffer Neo-tree, `timeoutlen` est bumpé à 600ms (vs 300ms global) pour laisser le temps de taper les séquences `zX` sur clavier layered.
+| Space + o | Oil floating (manipulation fs: rename, create, move, then `:w`) |
+| `-` | Oil parent dir (vinegar style) |
+| Space + w | Save |
+| Space + q | Close buffer (keep window/split) |
+| Space + Q | Close buffer + force (closes window too) |
+| Space + t | Toggle floating terminal (modal) |
+| Space + ; | Toggle bottom split terminal (persistent, side-by-side with code) |
+| `Ctrl + q` | **Close** any active terminal (float / bottom / cursor-agent) — works from inside or outside |
+| `Esc Esc` | Exit terminal-insert mode without closing (then scroll, copy, `:q`, …) |
+| Space + z | Zoom toggle (maximize split — use on the tree to read long paths) |
+| Space + a + a | Ask AI (avante → cursor-agent via ACP, Claude as fallback) |
+| Space + a + t | Toggle Avante sidebar |
+| Space + a + f | **Focus** Avante sidebar (more reliable than smart-splits arrows on multi-pane layouts) |
+| Space + a + r | Refresh Avante |
+| Space + a + n | New ask (clear conversation) |
+| Space + a + m | Switch ACP mode (agent / plan / ask) |
+| Space + a + ? | Switch provider/model |
+| Space + u | Undo tree (Undotree, opens on the RIGHT — layout 3 to avoid clashing with Neo-tree sidebar) |
 | Space + Ur | Refocus float UI (fzf, which-key, …) — **Shift+u**, then `r` |
 | Space + Ux | Close all floating windows — **Shift+u**, then `x` |
 | Space + \| | Vertical split |
@@ -340,7 +364,7 @@ Subgrid nudge: ESDF (left hand, WASD-like), HJKL (right hand, vim-like).
 | `c` | Open Cursor in current dir |
 | `ff <url>` | Open Firefox Developer Edition |
 | `v` | Neovim |
-| `lg` | Lazygit |
+| `gu` | gitui (standalone git TUI) |
 | `lzd` | Lazydocker |
 | `y` | Yazi (cd on exit) |
 | `on <name>` | Open Obsidian note by name |
@@ -352,15 +376,27 @@ Subgrid nudge: ESDF (left hand, WASD-like), HJKL (right hand, vim-like).
 
 ## Kyria layers (quick reference)
 
-| Layer | Activation | Content |
-|---|---|---|
-| 0 ALPHA | Default | QWERTY + home-row mods (CAGS) |
-| 1 NAV | Hold Space | Arrows, Home/End/PgUp/PgDn, explicit mods, LCAG/HYPR |
-| 2 NUMPAD | Hold Esc | Right-hand numpad |
-| 3 SYM_L | Hold ; (right) | Brackets, parens, braces, symbols (left hand) |
-| 4 SYM_R | Hold R (left) | Operators, comparators, symbols (right hand) |
-| 5 MOUSE | Toggle | Mouse keys, scroll wheel |
-| 6 MEDIA | Toggle | Media controls, F-keys |
-| 7 GAMING | Toggle | No home-row mods |
+Full reference (every layer table, combo, OSM, arcane, debug workflow) lives in **[kyria.md](kyria.md)**. Quick map:
 
-Home-row mods (CAGS): A=Ctrl, S=Alt, D=Gui, F=Shift / J=Shift, K=Gui, L=Alt, ;=Ctrl.
+| # | Layer | Activation | Content |
+|---|---|---|---|
+| 0 | ALPHA | Default | QWERTY + home-row mods (CAGS) |
+| 1 | NAV_L | Hold **left Space** | Arrows on left (SDFG), HOME/END/PG, undo/cut/copy/paste, OSMs + combined mods on right |
+| 2 | NAV_R | Hold **right Space** | Arrows on right (HJKL), HOME/END/PG, OSMs + combined mods on left |
+| 3 | NUMPAD | Hold **Esc** (L thumb) | Right-hand numpad, `0` on right thumb |
+| 4 | SYM_L | Hold **`:`** (R thumb) | Brackets, parens, braces, left-hand symbols |
+| 5 | SYM_R | Hold **R** (L thumb) | Operators, comparators, right-hand symbols |
+| 6 | MOUSE | TT (R pinky bottom) | Mouse keys + scroll wheel |
+| 7 | MEDIA | TT (L pinky home) | Media controls + F-keys (TD on F1/F2) |
+| 8 | GAMING | TT (L pinky bottom) | No home-row mods |
+| 9 | SETTINGS | TT (L pinky top) | RGB, backlight, EE_CLR |
+
+Home-row mods (CAGS): A=Ctrl, S=Alt, D=Gui, F=Shift / J=Shift, K=Gui, L=Alt, `;`=Ctrl. Uniform 200ms tap term, 80ms flow tap. Opposite-hand `CHORDAL_HOLD`.
+
+Key combos: **D+F** / **J+K** = Enter, **Space+Space** = toggle NAV_R, **Z+/** = PANIC (clear all mods/layers), **Q+P** = MARK debug separator to `qmk console`.
+
+Capitalization: both shifts = **Caps Word** (1 word, auto-end), hold NAV + tap Arcane = **one-shot Shift**, OSM Shift ×5 = lock, MEDIA layer `KC_CAPS` = OS CapsLock.
+
+Arcane keys (inner-bottom): on ALPHA same-hand = repeat, cross-hand = magic (alt-repeat); on NAV any side = one-shot Shift.
+
+Special bindings: **Shift+Backspace** = Delete, **Shift+Esc** = `~`, **GUI+Esc** = `` ` ``.

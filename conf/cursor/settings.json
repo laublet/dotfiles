@@ -121,5 +121,6 @@
   // =========================================================================
   // GitLens
   // =========================================================================
-  "gitlens.plusFeatures.enabled": false
+  "gitlens.plusFeatures.enabled": false,
+  "workbench.statusBar.visible": false
 }

@@ -21,11 +21,6 @@
       create: true
       path: conf/albert/websearch
 
-    # lazygit (macOS path)
-    ~/Library/Application Support/lazygit/config.yml:
-      create: true
-      path: conf/lazygit/config.yml
-
     # lazydocker (macOS path)
     ~/Library/Application Support/jesseduffield/lazydocker/config.yml:
       create: true

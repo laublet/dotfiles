@@ -85,8 +85,14 @@ fi
 # ── Aliases (shared) ─────────────────────────────────────────────
 alias v="nvim"
 alias sv="sudo nvim"
+# Force-open the Alpha dashboard even when persistence.nvim would otherwise
+# restore a session (useful to "reset" the workspace view without typing :Alpha).
+# Alpha is lazy-loaded on VimEnter; `+Alpha` and a VimEnter autocmd both run
+# too early. `vim.schedule` defers the call to the next event-loop tick,
+# after the whole startup chain (lazy.nvim → alpha.nvim → persistence) settles.
+alias nva="nvim -c 'lua vim.schedule(function() pcall(vim.cmd, [[Alpha]]) end)'"
 alias vzsh="v ~/.zshrc"
-alias lg="lazygit"
+alias gu="gitui"
 alias lzd="lazydocker"
 # yazi: cd to last visited directory on exit
 function y() {
@@ -168,6 +174,47 @@ cheat() {
            --delimiter ' ' --nth 2 \
     | awk '{print $NF}')
   [[ -n "$file" ]] && bat --style=plain --paging=always "$dir/$file"
+}
+
+# tui — fuzzy launcher for installed TUIs / CLIs.
+# Registry: cheatsheets/.tui-registry (TOOL|CATEGORY|DESCRIPTION).
+# Preview: cheatsheets/<tool>.md via bat.
+# nvim:<thing> entries open Neovim with a custom :command (e.g. nvim:neogit).
+tui() {
+  local dir="$HOME/dev/perso/dotfiles/cheatsheets"
+  local registry="$dir/.tui-registry"
+  if [[ ! -f "$registry" ]]; then
+    echo "tui: registry not found at $registry" >&2
+    return 1
+  fi
+  local pick tool nvim_cmd
+  pick=$(awk -F'|' '!/^#/ && NF>=3 {printf "%-18s %-8s  %s\n", $1, $2, $3}' "$registry" \
+    | fzf --prompt='TUI❯ ' \
+          --preview-window='right,60%' \
+          --preview="
+            t=\$(echo {1} | sed 's/^nvim://')
+            f=\"$dir/\$t.md\"
+            if [[ -f \"\$f\" ]]; then
+              bat --style=plain --color=always \"\$f\"
+            else
+              echo 'No cheatsheet for' \$t
+            fi
+          " \
+    | awk '{print $1}')
+  [[ -z "$pick" ]] && return 0
+  if [[ "$pick" == nvim:* ]]; then
+    nvim_cmd="${pick#nvim:}"
+    case "$nvim_cmd" in
+      neogit) command nvim -c "Neogit" ;;
+      *)      command nvim -c "$nvim_cmd" ;;
+    esac
+    return
+  fi
+  if ! command -v "$pick" &>/dev/null; then
+    echo "tui: '$pick' is not in PATH (install it via Brewfile?)" >&2
+    return 1
+  fi
+  command "$pick"
 }
 
 # ── Ripgrep + fzf functions ──────────────────────────────────────

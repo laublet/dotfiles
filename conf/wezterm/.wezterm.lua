@@ -10,8 +10,10 @@
 --   Ctrl + Alt + Shift + arrows → swap active pane with neighbor in that direction
 --        (2 panes: rotate; 3+: PaneSelect fallback until Lua exposes swap_active_with_index)
 --   Cmd + Shift + ←/→        → prev/next tab
---   Cmd + Shift + Space      → copy mode; / ? = EditPattern (defaults); Enter validates pattern (search_mode override);
---                              Ctrl+n/p, arrows; Cmd+F = separate scrollback overlay (see cheatsheet)
+--   Cmd + Shift + ,          → rename current tab (empty = reset, persisted via resurrect)
+--   Cmd + Alt + Space        → copy mode; / ? = EditPattern (defaults); Enter validates pattern + auto-selects match;
+--                              n / Shift+n (or Ctrl+n/p, arrows) cycle matches; y copies; Esc clears pattern + closes;
+--                              Cmd+F = separate scrollback overlay (see cheatsheet)
 --   Cmd + d/D                → split horizontal/vertical
 --   Cmd + w                  → close pane
 --   Cmd + Shift + z          → zoom pane (Cmd+z stays free for undo)
@@ -24,13 +26,15 @@
 --   Cmd + Shift + s/o        → save / restore session (resurrect; o/O for restore)
 --   Cmd + Shift + Ctrl + d   → delete one saved state (fuzzy)
 --   Cmd + Shift + Ctrl + x   → wipe all resurrect state (type DELETE to confirm)
+--   Cmd + Shift + l          → switch workspace (fuzzy launcher, lists existing)
+--   Cmd + Shift + n          → new/switch workspace by name (prompt)
 --   Startup                  → restore last saved workspace (resurrect); fallback: new shell
 --   Cmd + Backspace          → Ctrl+U (kill line backward — zsh / vim insert)
 --
--- Status bar (right):
---   network ↓/↑, CPU%, RAM used/total (matches Activity Monitor "Memory Used"),
---   swap (if active), load avg, hostname, clock
---   Color-coded thresholds (orange → red) for CPU, RAM, load, swap
+-- Status bar (left only):
+--   active workspace name + active key table (copy mode, leader pending, …)
+--   Right side intentionally empty — clock lives in the macOS menu bar,
+--   CPU/RAM/network are inspected on demand via btop / bandwhich / nettop.
 --
 -- NOTE: Ctrl+hjkl intentionally NOT bound here — keeps Ctrl+L (clear),
 -- Ctrl+H (backspace), etc. available for the shell.
@@ -63,7 +67,11 @@ config.window_background_opacity = 1.0
 config.use_fancy_tab_bar = false
 config.tab_bar_at_bottom = true
 config.hide_tab_bar_if_only_one_tab = false
-config.status_update_interval = 10000
+-- 60s instead of 10s: each status update triggers a global window redraw
+-- which re-evaluates the search pattern in copy mode and snaps the cursor
+-- back to the first match (wezterm/wezterm#5952). Status bar still refreshes
+-- on user interaction (key press, pane switch, workspace change).
+config.status_update_interval = 60000
 config.tab_max_width = 32
 
 config.colors = {
@@ -283,105 +291,54 @@ wezterm.on("resurrect.state_manager.periodic_save.finished", function()
 end)
 
 -- =============================================================================
--- Status bar — workspace/mode (left) + system metrics (right)
+-- Status bar — workspace + key table (left only)
 -- =============================================================================
+-- Right-side system metrics (CPU/RAM/net/time/hostname) were removed: time is
+-- already in the macOS menu bar, and CPU/RAM/net are inspected on demand with
+-- btop/bandwhich/nettop, not as ambient noise. Keeping the left side because
+-- the active key table indicator (copy mode, leader pending, …) is the only
+-- piece of context vim-style usage actually needs.
 
-local prev_net = { bytes_in = 0, bytes_out = 0, time = 0 }
-local cached_metrics = {}
-local cached_metrics_ts = 0
-local static_info = nil
-
-local function format_speed(bps)
-  if bps >= 1048576 then return string.format("%.1fM", bps / 1048576) end
-  if bps >= 1024 then return string.format("%.0fK", bps / 1024) end
-  return "0K"
+-- Tab title format: respect custom title set via Cmd+Shift+,; otherwise show
+-- the active pane title (process). Tab index prefix helps Cmd+1..9 navigation.
+-- Active tab is never truncated (so you always see its full name); inactive
+-- tabs follow the max_width budget.
+--
+-- When a custom title is set, we still want to surface the running process'
+-- spinner/status icon (cursor-agent's "⠋ Thinking…", "⏳ Running tool", etc.).
+-- Scan every whitespace-separated token of the pane title and keep the first
+-- one that contains a UTF-8 multibyte char (byte ≥ 0x80). This catches spinners
+-- whether they appear at the start, middle or end of the title: "⠋ Thinking",
+-- "Thinking ⠋", "cursor-agent ⠋ tool-call" all yield the braille glyph.
+-- Pure ASCII tokens (zsh, nvim, the agent's name, …) are filtered out.
+local function extract_status_glyph(pane_title)
+  if not pane_title or #pane_title == 0 then return nil end
+  for token in pane_title:gmatch("%S+") do
+    if token:find("[\128-\255]") then return token end
+  end
+  return nil
 end
 
-local function get_static_info()
-  if static_info then return static_info end
-  local is_mac = (wezterm.target_triple or ""):find("apple") ~= nil
-  local script
-  if is_mac then
-    script = [[sysctl -n hw.ncpu hw.memsize && hostname -s]]
+wezterm.on("format-tab-title", function(tab, _, _, _, _, max_width)
+  local title = tab.tab_title
+  if title and #title > 0 then
+    local glyph = extract_status_glyph(tab.active_pane.title)
+    if glyph then title = glyph .. " " .. title end
   else
-    script = [[nproc && awk '/MemTotal/{printf "%d\n",$2*1024}' /proc/meminfo && hostname -s]]
+    title = tab.active_pane.title
   end
-  local ok, stdout = wezterm.run_child_process({ "bash", "-c", script })
-  if not ok then return { ncpu = 4, ram_total = 16, hostname = "" } end
-  local lines = {}
-  for line in stdout:gmatch("[^\r\n]+") do table.insert(lines, line) end
-  static_info = {
-    ncpu = tonumber(lines[1]) or 4,
-    ram_total = math.floor((tonumber(lines[2]) or 0) / 1073741824),
-    hostname = lines[3] or "",
-  }
-  return static_info
-end
-
-local function refresh_metrics()
-  local now = os.time()
-  if (now - cached_metrics_ts) < 10 then return cached_metrics end
-
-  local si = get_static_info()
-  local is_mac = (wezterm.target_triple or ""):find("apple") ~= nil
-  local script
-  if is_mac then
-    script = [[
-top -l 1 -n 0 -s 0 2>/dev/null | awk '/CPU usage/{gsub(/%/,"",$3); printf "%.0f\n",100-$7}'
-vm_stat 2>/dev/null | awk 'BEGIN{ps=4096}/page size/{ps=$8}/Anonymous pages/{an=$3}/Pages purgeable/{p=$3}/Pages wired/{w=$4}/Pages occupied by compressor/{c=$5}END{gsub(/\./,"",an);gsub(/\./,"",p);gsub(/\./,"",w);gsub(/\./,"",c);printf "%.1f\n",(an-p+w+c)*ps/1073741824}'
-netstat -ib 2>/dev/null | awk '/en0.*Link/{print $7,$10;exit}'
-sysctl -n vm.loadavg vm.swapusage | awk 'NR==1{printf "%.2f\n",$2} NR==2{gsub(/[^0-9.]/,"",$6);printf "%.2f\n",$6/1024}'
-]]
-  else
-    script = [[
-top -bn1 2>/dev/null | awk '/^%Cpu/{printf "%.0f\n",100-$8}'
-awk '/MemTotal/{t=$2}/MemAvailable/{a=$2}END{printf "%.1f\n",(t-a)/1048576}' /proc/meminfo
-awk 'NR>2&&!/lo/{print $2,$10;exit}' /proc/net/dev
-awk '{printf "%.2f\n",$1}' /proc/loadavg
-awk '/SwapTotal/{t=$2}/SwapFree/{f=$2}END{printf "%.1f\n",(t-f)/1048576}' /proc/meminfo
-]]
-  end
-
-  local ok, stdout = wezterm.run_child_process({ "bash", "-c", script })
-  if not ok then return cached_metrics end
-
-  local lines = {}
-  for line in stdout:gmatch("[^\r\n]+") do table.insert(lines, line) end
-
-  local m = {}
-  m.cpu = (lines[1] or ""):match("%d+") or "?"
-  m.ram_used = (lines[2] or ""):match("[%d%.]+") or "?"
-  m.ram_total = tostring(si.ram_total)
-
-  local net_str = lines[3] or ""
-  local bin, bout = net_str:match("(%d+)%s+(%d+)")
-  if bin and bout then
-    bin, bout = tonumber(bin), tonumber(bout)
-    if prev_net.time > 0 then
-      local dt = now - prev_net.time
-      if dt > 0 then
-        m.dl = format_speed((bin - prev_net.bytes_in) / dt)
-        m.ul = format_speed((bout - prev_net.bytes_out) / dt)
-      end
+  local prefix = " " .. (tab.tab_index + 1) .. ": "
+  local suffix = " "
+  if not tab.is_active then
+    local budget = max_width - #prefix - #suffix
+    if budget > 0 and #title > budget then
+      title = wezterm.truncate_right(title, math.max(1, budget - 1)) .. "…"
     end
-    prev_net.bytes_in = bin
-    prev_net.bytes_out = bout
-    prev_net.time = now
   end
-
-  m.load = (lines[4] or ""):match("[%d%.]+") or nil
-  local swap_val = tonumber((lines[5] or ""):match("[%d%.]+"))
-  m.swap = swap_val and swap_val > 0.1 and swap_val or nil
-  m.hostname = si.hostname
-  m.ncpu = si.ncpu
-
-  cached_metrics = m
-  cached_metrics_ts = now
-  return m
-end
+  return prefix .. title .. suffix
+end)
 
 wezterm.on("update-status", function(window, _)
-  -- Left: workspace + key table
   local workspace = window:active_workspace()
   local key_table = window:active_key_table()
   local left = " " .. workspace
@@ -390,79 +347,7 @@ wezterm.on("update-status", function(window, _)
     { Foreground = { Color = "#6272a4" } },
     { Text = left .. " " },
   }))
-
-  -- Right: system metrics
-  local m = refresh_metrics()
-  local elements = {}
-  local purple = { Foreground = { Color = "#bd93f9" } }
-  local fg = { Foreground = { Color = "#f8f8f2" } }
-  local muted = { Foreground = { Color = "#6272a4" } }
-  local red = { Foreground = { Color = "#ff5555" } }
-  local orange = { Foreground = { Color = "#ffb86c" } }
-
-  local function sep()
-    table.insert(elements, muted)
-    table.insert(elements, { Text = "  │  " })
-  end
-
-  if m.dl then
-    table.insert(elements, purple)
-    table.insert(elements, { Text = "↓ " })
-    table.insert(elements, fg)
-    table.insert(elements, { Text = m.dl .. " " })
-    table.insert(elements, purple)
-    table.insert(elements, { Text = "↑ " })
-    table.insert(elements, fg)
-    table.insert(elements, { Text = m.ul })
-    sep()
-  end
-
-  if m.cpu then
-    local cpu_n = tonumber(m.cpu) or 0
-    table.insert(elements, purple)
-    table.insert(elements, { Text = "CPU " })
-    table.insert(elements, cpu_n > 80 and red or (cpu_n > 50 and orange or fg))
-    table.insert(elements, { Text = m.cpu .. "%" })
-    sep()
-  end
-
-  if m.ram_used then
-    local used = tonumber(m.ram_used) or 0
-    local total = tonumber(m.ram_total) or 1
-    local pct = used / total
-    table.insert(elements, purple)
-    table.insert(elements, { Text = "RAM " })
-    table.insert(elements, pct > 0.85 and red or (pct > 0.70 and orange or fg))
-    table.insert(elements, { Text = m.ram_used .. "/" .. m.ram_total .. "G" })
-    sep()
-  end
-
-  if m.swap then
-    table.insert(elements, red)
-    table.insert(elements, { Text = "SWAP " .. string.format("%.1f", m.swap) .. "G" })
-    sep()
-  end
-
-  if m.load then
-    local load_n = tonumber(m.load) or 0
-    local ncpu = m.ncpu or 4
-    table.insert(elements, purple)
-    table.insert(elements, { Text = "LOAD " })
-    table.insert(elements, load_n > ncpu and red or (load_n > ncpu * 0.7 and orange or fg))
-    table.insert(elements, { Text = m.load })
-    sep()
-  end
-
-  if m.hostname ~= "" then
-    table.insert(elements, muted)
-    table.insert(elements, { Text = m.hostname })
-    sep()
-  end
-
-  table.insert(elements, purple)
-  table.insert(elements, { Text = wezterm.strftime("%H:%M") .. " " })
-
-  window:set_right_status(wezterm.format(elements))
+  window:set_right_status("")
 end)
 
 -- =============================================================================
@@ -647,10 +532,27 @@ config.keys = {
     action = act.ActivateTabRelative(1),
   },
 
-  -- Copy mode — Cmd + Shift + Space (vim-like selection)
+  -- Rename current tab (empty input clears the custom title and reverts to
+  -- the pane title). Persisted across restarts by resurrect's tab_state.
+  -- `phys:Comma` matches the physical key regardless of how Shift transforms
+  -- it (Cmd+Shift+, would otherwise send Cmd+< on macOS layouts and miss).
+  {
+    key = "phys:Comma",
+    mods = "CMD|SHIFT",
+    action = act.PromptInputLine({
+      description = "Rename tab (empty to reset)",
+      action = wezterm.action_callback(function(window, _, line)
+        if line == nil then return end -- Esc cancelled
+        window:active_tab():set_title(line)
+      end),
+    }),
+  },
+
+  -- Copy mode — Cmd + Alt + Space (vim-like selection).
+  -- Cmd+Shift+Space is grabbed by Slack to focus the active huddle window.
   {
     key = "Space",
-    mods = "CMD|SHIFT",
+    mods = "CMD|ALT",
     action = act.ActivateCopyMode,
   },
 
@@ -721,6 +623,29 @@ config.keys = {
       end),
     }),
   },
+
+  -- Workspaces: switch is per-window (each window has its own active_workspace).
+  -- Cmd+Shift+L: fuzzy switcher across existing workspaces (also lets you
+  -- start a new one by typing a fresh name and confirming).
+  -- Cmd+Shift+N: prompt for a workspace name; creates it if it doesn't exist
+  --             and switches the current window to it.
+  {
+    key = "l",
+    mods = "CMD|SHIFT",
+    action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }),
+  },
+  {
+    key = "n",
+    mods = "CMD|SHIFT",
+    action = act.PromptInputLine({
+      description = "Workspace name (new or existing)",
+      action = wezterm.action_callback(function(window, pane, line)
+        if line and #line > 0 then
+          window:perform_action(act.SwitchToWorkspace({ name = line }), pane)
+        end
+      end),
+    }),
+  },
 }
 
 -- search_mode: Enter → AcceptPattern (exit to copy_mode at current match);
@@ -737,10 +662,11 @@ config.keys = {
 -- an explicit binding, so this minimal table is sufficient.
 local function build_search_mode_accept_pattern()
   return {
-    { key = "Enter", mods = "NONE", action = act.Multiple({
-        act.CopyMode("AcceptPattern"),
-        act.CopyMode("ClearSelectionMode"),
-    }) },
+    -- Enter just AcceptPattern: wezterm auto-selects the current match (search
+    -- mode default selection behavior). Press `y` to copy immediately, or
+    -- `n`/`N` to navigate further. Forcing ClearSelectionMode here would fight
+    -- against that and leave you with nothing selected.
+    { key = "Enter",     mods = "NONE", action = act.CopyMode("AcceptPattern") },
     { key = "Escape",    mods = "NONE", action = act.CopyMode("Close") },
     { key = "n",         mods = "CTRL", action = act.CopyMode("NextMatch") },
     { key = "p",         mods = "CTRL", action = act.CopyMode("PriorMatch") },
@@ -755,15 +681,20 @@ end
 
 -- copy_mode default Escape = ScrollToBottom + Close, so after a scrollback
 -- search you jump to the prompt. Replace with a vim-style smart Escape:
---   - if a selection is active → clear it (stay in copy mode)
---   - otherwise → close copy mode (since wezterm/wezterm#4924, Close keeps
---     the viewport; no need for CloseWithoutClear here)
+--   - if a selection is active → clear it (stay in copy mode, keep pattern
+--     so n/N still navigate matches)
+--   - otherwise → ClearPattern + Close. Clearing the pattern is critical:
+--     wezterm retriggers the search on every terminal output (starship
+--     redraw, async git, clock), which periodically teleports the cursor
+--     back to the first match (wezterm/wezterm#5952). Dropping the buffer
+--     on exit stops that behavior for subsequent sessions.
 local function copy_mode_smart_escape()
   return wezterm.action_callback(function(window, pane)
     local sel = window:get_selection_text_for_pane(pane)
     if sel and #sel > 0 then
       window:perform_action(act.CopyMode("ClearSelectionMode"), pane)
     else
+      window:perform_action(act.CopyMode("ClearPattern"), pane)
       window:perform_action(act.CopyMode("Close"), pane)
     end
   end)
@@ -804,6 +735,10 @@ if config.key_tables.copy_mode then
   -- Defensive: ensure `/` opens search-mode from copy-mode. Some wezterm builds
   -- return incomplete defaults from gui.default_key_tables(), losing this binding.
   table.insert(config.key_tables.copy_mode, { key = "/", mods = "NONE", action = act.CopyMode("EditPattern") })
+  -- Vim-style match navigation: `n` next, `Shift+n` previous. Defaults only
+  -- provide Ctrl+n/Ctrl+p; keep those as fallback alongside arrows.
+  table.insert(config.key_tables.copy_mode, { key = "n", mods = "NONE",  action = act.CopyMode("NextMatch") })
+  table.insert(config.key_tables.copy_mode, { key = "n", mods = "SHIFT", action = act.CopyMode("PriorMatch") })
 end
 
 return config

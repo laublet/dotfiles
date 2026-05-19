@@ -1,31 +1,19 @@
 // https://zed.dev/docs/key-bindings
-// Zed keymap v1 — Loïc
-// Mirrors Cursor v6 + Neovim leader layer. base_keymap = "Cursor" handles
-// most Cmd-prefixed editor bindings (Cmd+P, Cmd+Shift+P, Cmd+B, Cmd+J, etc.).
+// Zed keymap v2 — Loïc
+// Mirrors Neovim leader layout (see conf/nvim/lua/plugins/which-key.lua):
+//   space p* find files       space f* grep / search
+//   space g* git              space h* git hunks
+//   space l* lsp + format     space a* AI agent
+//   space s/S symbols         space r recent
+//   space e explorer          space b buffers
+//   space t terminal          space d debugger
+//   space v command palette   space c :noh (clear search hl)
+//   space w save              space q close
+//   space z centered          space \ / -  splits
 //
-// Architecture (consistent with Cursor v6 / WezTerm / Neovim):
-//   Pane / dock nav     → Ctrl + arrows (sidebar ← editor → AI, terminal ↕ editor)
-//                          Zed unifies docks + splits in one pane tree, so a
-//                          single ActivatePane{Left,Right,Up,Down} call walks
-//                          everything (no separate zone vs split tier needed).
-//   Tab switching       → Cmd + Shift + left/right (editor + terminal tabs)
-//   Tab reorder         → Cmd + Alt + left/right (pane::SwapItem*)
-//   Split creation      → Cmd+d (right), Cmd+Shift+d (down)
-//   AI accept / reject  → Cmd+Shift+Enter (keep all) / Cmd+Shift+Backspace (reject all)
-//   Leader layer        → Space + key (vim normal mode, mirrors Neovim)
-//     space e  explorer    space f  file finder    space g  search in files
-//     space t  terminal    space v  git panel      space c  AI agent
-//     space b  buffers     space d  debugger       space w  save
-//     space q  close       space z  zen / center
-//
-// Spatial model:
-//   [ProjectPanel] ←Ctrl+Left— [Editor] —Ctrl+Right→ [AgentPanel]
-//                                  ↕ Ctrl+Down / Ctrl+Up
-//                              [Terminal]
-//
-// Quick discovery:
-//   - `dev: open key context view` (cmd palette) shows the active context tree.
-//   - `zed: open default keymap` shows all defaults you may want to override.
+// Discovery: which-key popup auto-shows after `space` is pressed (Zed ≥ Dec 2025).
+// `dev: open key context view` (cmd palette) shows the active context tree.
+// `zed: open default keymap` shows all defaults you may want to override.
 [
   // =========================================================================
   // Pane / dock navigation — Ctrl + arrows (works editor ↔ docks ↔ splits)
@@ -73,7 +61,7 @@
   },
 
   // =========================================================================
-  // Save — Cmd+S and Ctrl+S
+  // Save — Ctrl+S (Cmd+S handled by Cursor base keymap)
   // =========================================================================
   {
     "bindings": {
@@ -82,34 +70,80 @@
   },
 
   // =========================================================================
-  // Vim normal mode — leader layer (Space + key)
-  // Mirrors Neovim keymaps.lua and Cursor's leader layer.
+  // Vim normal mode — leader layer (Space + key) — mirrors Neovim
   // =========================================================================
   {
     "context": "Editor && vim_mode == normal && !VimWaiting && !menu",
     "bindings": {
-      // Files & navigation
-      "space e": "project_panel::ToggleFocus",
-      "space f": "file_finder::Toggle",
+      // ---- Files & navigation (mirror nvim <leader>p* and <leader>r/e/b) ----
       "space p p": "file_finder::Toggle",
-      "space g": "pane::DeploySearch",
+      "space p r": "projects::OpenRecent",
+      "space r": "file_finder::Toggle",
       "space b": "tab_switcher::Toggle",
+      "space e": "project_panel::ToggleFocus",
+      "space E": "pane::RevealInProjectPanel",
 
-      // Zones / panels
+      // ---- Grep / search (mirror nvim <leader>f*) ----
+      // Zed has a single project search panel; toggles (case, regex, word, etc.)
+      // live inside the panel: Alt+Cmd+C / W / X — see cheatsheets/zed.md.
+      "space f f": "pane::DeploySearch",
+      "space f /": "buffer_search::Deploy",
+      "space /": "buffer_search::Deploy",
+
+      // ---- Git (mirror nvim <leader>g*) ----
+      "space g g": "git_panel::ToggleFocus",
+      "space g s": "git_panel::ToggleFocus",
+      "space g b": "git::Branches",
+      "space g d": "git::Diff",
+
+      // ---- Git hunks (mirror nvim <leader>h*) ----
+      "space h s": "git::StageAndNext",
+      "space h r": "git::Restore",
+      "space h u": "git::Restore",
+      "space h S": "git::StageAll",
+      "space h R": "git::RestoreFile",
+      "space h b": "editor::ToggleGitBlame",
+      "space h B": "git::Blame",
+      "space h d": "git::Diff",
+      "space h n": "editor::GoToHunk",
+      "space h N": "editor::GoToPreviousHunk",
+      "space h p": "editor::ExpandAllDiffHunks",
+
+      // ---- LSP / format (mirror nvim <leader>l*) ----
+      "space l a": "editor::ToggleCodeActions",
+      "space l f": "editor::Format",
+      "space l r": "editor::Rename",
+
+      // ---- Symbols (mirror nvim <leader>s/S) ----
+      "space s": "outline::Toggle",
+      "space S": "project_symbols::Toggle",
+
+      // ---- AI agent (mirror nvim <leader>a* avante prefix) ----
+      "space a a": "agent::ToggleFocus",
+      "space a t": "agent::ToggleFocus",
+      "space a n": "agent::NewThread",
+
+      // ---- Clear search highlight (mirror nvim <leader>c → :noh) ----
+      "space c": ["workspace::SendKeystrokes", ": n o h enter"],
+
+      // ---- Panels ----
       "space t": "terminal_panel::ToggleFocus",
-      "space v": "git_panel::ToggleFocus",
-      "space c": "agent::ToggleFocus",
       "space d": "debug_panel::ToggleFocus",
+      "space v": "command_palette::Toggle",
 
-      // Actions
+      // ---- Actions ----
       "space w": "workspace::Save",
       "space q": "pane::CloseActiveItem",
+      "space x": "pane::CloseActiveItem",
       "space z": "workspace::ToggleCenteredLayout",
 
-      // Splits (alternative to Cmd+d, mirrors Neovim <leader>| / <leader>-)
+      // ---- Splits (mirror nvim <leader>| / <leader>-) ----
       "space \\": "pane::SplitRight",
       "space -": "pane::SplitDown",
-      "space x": "pane::CloseActiveItem"
+
+      // ---- Help / discovery (mirror nvim <leader>? / <leader>:) ----
+      "space ?": "command_palette::Toggle",
+      "space :": "command_palette::Toggle"
     }
   },
 
@@ -120,30 +154,32 @@
     "context": "EmptyPane || SharedScreen",
     "bindings": {
       "space e": "project_panel::ToggleFocus",
-      "space f": "file_finder::Toggle",
-      "space g": "pane::DeploySearch",
+      "space p p": "file_finder::Toggle",
+      "space f f": "pane::DeploySearch",
       "space t": "terminal_panel::ToggleFocus",
-      "space v": "git_panel::ToggleFocus",
-      "space c": "agent::ToggleFocus"
+      "space g g": "git_panel::ToggleFocus",
+      "space a a": "agent::ToggleFocus",
+      "space v": "command_palette::Toggle"
     }
   },
 
   // =========================================================================
-  // Vim — LSP shortcuts (gd / gi / gr / gh) — Zed already provides g d / g I /
-  // g A / g h via vim mode core; explicit aliases here keep parity with Neovim.
+  // Vim — LSP shortcuts (g r / g i / g t aliases) — mirror Neovim LSP attach
+  // Zed defaults already bind: g d (def), g h (hover), g s (doc symbols),
+  // g S (workspace symbols), g . (code actions), c d (rename), [d / ]d (diag).
   // =========================================================================
   {
     "context": "Editor && vim_mode == normal && !VimWaiting",
     "bindings": {
       "g r": "editor::FindAllReferences",
-      "g i": "editor::GoToImplementation"
+      "g i": "editor::GoToImplementation",
+      "g t": "editor::GoToTypeDefinition"
     }
   },
 
   // =========================================================================
   // AI agent — accept / reject edits (Zed AgentDiff context)
   // Action names verified against assets/keymaps/default-macos.json.
-  // Keep / Reject all live on AgentDiff (when reviewing inline edits).
   // =========================================================================
   {
     "context": "AgentDiff",
@@ -174,7 +210,7 @@
   },
 
   // =========================================================================
-  // Project panel — vim-style file tree (mirrors Neovim neo-tree feel)
+  // Project panel — Zed's GUI tree (mirrors Neovim neo-tree sidebar; bulk edits via oil.nvim)
   // =========================================================================
   {
     "context": "ProjectPanel && not_editing",

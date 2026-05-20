@@ -5,12 +5,14 @@
 ## First-time setup
 
 ```bash
-glab auth login                            # interactive (gitlab.com or self-hosted)
+glab auth login --hostname gitlab.com --web --git-protocol ssh
 glab auth status                           # check current session
 glab config set host gitlab.example.com    # for self-hosted (per-host config)
 ```
 
 Auth is stored in `~/.config/glab-cli/`. Tokens never end up in this dotfiles repo.
+
+**Browser (macOS):** dotfiles set `browser: open -a "Google Chrome"` in `conf/glab/config.yml` so OAuth / `--web` open in Chrome instead of the system default (Choosy/Firefox). Override: `glab config set -g browser 'open -a "Firefox"'` or `export BROWSER=...` (env wins over config).
 
 ## Merge Requests
 

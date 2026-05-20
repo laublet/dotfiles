@@ -4,3 +4,6 @@ nvim/.netrwhist
 .DS_Store
 *.swp
 *~
+
+# glab OAuth tokens (use config.yml.example + glab auth login locally)
+conf/glab/config.yml

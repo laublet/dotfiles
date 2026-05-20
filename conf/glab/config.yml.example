@@ -1,0 +1,9 @@
+# Copy to ~/.config/glab-cli/config.yml or let first-install copy it, then:
+#   glab auth login --hostname gitlab.com --web --git-protocol ssh
+# Tokens are written locally — never commit config.yml with oauth/token fields.
+
+host: gitlab.com
+git_protocol: ssh
+editor: nvim
+# macOS: open OAuth / --web links in Chrome (not Choosy default)
+browser: open -a "Google Chrome"

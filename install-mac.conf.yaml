@@ -53,6 +53,27 @@
         chmod +x ~/.local/bin/mac-startup-clean ~/.local/bin/wezterm-output-picker \
           ~/.local/bin/mac-neovim-defaults ~/.local/bin/yazi-pick 2>/dev/null || true
         chmod +x ~/Applications/Neovim.app/Contents/MacOS/nvim 2>/dev/null || true
+        # glab: local config only (never symlink — auth writes tokens into config.yml)
+        mkdir -p ~/.config/glab-cli
+        GLAB_CONF="$HOME/.config/glab-cli/config.yml"
+        if [[ -L "$GLAB_CONF" ]]; then
+          tmp=$(mktemp)
+          cp -L "$GLAB_CONF" "$tmp"
+          rm "$GLAB_CONF"
+          cp "$tmp" "$GLAB_CONF"
+          rm -f "$tmp"
+          chmod 600 "$GLAB_CONF"
+        elif [[ ! -f "$GLAB_CONF" ]] && [[ -f conf/glab/config.yml.example ]]; then
+          cp conf/glab/config.yml.example "$GLAB_CONF"
+          chmod 600 "$GLAB_CONF"
+        elif [[ -f "$GLAB_CONF" ]]; then
+          chmod 600 "$GLAB_CONF"
+        fi
+        if command -v glab >/dev/null; then
+          glab config set -g browser 'open -a "Google Chrome"' 2>/dev/null || true
+          glab config set -g editor nvim 2>/dev/null || true
+          glab config set -g git_protocol ssh 2>/dev/null || true
+        fi
         if command -v duti >/dev/null && [[ -x "$HOME/.local/bin/mac-neovim-defaults" ]]; then
           "$HOME/.local/bin/mac-neovim-defaults"
         fi

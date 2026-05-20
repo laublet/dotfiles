@@ -1,6 +1,7 @@
 -- https://github.com/neovim/nvim-lspconfig
 -- https://github.com/williamboman/mason.nvim
 -- https://github.com/williamboman/mason-lspconfig.nvim
+-- https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim
 -- https://github.com/folke/lazydev.nvim
 -- https://github.com/stevearc/conform.nvim
 
@@ -16,7 +17,15 @@ return {
       { "folke/lazydev.nvim", ft = "lua", opts = {} },
     },
     config = function()
-      local capabilities = require("cmp_nvim_lsp").default_capabilities()
+      -- cmp caps are completion-only; merge with Neovim defaults for workspace/features.
+      local capabilities = vim.tbl_deep_extend(
+        "force",
+        vim.lsp.protocol.make_client_capabilities(),
+        require("cmp_nvim_lsp").default_capabilities()
+      )
+      capabilities.workspace = capabilities.workspace or {}
+      capabilities.workspace.didChangeWatchedFiles = capabilities.workspace.didChangeWatchedFiles or {}
+      capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = true
 
       local function mason_bin(name)
         local mason_path = vim.fn.stdpath("data") .. "/mason/bin/" .. name
@@ -49,10 +58,28 @@ return {
         },
       })
 
-      vim.lsp.config("rust_analyzer", {
-        cmd = { mason_bin("rust-analyzer") },
-        filetypes = { "rust" },
-        root_markers = { "Cargo.toml", ".git" },
+      vim.lsp.config("eslint", {
+        cmd = { mason_bin("vscode-eslint-language-server"), "--stdio" },
+        filetypes = {
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact",
+        },
+        root_markers = {
+          ".eslintrc",
+          ".eslintrc.js",
+          ".eslintrc.cjs",
+          ".eslintrc.yaml",
+          ".eslintrc.yml",
+          ".eslintrc.json",
+          ".eslintrc.jsonc",
+          "eslint.config.js",
+          "eslint.config.mjs",
+          "eslint.config.cjs",
+          "package.json",
+        },
+        settings = { format = false },
       })
 
       -- LTeX (LanguageTool): grammar/style for prose — NOT auto-started (no vim.lsp.enable).
@@ -83,7 +110,7 @@ return {
         return "fr"
       end
 
-      vim.lsp.enable({ "ts_ls", "lua_ls", "rust_analyzer" })
+      vim.lsp.enable({ "ts_ls", "lua_ls", "eslint" })
 
       local function ltex_start(bufnr)
         local cmd = ltex_cmd()[1]
@@ -173,6 +200,7 @@ return {
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(args)
           local bufnr = args.buf
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
           local map = function(keys, func, desc)
             vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
           end
@@ -192,6 +220,14 @@ return {
           })
           map("[d", vim.diagnostic.goto_prev, "Previous diagnostic")
           map("]d", vim.diagnostic.goto_next, "Next diagnostic")
+
+          if client and vim.lsp.inlay_hint and client:supports_method("textDocument/inlayHint") then
+            vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+            map("<leader>li", function()
+              local enabled = vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr })
+              vim.lsp.inlay_hint.enable(not enabled, { bufnr = bufnr })
+            end, "Toggle inlay hints")
+          end
         end,
       })
 
@@ -215,8 +251,16 @@ return {
     "williamboman/mason-lspconfig.nvim",
     cond = not vim.g.vscode,
     opts = {
-      ensure_installed = { "ts_ls", "lua_ls", "rust_analyzer", "ltex" },
+      ensure_installed = { "ts_ls", "lua_ls", "eslint", "ltex" },
       automatic_enable = false,
+    },
+  },
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    cond = not vim.g.vscode,
+    dependencies = { "williamboman/mason.nvim" },
+    opts = {
+      ensure_installed = { "prettierd", "prettier", "stylua", "js-debug-adapter" },
     },
   },
   {
@@ -238,10 +282,9 @@ return {
         html = { "prettierd", "prettier", stop_after_first = true },
         css = { "prettierd", "prettier", stop_after_first = true },
         lua = { "stylua" },
-        rust = { "rustfmt" },
       },
       format_on_save = {
-        timeout_ms = 500,
+        timeout_ms = 3000,
         lsp_fallback = true,
       },
     },

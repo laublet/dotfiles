@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# mac-neovim-defaults — set Neovim (bob) as default app for text-like files (macOS + duti).
+#
+# Requires: duti (brew install duti), Neovim.app linked from dotfiles (see install-mac.conf.yaml).
+#
+# Usage:
+#   mac-neovim-defaults          Apply defaults (extensions + UTIs)
+#   mac-neovim-defaults --dry-run   Print duti commands without running
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+DRY_RUN=0
+[[ "${1:-}" == "--dry-run" ]] && DRY_RUN=1
+
+command -v duti >/dev/null 2>&1 || {
+  echo "Missing: duti (brew install duti)" >&2
+  exit 1
+}
+
+APP="${HOME}/Applications/Neovim.app"
+if [[ ! -d "$APP" ]]; then
+  echo "Missing: $APP — run: just link  (or ./install from dotfiles repo)" >&2
+  exit 1
+fi
+
+BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Contents/Info.plist")"
+NVIM_BIN="$APP/Contents/MacOS/nvim"
+chmod +x "$NVIM_BIN" 2>/dev/null || true
+
+# Extensions: plain text, config, data, and languages Neovim/treesitter handle well.
+EXTENSIONS=(
+  # data / config
+  json jsonc json5 csv tsv yaml yml toml xml svg
+  ini cfg conf config properties env editorconfig
+  # markup / docs
+  md markdown mdx txt text log rst org tex bib
+  # web
+  html htm css scss less sass vue svelte astro
+  js mjs cjs ts tsx jsx graphql gql
+  # shells / tooling
+  sh bash zsh fish ps1 dockerfile dockerignore
+  gitignore gitattributes gitmodules
+  # languages
+  lua py rb rs go java kt swift c cc cpp h hpp cs php sql prisma
+  nix hcl tf tfvars helm docker-compose
+  vim vimrc justfile
+  # misc
+  lock diff patch
+)
+
+UTIS=(
+  public.plain-text
+  public.source-code
+  public.json
+  public.yaml
+  public.xml
+  public.shell-script
+  public.unix-executable
+)
+
+run_duti() {
+  if (( DRY_RUN )); then
+    printf 'duti -s %s %s all\n' "$BUNDLE_ID" "$2"
+  else
+    duti "$@"
+  fi
+}
+
+echo "Bundle: $BUNDLE_ID ($APP)"
+
+for ext in "${EXTENSIONS[@]}"; do
+  run_duti -s "$BUNDLE_ID" "$ext" all
+done
+
+for uti in "${UTIS[@]}"; do
+  run_duti -s "$BUNDLE_ID" "$uti" all
+done
+
+if (( DRY_RUN )); then
+  echo "(dry-run — no changes applied)"
+else
+  echo "Done. Double-click a .json or .csv to test; override per file via Finder → Open With."
+fi

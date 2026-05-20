@@ -6,7 +6,9 @@ From the shell, run `cheat` when your setup exposes cheatsheets that way (same i
 
 ## Neovim
 
-In standalone Neovim: **Space + K** opens an fzf picker limited to this hub and `keyboard-navigation.md`. **Space + H** still opens the full cheatsheets directory.
+**Standalone IDE** (replaces Cursor for TS/debug/tests): [neovim-ide.md](neovim-ide.md) — Mason, dap, neotest, WezTerm links.
+
+In standalone Neovim: **Space + H** opens an fzf picker on the whole cheatsheets directory.
 
 ## Table of contents
 

@@ -8,9 +8,9 @@
 | Key (normal mode) | Action |
 |-------------------|--------|
 | `-` | Open Oil at the parent directory of the current buffer (vinegar style) |
-| `<leader>o` | Open Oil in a floating window (modal) |
+| `<leader>O` | Open Oil in a floating window (modal) |
 | `:Oil` | Same as `-` (current file's parent dir) |
-| `:Oil --float` | Same as `<leader>o` |
+| `:Oil --float` | Same as `<leader>O` |
 | `:Oil /some/path` | Open a specific directory |
 
 For browsing the project tree visually (orientation), use neo-tree (`<leader>e`). Oil is for **doing things to files**, not for staying open as a panel.
@@ -59,7 +59,7 @@ A confirmation preview is shown before applying (`skip_confirm_for_simple_edits 
 ### Rename a file
 
 ```text
-1. <leader>o          → Oil opens floating
+1. <leader>O          → Oil opens floating
 2. Find `oldname.ts`  → press `cw`, type `newname`, `<Esc>`
 3. :w                 → preview "rename oldname.ts → newname.ts" → y
 ```
@@ -67,7 +67,7 @@ A confirmation preview is shown before applying (`skip_confirm_for_simple_edits 
 ### Create a nested file
 
 ```text
-1. <leader>o
+1. <leader>O
 2. o (open new line below)
 3. Type `src/utils/helper.ts`
 4. :w
@@ -78,7 +78,7 @@ Oil creates intermediate directories automatically.
 ### Bulk rename (visual block / multi-line)
 
 ```text
-1. <leader>o on a dir with `IMG_0001.jpg ... IMG_0042.jpg`
+1. <leader>O on a dir with `IMG_0001.jpg ... IMG_0042.jpg`
 2. Visual block: select column 0–4, `c`, type `photo` → applies to all
 3. :w
 ```
@@ -88,7 +88,7 @@ That's the kind of refactor neo-tree just cannot do.
 ### Move files between directories
 
 ```text
-1. Open Oil in dir A:                <leader>o
+1. Open Oil in dir A:                <leader>O
 2. Visually select lines, yank:      Vjjy
 3. Navigate to dir B:                press `-` then <CR> on B
 4. Paste:                            p

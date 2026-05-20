@@ -10,9 +10,17 @@ return {
   priority = 1000,
   config = function()
     local dracula = require("dracula")
+    local cross_bg = "#313442"
+
     dracula.setup({
       overrides = function(colors)
         return {
+          -- Crosshair: Dracula defaults differ (line = selection, column = black).
+          CursorLine = { bg = cross_bg },
+          CursorColumn = { bg = cross_bg },
+          CursorLineSign = { bg = "NONE" },
+          CursorLineFold = { bg = "NONE" },
+          CursorLineNr = { fg = colors.fg, bold = true },
           -- Markdown headings: Dracula palette gradient instead of full-line green
           ["@markup.heading.1.markdown"] = { fg = colors.purple, bold = true },
           ["@markup.heading.2.markdown"] = { fg = colors.pink, bold = true },
@@ -44,6 +52,12 @@ return {
     vim.api.nvim_create_autocmd("ColorScheme", {
       callback = function()
         local c = require("dracula.palette")
+        vim.api.nvim_set_hl(0, "CursorLine", { bg = cross_bg })
+        vim.api.nvim_set_hl(0, "CursorColumn", { bg = cross_bg })
+        vim.api.nvim_set_hl(0, "CursorLineSign", { bg = "NONE" })
+        vim.api.nvim_set_hl(0, "CursorLineFold", { bg = "NONE" })
+        vim.api.nvim_set_hl(0, "CursorLineNr", { fg = c.fg, bold = true })
+
         local link_hl = { fg = c.cyan, bg = "NONE", underline = true }
         local groups = {
           "@markup.link", "@markup.link.label", "@markup.link.label.markdown_inline",
@@ -58,6 +72,12 @@ return {
     })
     -- Also apply now (ColorScheme event already fired)
     local c = require("dracula.palette")
+    vim.api.nvim_set_hl(0, "CursorLine", { bg = cross_bg })
+    vim.api.nvim_set_hl(0, "CursorColumn", { bg = cross_bg })
+    vim.api.nvim_set_hl(0, "CursorLineSign", { bg = "NONE" })
+    vim.api.nvim_set_hl(0, "CursorLineFold", { bg = "NONE" })
+    vim.api.nvim_set_hl(0, "CursorLineNr", { fg = c.fg, bold = true })
+
     local link_hl = { fg = c.cyan, bg = "NONE", underline = true }
     local groups = {
       "@markup.link", "@markup.link.label", "@markup.link.label.markdown_inline",

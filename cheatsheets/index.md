@@ -3,17 +3,18 @@
 > Quick reference: "I want to do X" → use this tool.
 > Run `cheat <tool>` for the full cheatsheet of any tool listed here, or `tui` to fuzzy-launch a TUI directly.
 > For TUI-by-task overview with launch contexts: [tui-guide.md](tui-guide.md).
+> Terminal local (panes / tabs / workspaces / resurrect) : [wezterm.md](wezterm.md).
 > Keyboard shortcuts across apps: [keymaps-hub.md](keymaps-hub.md) → [keyboard-navigation.md](keyboard-navigation.md). Firefox + Tridactyl (by task): [tridactyl.md](tridactyl.md). Kyria QMK keymap — current → [kyria.md](kyria.md) ; next iteration design (FR/EN/ES, Arcane on thumbs) → [kyria-next.md](kyria-next.md).
 
 ## Launcher & clipboard
 
 | I want to... | Command | Tool |
 |--------------|---------|------|
-| Launch app / search web (macOS) | `Cmd+Space` | [albert](albert.md) |
+| Launch app / search web (macOS) | `Cmd+Space` | [raycast](raycast.md) |
 | Launch app (Linux) | `Super+Space` | [rofi](rofi.md) |
 | Clipboard history | `Cmd+Shift+V` / `Ctrl+Shift+V` | [clipboard](clipboard.md) |
-| Search Kagi | `k query` in Albert | albert |
-| Translate (DeepL) | `tr texte` in Albert | albert |
+| Search Kagi | `k query` in Raycast | raycast |
+| Translate (DeepL) | `tr texte` in Raycast | raycast |
 | Manage windows (macOS) | `Ctrl+Cmd+Alt + arrows` | [aerospace](aerospace.md) |
 
 ## Find & navigate
@@ -108,7 +109,7 @@
 | `y` | file manager (yazi) |
 | `gu` | gitui (standalone git TUI) |
 | `lzd` | lazydocker |
-| `v` | neovim |
+| `v` | neovim — IDE guide: [neovim-ide.md](neovim-ide.md) |
 | `just` | list dotfiles tasks |
 | `cheat` | browse all cheatsheets |
 | `Ctrl+R` | search history (atuin) |

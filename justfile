@@ -29,6 +29,14 @@ homeserver:
 packages:
     brew bundle --file=Brewfile
 
+[doc("Set Neovim as default app for text-like files (requires duti + Neovim.app)")]
+[macos]
+mac-neovim-defaults:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [[ -x "$HOME/.local/bin/mac-neovim-defaults" ]] || { echo "Run: just link"; exit 1; }
+    "$HOME/.local/bin/mac-neovim-defaults"
+
 [doc("Install Linux desktop packages (default profile)")]
 [linux]
 packages:

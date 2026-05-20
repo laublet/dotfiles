@@ -44,6 +44,8 @@ Service mode: `Esc` reload + exit, `R` flatten, `E` tiles, `=` balance, `L` re-a
 
 ## WezTerm
 
+Full cheatsheet (panes, tabs, copy mode, workspaces, resurrect, config) : [wezterm.md](wezterm.md).
+
 | Shortcut | Action |
 |---|---|
 | Ctrl + arrows | Navigate panes (smart-splits, crosses into Neovim) |
@@ -55,16 +57,30 @@ Service mode: `Esc` reload + exit, `R` flatten, `E` tiles, `=` balance, `L` re-a
 | Cmd + Shift + Z | Zoom pane (Cmd+Z stays free for undo) |
 | Cmd + Shift + X | Rotate panes (2 = swap; 3+ = cycle order) |
 | Cmd + Shift + Left/Right | Prev/next tab |
+| Cmd + Shift + Ctrl + Left/Right | **Move** active tab left/right (intercalate between two tabs) |
 | Cmd + Shift + , | Rename current tab (empty input = reset, persisted via resurrect) |
+| Cmd + Up/Down | Scroll to previous/next prompt in scrollback (OSC 133 markers from zsh) |
+| Cmd + Shift + Up | Fast copy of the latest command output (status bar flashes purple to confirm) |
+| Ctrl + Shift + O | fzf picker on all outputs of this pane (preview with bat, Enter copies, Esc cancels — opens as a split pane, auto-closes) |
+| Cmd + Ctrl + Space | CharSelect — fuzzy Unicode / Nerd Font / emoji picker (matches macOS system shortcut) |
+| Cmd + Shift + ; | Launch menu picker (btop, gitui, lazydocker, bandwhich, nettop, mac-startup-clean) |
+| Cmd + click on `file.ts:42:10` | Open path at line/column in Cursor (works in any compiler/linter output) |
+| `printf '\a'` after a command | macOS toast notification (audible bell disabled, subtle cursor flash) |
 | Ctrl + Shift + R / Cmd + R | Reload WezTerm config (defaults) |
 | Cmd + Shift + S / O | Resurrect: save session / restore session (fuzzy) |
+| Cmd + Shift + Ctrl + D | Resurrect: delete one saved state (fuzzy) |
+| Cmd + Shift + Ctrl + X | Resurrect: wipe all saved states (type `DELETE`) |
 | Cmd + Shift + L | Switch workspace (fuzzy launcher, lists existing) |
 | Cmd + Shift + N | New/switch workspace by name (prompt) |
+| Cmd + Shift + F | QuickSelect (URLs, paths, hashes, words 3+) |
+| Cmd + Alt + Space | Enter copy mode (vim-like) |
 | Cmd + Backspace | Sends Ctrl+U (kill line backward in zsh / vim insert) |
 | Cmd + T | New tab |
 | Cmd + 1-9 | Go to tab |
 
 Scrollback search: **Cmd+F** (overlay, bottom bar — Ctrl+Shift+C copy per WezTerm docs). **Copy mode** (Cmd+Alt+Space) then **`/`** or **`?`** to start a pattern; **Enter** accepts and auto-selects the current match (press **`y`** to copy immediately). Navigate matches with **`n`** / **`Shift+n`** (vim-style; `Ctrl+n`/`Ctrl+p` and arrows also work). **`Esc`** clears the pattern + closes — important: wezterm retriggers search on every terminal redraw, so a leftover pattern would periodically yank the cursor back to the first match.
+
+Tab title: shows `<index>: <title>`. When an AI agent CLI (cursor-agent, claude, aider, codex) runs in the active pane, its status glyph (`⏳`, `✅`, `🧭`, `🔐`, `🔄`, spinner braille) is prefixed automatically and disappears when the agent exits.
 
 ### iTerm2 (same ⌘⌫ behavior)
 
@@ -159,6 +175,8 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 
 ## Neovim (standalone)
 
+Quick reference (Mason, debug, tests, troubleshooting): [neovim-ide.md](neovim-ide.md).
+
 ### Leader layer (Space + key)
 
 **Builtin Vim prefixes (`g`, `z`, `[`, `]`, `"`, `'`, …):** type the key in normal mode and pause — which-key shows the preset popup. **Space + V** opens a **complete Vim command reference** (a-z, A-Z, symbols) with short descriptions; selecting opens the which-key popup if sub-commands exist.
@@ -171,19 +189,21 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | Space + FF | Live grep project (fzf-lua) |
 | Space + F + second key | More grep modes: I/W/H/N/glob/resume/fixed (`ripgrep.md`; `fF` = fixed string) |
 | Space + F / | Search in buffer (fzf-lua) |
-| Space + G + G | Open Lazygit |
-| Space + G + S/C/B/F | Git status / commits / branches / tracked files (fzf-lua) |
+| Space + g + g | Neogit (status, magit-style — in-editor git) |
+| Space + g + C / p / P / l / v / V / x | Neogit commit / push / pull / log ; Diffview open / file history / close |
+| Space + G + S/C/B/F | Git pickers (fzf-lua): status / commits / branches / tracked files |
 | Space + H + n / N | Next / previous hunk |
 | Space + H + p/s/r/u | Hunk preview / stage / reset / undo stage |
 | Space + H + S / R | Hunk stage/reset for whole buffer |
 | Space + H + b / B | Hunk blame line / full blame |
 | Space + H + d | Hunk diff this |
-| Space + C | Clear search highlight (`:noh`) |
+| Space + n + h | Clear search highlight (`:noh`) |
 | Space + H | Cheatsheets folder (fzf-lua) |
-| Space + K | Keymaps hub + keyboard-navigation (fzf-lua) |
 | Space + B | Buffers |
-| Space + e | Toggle Neo-tree (sidebar; arbo, repère visuel) |
+| Space + e | Toggle Neo-tree (sidebar; lazy-loaded on first use) |
 | Space + E | Reveal current file in Neo-tree |
+
+> Neo-tree does not auto-open on startup. If it reappears after `nvim`, `persistence` restored a saved session — close it once, then `<leader>qd` before quit to drop that layout from the session.
 | (in tree) `zR` / `zM` | Expand / close ALL nodes (vim-fold mnemonic) |
 | (in tree) `zr` / `zm` | Expand / close subtree under cursor |
 | (in tree) `zo` / `zc` | Toggle / close node under cursor |
@@ -191,9 +211,9 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | (in tree) `+` / `=` | Single-key alternative to `zr`/`zm` |
 
 > Note : à l'intérieur du buffer Neo-tree, `timeoutlen` est bumpé à 600ms (vs 300ms global) pour laisser le temps de taper les séquences `zX` sur clavier layered.
-| Space + o | Oil floating (manipulation fs: rename, create, move, then `:w`) |
+| Space + O | Oil floating (manipulation fs: rename, create, move, then `:w`) |
 | `-` | Oil parent dir (vinegar style) |
-| Space + w | Save |
+| Space + w | Save (manual; autosave also writes on focus/buffer change) |
 | Space + q | Close buffer (keep window/split) |
 | Space + Q | Close buffer + force (closes window too) |
 | Space + t | Toggle floating terminal (modal) |
@@ -201,6 +221,7 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | `Ctrl + q` | **Close** any active terminal (float / bottom / cursor-agent) — works from inside or outside |
 | `Esc Esc` | Exit terminal-insert mode without closing (then scroll, copy, `:q`, …) |
 | Space + z | Zoom toggle (maximize split — use on the tree to read long paths) |
+| Space + a + c | **cursor-agent** CLI in a vsplit on the right (toggle; raw TUI) |
 | Space + a + a | Ask AI (avante → cursor-agent via ACP, Claude as fallback) |
 | Space + a + t | Toggle Avante sidebar |
 | Space + a + f | **Focus** Avante sidebar (more reliable than smart-splits arrows on multi-pane layouts) |
@@ -209,27 +230,71 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | Space + a + m | Switch ACP mode (agent / plan / ask) |
 | Space + a + ? | Switch provider/model |
 | Space + u | Undo tree (Undotree, opens on the RIGHT — layout 3 to avoid clashing with Neo-tree sidebar) |
-| Space + Ur | Refocus float UI (fzf, which-key, …) — **Shift+u**, then `r` |
-| Space + Ux | Close all floating windows — **Shift+u**, then `x` |
+| Space + Ur | Refocus float UI (fzf, which-key, …) — normal/terminal only; **Shift+u**, then `r` |
+| Space + Ux | Close all floating windows — normal/terminal only; **Shift+u**, then `x` |
+| Alt + Esc (insert) | Close all floating windows — no leader (avoids Space timeout in insert) |
 | Space + \| | Vertical split |
 | Space + - | Horizontal split |
 | Space + X | Close split |
-| Space + LG | Toggle LTeX grammar (buffer) |
+| Space + T + n / p | Tabpage next / previous (Diffview, etc.) |
+| Space + T + N | New tabpage (rare) |
+| Space + T + c / o | Close tabpage / close other tabpages |
+| Space + L + G | Toggle LTeX grammar (buffer) |
+| Space + L + F | Format buffer (conform) |
+| Space + L + I | Toggle inlay hints (LSP) |
+| Space + u + d / D | Diagnostics workspace / buffer (Trouble) |
 | Space + V + key | Vim command reference — all commands a-z, A-Z, symbols with descriptions |
 
-### Obsidian (Space + O, in markdown files)
+### Debug (nvim-dap, Node/TS)
 
 | Key | Action |
 |---|---|
-| Space + OF | Find note (ObsidianQuickSwitch) |
-| Space + OD | Daily note |
-| Space + ON | New note |
-| Space + OB | Backlinks |
-| Space + OS | Search text in vault |
-| Space + OT | Tags |
-| Space + OL | Links in current note |
-| Space + OM | Toggle render-markdown |
-| Space + OP | Preview with glow (popup) |
+| F5 | Continue / launch |
+| F10 / F11 / F12 | Step over / into / out |
+| Space + d + b | Toggle breakpoint |
+| Space + d + c | Continue |
+| Space + d + u | Toggle dap-ui |
+| Space + d + r | REPL |
+| Space + d + t | Terminate session |
+
+Mason: `:MasonInstall js-debug-adapter`. Optional: `.vscode/launch.json` loaded automatically.
+
+### Tests (neotest — Jest or Vitest per repo)
+
+| Key | Action |
+|---|---|
+| Space + c + t | Run nearest test |
+| Space + c + f | Run file |
+| Space + c + S | Run suite (cwd) |
+| Space + c + w | Toggle watch |
+| Space + c + o | Output |
+| Space + c + n / N | Next / prev failure |
+| Space + c + y | Summary |
+
+### AI — who does what (avoid overlap)
+
+| Layer | Tool | Role |
+|---|---|---|
+| Agent / chat | Avante (`Space + a*`) | Sidebar, cursor-agent via ACP — not inline completion |
+| Inline ghost | Supermaven | Code buffers only; off markdown, Avante, neo-tree, oil |
+| Completion menu | nvim-cmp + LSP + LuaSnip | Tab accepts Supermaven ghost first, else cmp/snippet |
+| Lint (TS/JS) | eslint LSP + ts_ls | Mason: `eslint-lsp` |
+| Debug (TS/JS) | nvim-dap + js-debug-adapter | Mason: `js-debug-adapter` |
+| Tests | neotest (jest + vitest) | `Space + c + t` nearest |
+
+### Notes — Obsidian + Markdown (Space + n, in markdown files)
+
+| Key | Action |
+|---|---|
+| Space + nf | Find note (ObsidianQuickSwitch) |
+| Space + nd | Daily note |
+| Space + nn | New note |
+| Space + nb | Backlinks |
+| Space + ns | Search text in vault |
+| Space + nt | Tags |
+| Space + nl | Links in current note |
+| Space + nm | Toggle render-markdown |
+| Space + np | Preview with glow (popup) |
 | gd | Follow [[wiki-link]] |
 
 ### LSP
@@ -239,6 +304,7 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | gd | Go to definition |
 | gi | Go to implementation |
 | gr | Go to references |
+| gt | Go to type definition (not tab next — use Space + T + n/p for tabpages) |
 | gh | Show hover |
 | Leader + l + a | Code action (LSP / LTeX fixes) — not Leader + a (Avante) |
 | Ctrl + Tab / Ctrl + Shift + Tab | Prev/next buffer |

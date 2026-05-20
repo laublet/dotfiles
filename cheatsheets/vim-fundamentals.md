@@ -106,7 +106,7 @@ All under `<C-w>` prefix (W as Window):
 
 ## Tab pages (rare but useful)
 
-`gt` and `gT` for the muscle memory — works without `<leader>` prefix.
+Custom mappings (see `keymaps.lua`): `<leader>Tn` / `<leader>Tp` next/prev, `<leader>TN` new tab, `<leader>Tc` / `<leader>To` close. On LSP buffers, `gt` is type definition — use `<leader>Tn`/`Tp` for tabpages, not `gt`/`gT`.
 
 | Command | Action |
 |---------|--------|
@@ -115,7 +115,8 @@ All under `<C-w>` prefix (W as Window):
 | `:tabedit %` | Open current buffer in a new tab |
 | `:tabclose` (`:tabc`) | Close current tab |
 | `:tabonly` (`:tabo`) | Close all other tabs |
-| `gt` / `gT` | Next / previous tab |
+| `<leader>Tn` / `<leader>Tp` | Next / previous tab |
+| `<leader>TN` | New tab (rare) |
 | `1gt` / `2gt` / `3gt` | Go to tab N (1-indexed) |
 | `:tabs` | List all tabs and their windows |
 | `<C-w>T` | Move current window to a new tab |

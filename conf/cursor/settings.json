@@ -122,5 +122,6 @@
   // GitLens
   // =========================================================================
   "gitlens.plusFeatures.enabled": false,
-  "workbench.statusBar.visible": false
+  "workbench.statusBar.visible": false,
+  "window.autoDetectColorScheme": false
 }

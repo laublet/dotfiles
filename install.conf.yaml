@@ -106,6 +106,11 @@
       create: true
       path: conf/zellij
 
+    # local bin (cross-platform helpers; mac-only scripts linked in install-mac.conf.yaml)
+    ~/.local/bin/yazi-pick:
+      create: true
+      path: bin/yazi-pick
+
     # zsh
     ~/.zshrc:
       force: true

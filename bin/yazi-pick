@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# yazi-pick — terminal file picker; prints selected path(s) on stdout.
+#
+# Usage:
+#   path=$(yazi-pick)              # single file (first selection)
+#   yazi-pick --multi               # all selections, one path per line
+#   yazi-pick ~/Downloads           # start directory
+#
+# Does NOT replace the native macOS/browser upload dialog (NSSOpenPanel).
+# On Linux, use xdg-desktop-portal-termfilechooser for browser/Electron pickers.
+
+set -euo pipefail
+
+command -v yazi >/dev/null 2>&1 || {
+  echo "yazi-pick: yazi not in PATH (brew install yazi)" >&2
+  exit 1
+}
+
+MULTI=0
+ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --multi|-m) MULTI=1; shift ;;
+    -h|--help)
+      sed -n '2,12p' "$0"
+      exit 0
+      ;;
+    *) ARGS+=("$1"); shift ;;
+  esac
+done
+
+tmp="$(mktemp -t yazi-pick.XXXXXX)"
+trap 'rm -f "$tmp"' EXIT
+
+# Chooser mode: yazi writes selected paths to this file on exit (NUL-separated).
+yazi --chooser-file="$tmp" "${ARGS[@]}"
+
+if [[ ! -s "$tmp" ]]; then
+  exit 1
+fi
+
+if (( MULTI )); then
+  while IFS= read -r -d '' p; do
+    printf '%s\n' "$p"
+  done <"$tmp"
+else
+  IFS= read -r -d '' p <"$tmp" || true
+  [[ -n "${p:-}" ]] && printf '%s\n' "$p"
+fi

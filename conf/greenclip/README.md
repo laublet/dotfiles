@@ -2,13 +2,13 @@
 
 Cross-platform clipboard history with keyboard-centric workflow.
 
-## macOS: Maccy
+## macOS: Raycast Clipboard History
 
-- **Install**: `brew install --cask maccy`
-- **Hotkey**: `Cmd+Shift+V`
-- **Config**: `conf/mac-apps/maccy.plist`
+- **Install**: `brew install --cask raycast`
+- **Hotkey**: `Cmd+Shift+V` (Raycast Settings → Extensions → Clipboard History)
+- **Config**: not versioned (Raycast cloud sync, free tier OK)
 
-Ignored apps (password managers) configured via defaults.
+Password managers auto-ignored. See [`cheatsheets/raycast.md`](../../cheatsheets/raycast.md) for full setup.
 
 ## Linux: Greenclip + Rofi
 

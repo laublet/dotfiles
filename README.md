@@ -23,6 +23,8 @@ just packages             # full desktop (default)
 just
 ```
 
+**macOS after bootstrap:** `bob install v0.11.5` (or `stable`) if `nvim` is missing; Mason installs `prettierd` / `prettier` / `stylua` on first run. Finder defaults for `.json`, `.csv`, etc.: `just mac-neovim-defaults` (needs `duti` + `~/Applications/Neovim.app` from dotbot).
+
 ### Profiles
 
 ```
@@ -30,8 +32,8 @@ Headless server       Home server (packages)   Pop!_OS Desktop
   vim, zsh, git       + Docker, btop           + WezTerm
   starship            (dotfiles = same         + Cursor
   zellij, tmux, mosh   as server)              + Obsidian
-  bat, eza, fd                                   + Albert (launcher)
-  fzf, ripgrep                                   + Maccy / Greenclip
+  bat, eza, fd                                   + Raycast (macOS) / Albert (Linux)
+  fzf, ripgrep                                   + Raycast clipboard (mac) / Greenclip (Linux)
   zoxide                                         + keyd, fonts, apps…
 ```
 
@@ -45,8 +47,8 @@ for manual Dotbot if needed on a dev machine.
 
 | Layer | macOS | Linux (Pop!_OS) |
 |-------|-------|-----------------|
-| Launcher | Albert | Rofi |
-| Clipboard | Maccy | Greenclip + Rofi |
+| Launcher | Raycast | Rofi |
+| Clipboard | Raycast (built-in) | Greenclip + Rofi |
 | Window manager | AeroSpace | Pop Shell (GNOME) |
 | Terminal | WezTerm | WezTerm |
 | Editor (IDE) | Cursor (vscode-neovim) | Cursor (vscode-neovim) |
@@ -209,7 +211,6 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 | `z` | Zoom toggle | — |
 | `?` | Keymaps cheatsheet | fzf-lua |
 | `H` | CLI cheatsheets | fzf-lua |
-| `K` | Keymaps hub + navigation sheet | fzf-lua |
 
 ### Neovim navigation (no leader)
 
@@ -261,7 +262,7 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 ├── Brewfile                 # macOS packages
 ├── packages-linux.sh        # Linux packages (accepts: minimal|homeserver|desktop)
 ├── install.conf.yaml        # Shared symlinks
-├── install-mac.conf.yaml    # macOS symlinks (AeroSpace, Cursor, Albert)
+├── install-mac.conf.yaml    # macOS (AeroSpace, Cursor, Neovim.app, duti helpers, WezTerm scripts)
 ├── install-linux.conf.yaml  # Linux symlinks (Cursor, Albert, Pop Shell, keyd)
 ├── cheatsheets/             # Per-tool markdown docs (Space H / cheat)
 ├── server/

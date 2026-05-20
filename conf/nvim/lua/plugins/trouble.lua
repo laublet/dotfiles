@@ -6,8 +6,8 @@ return {
   dependencies = { "nvim-tree/nvim-web-devicons" },
   cmd = "Trouble",
   keys = {
-    { "<leader>d", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (workspace)" },
-    { "<leader>D", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Diagnostics (buffer)" },
+    { "<leader>ud", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (workspace)" },
+    { "<leader>uD", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Diagnostics (buffer)" },
   },
   opts = {},
 }

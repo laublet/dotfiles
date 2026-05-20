@@ -6,13 +6,24 @@ Exported via `defaults export`. To update after changing settings:
 ./mac-apps-export.sh
 ```
 
+### Neovim as default text editor (Finder)
+
+Requires `brew install duti` (in Brewfile). After dotbot:
+
+```bash
+mac-neovim-defaults          # apply (also run from install-mac if duti is installed)
+mac-neovim-defaults --dry-run
+```
+
+Covers extensions (json, csv, yaml, md, …) and UTIs (`public.plain-text`, `public.source-code`, …). Override per file in Finder → Open With if needed (e.g. keep Obsidian for vault `.md` via Obsidian’s own association).
+
 ## Apps
 
+- **Neovim (bob)** — `Neovim-bob.app` → `~/Applications/Neovim.app`; default handler for text-like files via `duti` (`bin/mac-neovim-defaults`). CLI `nvim` stays on bob (`~/.local/share/bob/nvim-bin`); the `.app` is only for Finder / double-click / “Open With”.
 - **Choosy** — browser routing rules (URL → browser)
 - **SteerMouse** — mouse button/gesture mapping
 - **LanguageTool** — spell/grammar checker preferences
 - **Amphetamine** — keep-awake preferences (`amphetamine.plist`)
-- **Maccy** — clipboard history (`maccy.plist`), hotkey: `Cmd+Shift+V`
 - **Hidden Bar** — hide menu bar icons (no config, just install)
 
 ### Mouseless

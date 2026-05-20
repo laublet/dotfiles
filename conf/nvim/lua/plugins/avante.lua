@@ -45,4 +45,50 @@ return {
       },
     },
   },
+  config = function(_, opts)
+    require("avante").setup(opts)
+
+    -- Avante sidebar sets cursorline=false and winhighlight CursorLine:Normal (hides crosshair).
+    vim.api.nvim_create_augroup("dotfiles_avante_crosshair", { clear = true })
+    local fixing_crosshair = false
+    local function restore_crosshair()
+      if fixing_crosshair then
+        return
+      end
+      local ft = vim.bo.filetype
+      if not ft:match("^Avante") then
+        return
+      end
+
+      local wh = vim.wo.winhighlight
+      local needs_wh = wh:find("CursorLine:Normal", 1, true) or wh:find("CursorColumn:Normal", 1, true)
+      local needs_cursor = not vim.wo.cursorline or not vim.wo.cursorcolumn
+      if not needs_wh and not needs_cursor then
+        return
+      end
+
+      fixing_crosshair = true
+      if needs_cursor then
+        vim.wo.cursorline = true
+        vim.wo.cursorcolumn = true
+      end
+      if needs_wh then
+        vim.wo.winhighlight = wh
+          :gsub("CursorLine:Normal,", "CursorLine:CursorLine,")
+          :gsub("CursorColumn:Normal,", "CursorColumn:CursorColumn,")
+          :gsub("CursorLine:Normal", "CursorLine:CursorLine")
+          :gsub("CursorColumn:Normal", "CursorColumn:CursorColumn")
+      end
+      fixing_crosshair = false
+    end
+    vim.api.nvim_create_autocmd({ "WinEnter", "FileType", "OptionSet" }, {
+      group = "dotfiles_avante_crosshair",
+      callback = function(ev)
+        if ev.event == "OptionSet" and ev.match ~= "winhighlight" and ev.match ~= "cursorline" and ev.match ~= "cursorcolumn" then
+          return
+        end
+        restore_crosshair()
+      end,
+    })
+  end,
 }

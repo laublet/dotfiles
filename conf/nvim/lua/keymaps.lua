@@ -6,8 +6,8 @@
 local map = vim.keymap.set
 local opts = { noremap = true, silent = true }
 
--- Space as leader (already set in init.lua, but remap to Nop to avoid ghost inputs)
-map("", "<Space>", "<Nop>", opts)
+-- Space as leader: Nop in normal/visual only (not insert — would steal Space or add latency).
+map({ "n", "v", "x", "s", "o" }, "<Space>", "<Nop>", opts)
 
 -- =============================================================================
 -- Shared keymaps (work in both VSCode and standalone)
@@ -67,8 +67,8 @@ if vim.g.vscode then
 -- =============================================================================
 
 else
-  -- Clear search highlight (hlsearch) — leader c = clean; frees c vs vscode-neovim chat
-  map("n", "<leader>c", ":noh<CR>", { desc = "Clear search highlight" })
+  -- Clear search highlight — not <leader>c (neotest prefix ct/cf/…)
+  map("n", "<leader>nh", ":noh<CR>", { desc = "Clear search highlight" })
 
   -- Save
   map("n", "<C-s>", ":w<CR>", opts)
@@ -94,23 +94,25 @@ else
   map("n", "<leader>-", ":split<CR>", { desc = "Horizontal split" })
   map("n", "<leader>x", "<C-w>q", { desc = "Close split" })
 
-  -- Tab pages (also: gt / gT next/prev; <leader>t is terminal)
-  map("n", "<leader>Tn", ":tabnew<CR>", { desc = "New tab" })
+  -- Tab pages (<leader>t = terminal; T = tabpage). Tn/Tp = next/prev; TN = new (rare).
+  map("n", "<leader>Tn", ":tabnext<CR>", { desc = "Tab next" })
+  map("n", "<leader>Tp", ":tabprevious<CR>", { desc = "Tab previous" })
+  map("n", "<leader>TN", ":tabnew<CR>", { desc = "New tab" })
   map("n", "<leader>Tc", ":tabclose<CR>", { desc = "Close tab" })
   map("n", "<leader>To", ":tabonly<CR>", { desc = "Close other tabs" })
 
-  -- Stuck float / fzf after pane switch: refocus (force) or close all floats
+  -- Stuck float / fzf after pane switch: refocus (force) or close all floats.
+  -- Not mapped in insert: leader is Space, so <leader>U* in insert would delay every Space by timeoutlen.
   local float = require("utils.float")
-  map({ "n", "i", "t" }, "<leader>Ur", function()
+  map({ "n", "t" }, "<leader>Ur", function()
     float.refocus({ force = true })
   end, { desc = "Refocus float UI (fzf, which-key, …)" })
-  map({ "n", "i", "t" }, "<leader>Ux", function()
+  map({ "n", "t" }, "<leader>Ux", function()
     float.close_all_floats()
   end, { desc = "Close all floating windows (escape hatch)" })
-
-  -- (Removed) <leader>ac standalone cursor-agent split: now redundant because
-  -- avante.nvim uses cursor-agent as its provider via ACP (see avante.lua).
-  -- Use <leader>aa (ask) or <leader>at (toggle) — same backend, integrated UI.
+  map("i", "<M-Esc>", function()
+    float.close_all_floats()
+  end, { desc = "Close all floating windows (insert, no leader)" })
 
   -- Zoom toggle (maximize current split / restore original sizes)
   local saved_layout = nil
@@ -190,8 +192,36 @@ else
   -- statusline position visually (bottom edge).
   map("n", "<leader>;", toggle_bottom_terminal, { desc = "Toggle bottom terminal (split)" })
 
-  -- Fluid one-key exit from ANY terminal (floating, bottom split, or ad-hoc
-  -- :term like <leader>ac for cursor-agent). <C-q> chosen because:
+  -- cursor-agent in a vertical split on the right (raw CLI TUI). Complements
+  -- Avante (<leader>at / aa) which uses the same binary via ACP with a sidebar UI.
+  local cursor_agent_buf, cursor_agent_win
+  local cursor_agent_cmd = (os.getenv("HOME") or "") .. "/.local/bin/cursor-agent"
+  local function toggle_cursor_agent_split()
+    if cursor_agent_win and vim.api.nvim_win_is_valid(cursor_agent_win) then
+      vim.api.nvim_win_close(cursor_agent_win, true)
+      cursor_agent_win = nil
+      return
+    end
+    if vim.fn.executable(cursor_agent_cmd) ~= 1 then
+      vim.notify("cursor-agent not found at " .. cursor_agent_cmd, vim.log.levels.ERROR)
+      return
+    end
+    if not cursor_agent_buf or not vim.api.nvim_buf_is_valid(cursor_agent_buf) then
+      cursor_agent_buf = vim.api.nvim_create_buf(false, true)
+    end
+    vim.cmd("vsplit")
+    cursor_agent_win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(cursor_agent_win, cursor_agent_buf)
+    vim.cmd("vertical resize " .. math.floor(vim.o.columns * 0.42))
+    if vim.bo[cursor_agent_buf].buftype ~= "terminal" then
+      vim.fn.termopen(cursor_agent_cmd, { cwd = vim.fn.getcwd() })
+    end
+    vim.cmd("startinsert")
+  end
+  map("n", "<leader>ac", toggle_cursor_agent_split, { desc = "Toggle cursor-agent (vsplit right)" })
+
+  -- Fluid one-key exit from ANY terminal (floating, bottom split, cursor-agent).
+  -- <C-q> chosen because:
   --   - <C-t> is widely used by fzf-lua / oil (open-in-new-tab action)
   --   - <C-\> is awkward on the user's Kyria layout
   --   - Q = Quit is mnemonic, and <C-q> is unused in normal mode workflows
@@ -201,6 +231,8 @@ else
       toggle_terminal()
     elseif bterm_win and vim.api.nvim_win_is_valid(bterm_win) and cur_win == bterm_win then
       toggle_bottom_terminal()
+    elseif cursor_agent_win and vim.api.nvim_win_is_valid(cursor_agent_win) and cur_win == cursor_agent_win then
+      toggle_cursor_agent_split()
     else
       vim.cmd([[stopinsert]])
       pcall(vim.api.nvim_win_close, cur_win, false)

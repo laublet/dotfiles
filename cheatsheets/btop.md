@@ -16,6 +16,7 @@ btop                                 # full dashboard
 | `Enter` | select / expand |
 | `Esc` | back / cancel |
 | `q` | quit |
+| `Cmd+C` / `Ctrl+C` | quit in WezTerm (mapped to `q` — btop ignores SIGINT with kitty keyboard) |
 
 ## Process management
 
@@ -52,7 +53,7 @@ btop                                 # full dashboard
 
 - Config file: `~/.config/btop/btop.conf`
 - Theme dir: `~/.config/btop/themes/`
-- Key settings: `vim_keys`, `color_theme`, `update_ms`, `proc_tree`
+- Key settings: `vim_keys`, `color_theme`, `update_ms`, `proc_tree`, `terminal_sync` (off for WezTerm), `save_config_on_exit` (off — dotfiles-managed)
 
 ## Links
 

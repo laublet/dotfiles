@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# wezterm-output-picker — fzf preview + clipboard copy of WezTerm command outputs.
+#
+# Called by WezTerm via Cmd+Shift+↑. The Lua callback:
+#   1. Dumps each "real" Output semantic zone (OSC 133) of the current pane
+#      into <tmpdir>/NNN.txt (001 = latest, NNN = oldest).
+#   2. Writes <tmpdir>/manifest with "NNN<TAB>label" (label = command line if
+#      available, otherwise first line of output).
+#   3. Spawns this script in a new WezTerm tab with <tmpdir> as argv[1].
+#
+# UX:
+#   Enter         → pbcopy + exit (tab auto-closes)
+#   Esc / Ctrl-C  → cancel
+#   Ctrl-/        → toggle preview wrap
+#
+# Cleanup: trap on EXIT wipes <tmpdir> so we don't accumulate /tmp garbage,
+# even if the user kills the tab mid-picker.
+
+set -euo pipefail
+
+tmpdir="${1:-}"
+if [[ -z "$tmpdir" || ! -d "$tmpdir" ]]; then
+  echo "usage: $0 <tmpdir-with-NNN.txt-files-and-manifest>" >&2
+  exit 1
+fi
+
+trap 'rm -rf "$tmpdir"' EXIT
+
+cd "$tmpdir"
+
+if [[ ! -s manifest ]]; then
+  echo "no outputs to pick from"
+  sleep 1
+  exit 0
+fi
+
+# Syntax-highlighted preview when available, plain cat otherwise.
+if command -v bat >/dev/null 2>&1; then
+  preview="bat --color=always --plain --paging=never {1}.txt"
+else
+  preview="cat {1}.txt"
+fi
+
+selected=$(
+  fzf < manifest \
+    --delimiter=$'\t' \
+    --with-nth=1,2 \
+    --preview="$preview" \
+    --preview-window=right:65%:wrap \
+    --header="Enter=copy to clipboard | Esc=cancel | Ctrl-/=toggle preview wrap" \
+    --bind="ctrl-/:toggle-preview-wrap" \
+    --prompt="output> "
+) || exit 0
+
+[[ -z "$selected" ]] && exit 0
+
+idx=$(awk -F'\t' '{print $1; exit}' <<<"$selected")
+if [[ ! -f "${idx}.txt" ]]; then
+  echo "missing ${idx}.txt" >&2
+  sleep 1
+  exit 1
+fi
+
+pbcopy < "${idx}.txt"
+bytes=$(wc -c < "${idx}.txt" | tr -d ' ')
+printf '\033[32m✓ copied output #%s (%s bytes) to clipboard\033[0m\n' "$idx" "$bytes"
+sleep 0.4

@@ -37,17 +37,68 @@ export GPG_TTY=$(tty)
 # ── OS-specific ──────────────────────────────────────────────────
 if [[ "$OSTYPE" == darwin* ]]; then
   # macOS
-  export PATH="/opt/homebrew/bin:$PATH"
-  export PATH="$PATH:$HOME/.local/bin"
+  export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
 
   alias c="cursor ."
   alias ff='open -a "Firefox Developer Edition"'
+
+  # Dotbot-linked helpers (install-mac.conf.yaml → ~/.local/bin). Fallback to repo bin/.
+  _dotfiles_bin() {
+    local name="$1"
+    shift
+    local script="$HOME/.local/bin/$name"
+    if [[ ! -x "$script" ]]; then
+      for repo in "$HOME/dev/perso/dotfiles" "$HOME/dotfiles"; do
+        if [[ -x "$repo/bin/$name" ]]; then
+          script="$repo/bin/$name"
+          break
+        fi
+      done
+    fi
+    [[ -x "$script" ]] || {
+      echo "$name: not found — run: just link  (from dotfiles repo)" >&2
+      return 127
+    }
+    "$script" "$@"
+  }
+  mac-neovim-defaults() { _dotfiles_bin mac-neovim-defaults "$@"; }
+  yazi-pick() { _dotfiles_bin yazi-pick "$@"; }
 
 elif [[ "$OSTYPE" == linux* ]]; then
   export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
   alias c="cursor --no-sandbox ."
   alias ff="firefox"
   alias open="xdg-open"
+fi
+
+# ── OSC 133 — semantic prompts (WezTerm/iTerm2/Kitty/Ghostty) ────
+# Hand-rolled minimal FinalTerm subset matching WezTerm's official shell
+# integration script (assets/shell-integration/wezterm.sh). Required by:
+#   - WezTerm ScrollToPrompt (Cmd+↑/↓ in our keymap)
+#   - WezTerm SemanticZone selection (Cmd+Shift+↑/↓ copy last output/input)
+# Three things matter:
+#   - BEL terminator (\a, 0x07) — more universally accepted than ST (\e\\)
+#   - ;A args (cl=m mode, aid=$$ for zone-to-pid correlation)
+#   - ;D with exit code on each new precmd (except the first) to CLOSE the
+#     previous Output zone — without this, wezterm cannot detect zone
+#     boundaries and ScrollToPrompt silently no-ops.
+# Skip in dumb terminals (e.g. emacs M-x shell) which can't parse OSC.
+if [[ "$TERM" != "dumb" && "$TERM" != "linux" ]]; then
+  _osc133_executing=0
+  _osc133_precmd() {
+    local ret=$?
+    if (( _osc133_executing )); then
+      printf '\e]133;D;%s\a' "$ret"
+      _osc133_executing=0
+    fi
+    printf '\e]133;A;cl=m;aid=%s\a' "$$"
+  }
+  _osc133_preexec() {
+    printf '\e]133;C\a'
+    _osc133_executing=1
+  }
+  precmd_functions+=(_osc133_precmd)
+  preexec_functions+=(_osc133_preexec)
 fi
 
 # ── fzf ──────────────────────────────────────────────────────────
@@ -66,6 +117,26 @@ fi
 export FZF_DEFAULT_OPTS='-m --height 40% --border'
 export FZF_CTRL_T_OPTS="--preview '(bat --style=numbers --color=always {} 2>/dev/null || cat {} || tree -C {}) 2>/dev/null | head -200' --select-1 --exit-0"
 export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} 2>/dev/null || tree -C {} | head -200'"
+
+# ── WezTerm output picker — fzf widget triggered by Ctrl+Shift+O ──
+# Counterpart to `pick_output_action` in .wezterm.lua. WezTerm dumps the
+# pane's OSC 133 Output zones to a tmpdir, writes the path to
+# /tmp/.wezterm-output-picker.<pane_id>, then sends Ctrl+X Ctrl+P to the
+# tty. This widget reads the marker and runs `wezterm-output-picker` in the
+# current shell, so fzf inherits FZF_DEFAULT_OPTS (--height 40% --border)
+# and floats inline — identical UX to Ctrl+T / Ctrl+R, no pane split.
+__wezterm_output_picker_widget() {
+  local marker="/tmp/.wezterm-output-picker.${WEZTERM_PANE:-$$}"
+  [[ -f "$marker" ]] || return 0
+  local tmpdir
+  tmpdir=$(<"$marker")
+  command rm -f "$marker"
+  [[ -d "$tmpdir" ]] || return 0
+  command wezterm-output-picker "$tmpdir"
+  zle reset-prompt
+}
+zle -N __wezterm_output_picker_widget
+bindkey '^X^P' __wezterm_output_picker_widget
 
 # ── atuin (shell history, replaces fzf Ctrl+R) ───────────────────
 if command -v atuin &>/dev/null; then

@@ -97,5 +97,5 @@ Enter: `Ctrl+Cmd+Alt+Shift + ;`
 
 - Mouse follows focus when changing monitors
 - `Cmd+H` disabled (interferes with tiling)
-- Maccy always floats
+- Raycast popup is managed natively (no float rule needed)
 - Dev layout auto-applies 30s after startup

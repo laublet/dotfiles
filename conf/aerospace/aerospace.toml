@@ -289,6 +289,4 @@ check-further-callbacks = true
 run = ['move-node-to-workspace 4']
 
 # --- Always floating (popups, utilities) ---
-[[on-window-detected]]
-if.app-id = 'org.p0deje.Maccy'
-run = ['layout floating']
+# (Raycast manages its own popup natively; no AeroSpace rule needed.)

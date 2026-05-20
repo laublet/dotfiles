@@ -40,7 +40,7 @@ return {
       },
     },
     keys = {
-      { "<leader>om", "<cmd>RenderMarkdown toggle<CR>", desc = "Toggle markdown render" },
+      { "<leader>nm", "<cmd>RenderMarkdown toggle<CR>", desc = "Toggle markdown render" },
     },
   },
 
@@ -54,7 +54,7 @@ return {
       border = "rounded",
     },
     keys = {
-      { "<leader>op", "<cmd>Glow<CR>", desc = "Preview markdown (glow)" },
+      { "<leader>np", "<cmd>Glow<CR>", desc = "Preview markdown (glow)" },
     },
   },
 }

@@ -53,8 +53,6 @@ configuration {
 
 ## macOS equivalent
 
-On macOS, use:
-- **Albert** for launcher (`Cmd+Space`)
-- **Maccy** for clipboard (`Cmd+Shift+V`)
+On macOS, use **Raycast** for both launcher (`Cmd+Space`) and clipboard (`Cmd+Shift+V`).
 
-See [albert.md](albert.md) and [clipboard.md](clipboard.md).
+See [raycast.md](raycast.md) and [clipboard.md](clipboard.md).

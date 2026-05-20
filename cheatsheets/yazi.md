@@ -8,6 +8,9 @@
 y                        # open yazi, cd to last visited dir on quit
 y /some/path             # open at specific directory
 yazi                     # open without cd-on-exit behavior
+yazi-pick                # pick file(s) for scripts; prints path(s) to stdout
+path=$(yazi-pick)        # single selection
+yazi-pick --multi        # all selections, one path per line
 ```
 
 ## Navigation
@@ -55,10 +58,17 @@ Yazi previews files inline:
 
 ## Config
 
-- `~/.config/yazi/yazi.toml` — main config
-- `~/.config/yazi/theme.toml` — Dracula theme (configured)
+- `~/.config/yazi/yazi.toml` — main config (`[mgr]`, `[open]` rules use `url` / `mime`, not `name`)
+- `~/.config/yazi/theme.toml` — `[flavor] dark = "dracula"` (vendored in `flavors/dracula.yazi/`)
 
 ## Links
+
+## File picker (browser upload, etc.)
+
+| Platform | Browser “Choose file” dialog |
+|----------|------------------------------|
+| **macOS** | Native panel only — **cannot** swap in yazi (Safari/Chrome use `NSOpenPanel`). Workaround: pick in terminal with `yazi-pick`, copy path (`c` → `c` in yazi), or drag file into the page if the site allows. |
+| **Linux** | Possible via [xdg-desktop-portal-termfilechooser](https://github.com/hunkyburrito/xdg-desktop-portal-termfilechooser) + Firefox `widget.use-xdg-desktop-portal.file-picker=1`. |
 
 - Repo: https://github.com/sxyazi/yazi
 - Docs: https://yazi-rs.github.io

@@ -272,9 +272,10 @@ Respects `RGB_MATRIX_TIMEOUT` (2 min) and `RGB_MATRIX_SLEEP` (host sleep blanks 
 | ALPHA | WS prev/next (LAG+←/→) | WS back-and-forth (LAG+Tab) | Scroll V | Mute |
 | NAV_L | Focus win ↑/↓ (LCAG+↑/↓) | — | PgUp/PgDn | — |
 | NAV_R | Focus win ↑/↓ | LCAG+→ | PgUp/PgDn | — |
+| SYM_L | Wezterm pane ←/→ (Cmd+Shift+←/→) | — | — | — |
 | MOUSE | Scroll H | — | Scroll V | — |
 | MEDIA | Prev/Next track | Play/Pause | Vol -/+ | Mute |
-| NUMPAD, SYM_L, SYM_R, GAMING, SETTINGS | transparent | transparent | transparent | transparent |
+| NUMPAD, SYM_R, GAMING, SETTINGS | transparent | transparent | transparent | transparent |
 
 ALPHA "Scroll V" emits `MS_WHLU/MS_WHLD` (mouse wheel). macOS routes wheel events to the window under the cursor, so the encoder always scrolls whatever sits under the pointer — **not** the focused window. The AeroSpace `on-focus-changed = ['move-mouse window-lazy-center']` workaround was tried and reverted (cursor-jump felt worse than the wrong-window-scroll). If you want focus-follows-scroll, the cleanest option is a separate scroll-router (e.g. a Hammerspoon shim) rather than moving the mouse on every focus change.
 

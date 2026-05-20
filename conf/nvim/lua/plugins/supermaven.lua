@@ -24,5 +24,18 @@ return {
     },
     disable_keymaps = true,
     log_level = "off",
+    -- cmp handles completion menu; Supermaven = inline ghost in code only.
+    -- Avante/markdown: no inline AI fighting prose or agent input.
+    ignore_filetypes = {
+      "markdown",
+      "Avante",
+      "AvanteInput",
+      "AvanteSelectedCode",
+      "AvanteSelectedFiles",
+      "help",
+      "alpha",
+      "neo-tree",
+      "oil",
+    },
   },
 }

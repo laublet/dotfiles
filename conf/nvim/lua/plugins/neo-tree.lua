@@ -18,25 +18,11 @@ return {
     "nvim-tree/nvim-web-devicons",
     "MunifTanjim/nui.nvim",
   },
-  -- Load eagerly. `event = "VimEnter"` previously created a race where the
-  -- VimEnter autocmd in `init` could call :Neotree before lazy finished setup,
-  -- leaving `neo-tree.config` nil → E5108 on toggle_node/open ("attempt to
-  -- index field 'config' (a nil value)" in fs_scan.lua).
-  lazy = false,
   cmd = "Neotree",
   keys = {
     { "<leader>e", "<cmd>Neotree toggle<cr>", desc = "Toggle file tree" },
     { "<leader>E", "<cmd>Neotree reveal<cr>", desc = "Reveal current file in tree" },
   },
-  init = function()
-    vim.api.nvim_create_autocmd("VimEnter", {
-      callback = function()
-        if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
-          vim.schedule(function() pcall(vim.cmd, "Neotree show") end)
-        end
-      end,
-    })
-  end,
   -- Explicit config callback (instead of opts) makes setup failures visible
   -- as errors instead of silently leaving config = nil.
   config = function(_, opts)

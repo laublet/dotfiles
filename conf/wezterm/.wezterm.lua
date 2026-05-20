@@ -10,7 +10,14 @@
 --   Ctrl + Alt + Shift + arrows → swap active pane with neighbor in that direction
 --        (2 panes: rotate; 3+: PaneSelect fallback until Lua exposes swap_active_with_index)
 --   Cmd + Shift + ←/→        → prev/next tab
+--   Cmd + Shift + Ctrl + ←/→ → move current tab left/right (intercalate between others)
 --   Cmd + Shift + ,          → rename current tab (empty = reset, persisted via resurrect)
+--   Cmd + ↑/↓                → scroll to previous/next prompt in scrollback (OSC 133 — zsh emits markers)
+--   Cmd + Shift + ↑          → fast copy of the latest command output (no picker)
+--   Ctrl + Shift + O         → fzf picker on every output of this pane (floats inline in zsh via ZLE widget;
+--                              split fallback when foreground is not zsh). Enter copies, preview on right.
+--   Cmd + Ctrl + Space       → CharSelect (Nerd Font / emoji picker, matches macOS system shortcut)
+--   Cmd + Shift + ;          → launch_menu picker (btop, gitui, lazydocker, …)
 --   Cmd + Alt + Space        → copy mode; / ? = EditPattern (defaults); Enter validates pattern + auto-selects match;
 --                              n / Shift+n (or Ctrl+n/p, arrows) cycle matches; y copies; Esc clears pattern + closes;
 --                              Cmd+F = separate scrollback overlay (see cheatsheet)
@@ -110,6 +117,42 @@ config.cursor_blink_ease_out = "Constant"
 -- Scrollback
 config.scrollback_lines = 50000
 
+-- Bell — silence audible beep, keep a subtle cursor flash, raise a macOS toast.
+-- Use with `printf '\a'` (or any TUI bell) to be notified when long commands finish:
+--   make build && printf '\a'
+config.audible_bell = "Disabled"
+config.visual_bell = {
+  fade_in_function     = "EaseIn",
+  fade_in_duration_ms  = 75,
+  fade_out_function    = "EaseOut",
+  fade_out_duration_ms = 150,
+  target = "CursorColor",
+}
+
+-- Kitty keyboard protocol — richer key reporting (distinguishes Ctrl+I from Tab,
+-- preserves all home-row-mods bits from Kyria into Neovim/tmux). If a TUI ever
+-- shows garbled escape sequences, flip this to false.
+config.enable_kitty_keyboard = true
+
+-- Environment — when WezTerm is launched from Finder/Dock, its PATH is the
+-- bare macOS default (no /opt/homebrew/bin). Interactive shells fix themselves
+-- via zshrc, but NON-interactive spawns (launch_menu items, background_child_process
+-- for the cursor:// hyperlink handler, …) inherit this minimal PATH and silently
+-- fail to find Homebrew binaries. Pre-populate PATH here so every wezterm child
+-- starts with the right environment.
+config.set_environment_variables = {
+  PATH = table.concat({
+    "/opt/homebrew/bin",
+    "/opt/homebrew/sbin",
+    "/usr/local/bin",
+    (os.getenv("HOME") or "") .. "/.local/bin",
+    "/usr/bin",
+    "/bin",
+    "/usr/sbin",
+    "/sbin",
+  }, ":"),
+}
+
 -- Maximize on startup; primary path = resurrect (current_state + workspace JSON)
 wezterm.on("gui-startup", function(cmd)
   local ok = resurrect.state_manager.resurrect_on_gui_startup()
@@ -124,6 +167,87 @@ wezterm.on("gui-startup", function(cmd)
       end
     end)
   end
+end)
+
+-- Bell notification — toast in macOS Notification Center on \a from any pane.
+wezterm.on("bell", function(window, pane)
+  local title = pane:get_title() or "pane"
+  window:toast_notification("WezTerm", "Bell — " .. title, nil, 3000)
+end)
+
+-- =============================================================================
+-- Launch menu — pre-defined CLI shortcuts surfaced via Cmd+Shift+;
+-- =============================================================================
+-- Picker keybinding lives in config.keys (ShowLauncherArgs LAUNCH_MENU_ITEMS|FUZZY).
+-- bandwhich removed: not installed locally. `brew install bandwhich` then re-add.
+config.launch_menu = {
+  { label = "btop",              args = { "btop" } },
+  { label = "gitui",             args = { "gitui" } },
+  { label = "lazydocker",        args = { "lazydocker" } },
+  { label = "nettop",            args = { "nettop" } },
+  { label = "mac-startup-clean", args = { "mac-startup-clean" } },
+}
+
+-- =============================================================================
+-- Hyperlink rules — make `path/to/file.ext:LINE[:COL]` clickable
+-- =============================================================================
+-- Cmd+click in any compiler/linter/test output (tsc, eslint, cargo, vitest, …)
+-- opens the file at the right line/column in Neovim. Keeps the default rules
+-- (URLs, ipv4, file://, etc.) by starting from default_hyperlink_rules().
+config.hyperlink_rules = wezterm.default_hyperlink_rules()
+
+table.insert(config.hyperlink_rules, {
+  regex = [[(?:^|\s)((?:\.{0,2}/|~/|/)[\w./@\-]+\.\w+(?::\d+(?::\d+)?)?)]],
+  format = "file-line://$1",
+  highlight = 1,
+})
+
+local function parse_file_line_uri(spec)
+  local file, line, col = spec:match("^(.+):(%d+):(%d+)$")
+  if file then
+    return file, tonumber(line), tonumber(col)
+  end
+  file, line = spec:match("^(.+):(%d+)$")
+  if file then
+    return file, tonumber(line), nil
+  end
+  return spec, nil, nil
+end
+
+local function resolve_file_path(file, pane)
+  if file:sub(1, 1) == "~" then
+    return wezterm.home_dir .. file:sub(2)
+  end
+  if file:sub(1, 1) == "/" then
+    return file
+  end
+  local cwd = pane:get_current_working_dir()
+  local base = cwd and tostring(cwd) or wezterm.home_dir
+  if file:sub(1, 2) == "./" then
+    file = file:sub(3)
+  end
+  return base .. "/" .. file
+end
+
+wezterm.on("open-uri", function(_window, pane, uri)
+  local spec = uri:match("^file%-line://(.+)$")
+  if not spec then
+    return -- let wezterm handle URLs / other schemes normally
+  end
+
+  local file, line, _col = parse_file_line_uri(spec)
+  file = resolve_file_path(file, pane)
+
+  local args = { "nvim" }
+  if line then
+    table.insert(args, "+" .. line)
+  end
+  table.insert(args, file)
+
+  local cwd = pane:get_current_working_dir()
+  wezterm.cli.spawn(args, { cwd = cwd and tostring(cwd) or nil })
+  wezterm.log_info("open-uri: opened in nvim → " .. table.concat(args, " "))
+  return false -- prevent default handling (no browser)
 end)
 
 -- =============================================================================
@@ -261,11 +385,17 @@ end
 -- Resurrect — session persistence
 -- =============================================================================
 
--- Auto-save every 5 minutes
+-- Auto-save every 5 minutes — workspace only.
+-- Workspace state already nests all windows/tabs/panes (cf. window_states[] in the
+-- saved JSON), so save_windows/save_tabs are redundant for the startup + fuzzy-load
+-- flow used here. They were also the source of massive pollution: each periodic tick
+-- writes window/<title>.json and tab/<title>.json, and Cursor Agent titles change at
+-- every spinner frame ("Working ...", "Working ..·", "Ready", "Planning", …),
+-- producing 5-7 orphan files per conversation.
 resurrect.state_manager.periodic_save({
   interval_seconds = 300,
-  save_tabs = true,
-  save_windows = true,
+  save_tabs = false,
+  save_windows = false,
   save_workspaces = true,
 })
 
@@ -304,16 +434,34 @@ end)
 -- Active tab is never truncated (so you always see its full name); inactive
 -- tabs follow the max_width budget.
 --
--- When a custom title is set, we still want to surface the running process'
--- spinner/status icon (cursor-agent's "⠋ Thinking…", "⏳ Running tool", etc.).
--- Scan every whitespace-separated token of the pane title and keep the first
--- one that contains a UTF-8 multibyte char (byte ≥ 0x80). This catches spinners
--- whether they appear at the start, middle or end of the title: "⠋ Thinking",
--- "Thinking ⠋", "cursor-agent ⠋ tool-call" all yield the braille glyph.
--- Pure ASCII tokens (zsh, nvim, the agent's name, …) are filtered out.
-local function extract_status_glyph(pane_title)
-  if not pane_title or #pane_title == 0 then return nil end
-  for token in pane_title:gmatch("%S+") do
+-- When a custom title is set and an AI agent CLI is running in the active pane,
+-- surface its spinner/status icon (cursor-agent's "⠋ Thinking…", "⏳ Working …",
+-- "✅ Ready", "🧭 Planning", etc.). Gated on the foreground process name so that:
+--   - starship/p10k prompt icons (git branch, language version, …) never leak in
+--   - the glyph disappears as soon as the agent exits and the shell takes over
+-- Without this gate, the last status emoji stayed stuck on the tab title forever.
+local STATUS_PROCESSES = {
+  "cursor%-agent",
+  "claude",
+  "aider",
+  "codex",
+}
+
+local function pane_has_status_process(proc_name)
+  if not proc_name or proc_name == "" then return false end
+  for _, pat in ipairs(STATUS_PROCESSES) do
+    if proc_name:match(pat) then return true end
+  end
+  return false
+end
+
+-- Scan tokens for a multibyte char (byte ≥ 0x80). Catches glyphs whether they
+-- appear at the start, middle or end of the title.
+local function extract_status_glyph(pane)
+  if not pane_has_status_process(pane.foreground_process_name) then return nil end
+  local title = pane.title
+  if not title or #title == 0 then return nil end
+  for token in title:gmatch("%S+") do
     if token:find("[\128-\255]") then return token end
   end
   return nil
@@ -322,7 +470,7 @@ end
 wezterm.on("format-tab-title", function(tab, _, _, _, _, max_width)
   local title = tab.tab_title
   if title and #title > 0 then
-    local glyph = extract_status_glyph(tab.active_pane.title)
+    local glyph = extract_status_glyph(tab.active_pane)
     if glyph then title = glyph .. " " .. title end
   else
     title = tab.active_pane.title
@@ -338,16 +486,28 @@ wezterm.on("format-tab-title", function(tab, _, _, _, _, max_width)
   return prefix .. title .. suffix
 end)
 
+-- Cache last rendered status per window — set_left_status / set_right_status
+-- force a window repaint on every call, and a repaint re-evaluates the active
+-- copy-mode search pattern (snaps cursor back to first match, see
+-- wezterm/wezterm#5952). Status_update_interval is supposed to throttle this
+-- handler but the 60s setting is silently ignored in some builds (observed
+-- 10s ticks in 20260117). Hard-skipping no-op updates side-steps the issue
+-- regardless of how often this event fires.
+local last_status_cache = {}
+
 wezterm.on("update-status", function(window, _)
   local workspace = window:active_workspace()
   local key_table = window:active_key_table()
   local left = " " .. workspace
   if key_table then left = left .. "  " .. key_table end
+  local key = tostring(window:window_id())
+  if last_status_cache[key] == left then return end
+  last_status_cache[key] = left
   window:set_left_status(wezterm.format({
     { Foreground = { Color = "#6272a4" } },
     { Text = left .. " " },
   }))
-  window:set_right_status("")
+  -- Right status only set once per window (first call), never re-set.
 end)
 
 -- =============================================================================
@@ -422,6 +582,208 @@ local resurrect_save_action = wezterm.action_callback(function(window, _)
   else
     resurrect_notify(window, "WezTerm", "Session save failed: " .. tostring(err), 5000)
     wezterm.log_error("resurrect save: " .. tostring(err))
+  end
+end)
+
+-- Semantic zone copy — relies on OSC 133 markers emitted by zsh (see zshrc).
+-- Only "Output" is exposed: copying the last command's output is the 95% use
+-- case. "Input" zones would require wrapping PROMPT with ;P/;B markers, which
+-- conflicts with starship rebuilding PROMPT each precmd cycle — not worth the
+-- fragility for "copy the command I just ran" which is also `!!` / Ctrl+R away.
+--
+-- get_text_from_region (not get_text_from_semantic_zone) avoids the wezterm
+-- bug that eats the last line of the zone (wezterm/wezterm#5346, #5806).
+-- Single-row zones respect end_x exactly to avoid bleeding into starship's
+-- RPROMPT (which sits on the same row as LPROMPT, past a cursor-positioning
+-- escape that wezterm classifies as a phantom Output zone boundary).
+local function zone_text(pane, zone)
+  local txt
+  if zone.start_y == zone.end_y then
+    txt = pane:get_text_from_region(zone.start_x, zone.start_y, zone.end_x + 1, zone.end_y + 1)
+  else
+    txt = pane:get_text_from_region(zone.start_x, zone.start_y, 0, zone.end_y + 1)
+  end
+  return (txt or ""):gsub("[%s\n]+$", "")
+end
+
+-- In-window flash via the status bar — replaces window:toast_notification which
+-- relies on NSUserNotificationCenter (deprecated since macOS 11, silently
+-- dropped on modern macOS regardless of System Settings → Notifications).
+-- Status-bar feedback is immediate, always visible, and has zero OS dependency.
+-- Auto-clears after `ms` (default 1.8s) via wezterm.time.call_after.
+local function flash_status(window, message, ms)
+  pcall(function()
+    window:set_right_status(wezterm.format({
+      { Background = { Color = "#bd93f9" } },
+      { Foreground = { Color = "#282a36" } },
+      { Attribute = { Intensity = "Bold" } },
+      { Text = " " .. message .. " " },
+    }))
+  end)
+  wezterm.time.call_after((ms or 1800) / 1000, function()
+    pcall(function() window:set_right_status("") end)
+  end)
+end
+
+-- Filter pane zones to "real" outputs (start at column 0, non-empty content),
+-- skipping starship's phantom mid-row RPROMPT zones. Returns oldest-first.
+local function get_real_output_zones(pane)
+  local zones = pane:get_semantic_zones("Output")
+  local out = {}
+  for _, z in ipairs(zones or {}) do
+    if z.start_x == 0 then
+      local txt = zone_text(pane, z)
+      if #txt > 0 then
+        table.insert(out, { zone = z, text = txt })
+      end
+    end
+  end
+  return out
+end
+
+-- Best-effort label: the command line that produced the output (one row above
+-- the output's start), falling back to the first non-empty line of the output.
+-- get_text_from_region returns plain text (no ANSI), so no stripping needed.
+local function command_label(pane, entry)
+  local label = ""
+  if entry.zone.start_y > 0 then
+    local prev = pane:get_text_from_region(0, entry.zone.start_y - 1, 0, entry.zone.start_y) or ""
+    label = prev:gsub("[\r\n]+", " "):gsub("^%s+", ""):gsub("%s+$", "")
+  end
+  if label == "" then
+    label = (entry.text:match("[^\n]+") or ""):gsub("^%s+", ""):gsub("%s+$", "")
+  end
+  label = label:gsub("[\t]+", " ")
+  if #label > 120 then label = label:sub(1, 117) .. "..." end
+  return label
+end
+
+-- Dump every output to <tmpdir>/NNN.txt (001 = latest) plus a manifest. Returns
+-- tmpdir for the picker script, or nil if no outputs.
+--
+-- Security: uses `mktemp -d` (no args) which lands in $TMPDIR — on macOS that's
+-- /var/folders/<hash>/T/, a per-user directory created with 0700 perms atomically
+-- (race-free, unpredictable name). The picker script wipes tmpdir on EXIT via
+-- trap, so files normally don't outlive the picker invocation. Worst case
+-- (SIGKILL) macOS auto-cleans $TMPDIR on reboot or after ~3 days of inactivity.
+local function dump_outputs_for_picker(pane)
+  local outputs = get_real_output_zones(pane)
+  if #outputs == 0 then return nil end
+
+  local handle = io.popen("mktemp -d 2>/dev/null")
+  if not handle then return nil end
+  local tmpdir = (handle:read("*l") or ""):gsub("%s+$", "")
+  handle:close()
+  if tmpdir == "" then return nil end
+
+  local lines = {}
+  for picker_idx = 1, #outputs do
+    local entry = outputs[#outputs - picker_idx + 1]  -- 1 = latest
+    local fname = string.format("%s/%03d.txt", tmpdir, picker_idx)
+    local f = io.open(fname, "w")
+    if f then
+      f:write(entry.text)
+      f:close()
+    end
+    table.insert(lines, string.format("%03d\t%s", picker_idx, command_label(pane, entry)))
+  end
+  local mf = io.open(tmpdir .. "/manifest", "w")
+  if mf then
+    mf:write(table.concat(lines, "\n") .. "\n")
+    mf:close()
+  end
+  return tmpdir
+end
+
+local picker_bin = (os.getenv("HOME") or "") .. "/.local/bin/wezterm-output-picker"
+
+-- TUIs that use "q" to quit but ignore SIGINT when kitty keyboard is enabled (btop, …).
+local function foreground_is(proc_substr)
+  return function(pane)
+    local name = pane:get_foreground_process_name() or ""
+    return name:find(proc_substr, 1, true) ~= nil
+  end
+end
+
+local function tui_quit_or(fallback_action)
+  return wezterm.action_callback(function(window, pane)
+    if foreground_is("btop")(pane) then
+      pane:send_text("q")
+    else
+      window:perform_action(fallback_action, pane)
+    end
+  end)
+end
+
+-- Quick path: copy the latest output to clipboard, no picker, no preview, no
+-- choice. Single keystroke for the 80% case. Status bar flashes purple.
+local copy_last_output_action = wezterm.action_callback(function(window, pane)
+  local ok, err = pcall(function()
+    local outputs = get_real_output_zones(pane)
+    if #outputs == 0 then
+      flash_status(window, "No output yet — run a command first (or `exec zsh`)", 3000)
+      return
+    end
+    local entry = outputs[#outputs]
+    window:copy_to_clipboard(entry.text, "ClipboardAndPrimarySelection")
+    flash_status(window, string.format("Copied last output (%d chars)", #entry.text), 1800)
+  end)
+  if not ok then
+    wezterm.log_error("copy_last_output: " .. tostring(err))
+    pcall(function() flash_status(window, "Copy failed: " .. tostring(err), 4000) end)
+  end
+end)
+
+-- Picker path: when the foreground process is an interactive zsh, hand off to
+-- a ZLE widget (`__wezterm_output_picker_widget` in zshrc) bound to Ctrl+X
+-- Ctrl+P. We write the tmpdir to a per-pane marker file then send the key
+-- sequence: the widget reads the marker and runs `wezterm-output-picker` in
+-- the current tty. fzf inherits FZF_DEFAULT_OPTS (`--height 40% --border`),
+-- so it floats inline like any other fzf widget (Ctrl+T, Ctrl+R) — no pane
+-- split, no layout disruption.
+--
+-- Fallback (vim, TUI, anything not zsh): keep the old behavior of opening
+-- the picker in a split pane. Better than nothing, and the user explicitly
+-- triggered the picker so a split is acceptable.
+local function pane_is_interactive_zsh(pane)
+  local info = pane:get_foreground_process_info()
+  if not info or not info.name then return false end
+  -- info.name = basename of executable; matches zsh, -zsh (login), etc.
+  return info.name:match("zsh$") ~= nil
+end
+
+local function marker_path_for_pane(pane)
+  return "/tmp/.wezterm-output-picker." .. tostring(pane:pane_id())
+end
+
+local pick_output_action = wezterm.action_callback(function(window, pane)
+  local ok, err = pcall(function()
+    local tmpdir = dump_outputs_for_picker(pane)
+    if not tmpdir then
+      flash_status(window, "No outputs to pick — run a command first (or `exec zsh`)", 3000)
+      return
+    end
+    if pane_is_interactive_zsh(pane) then
+      local marker = marker_path_for_pane(pane)
+      local f = io.open(marker, "w")
+      if f then
+        f:write(tmpdir)
+        f:close()
+        -- Ctrl+X Ctrl+P (0x18 0x10) — bound in zshrc to the widget.
+        pane:send_text("\x18\x10")
+        return
+      end
+      wezterm.log_warn("pick_output: could not write marker " .. marker .. ", falling back to split")
+    end
+    window:perform_action(act.SplitPane({
+      direction = "Down",
+      size = { Percent = 75 },
+      command = { args = { picker_bin, tmpdir } },
+    }), pane)
+  end)
+  if not ok then
+    wezterm.log_error("pick_output: " .. tostring(err))
+    pcall(function() flash_status(window, "Picker failed: " .. tostring(err), 4000) end)
   end
 end)
 
@@ -532,6 +894,51 @@ config.keys = {
     action = act.ActivateTabRelative(1),
   },
 
+  -- Tab reorder — Cmd + Shift + Ctrl + left/right (move the active tab itself).
+  -- Wraps around the tab strip; press repeatedly to intercalate at any position.
+  {
+    key = "LeftArrow",
+    mods = "CMD|SHIFT|CTRL",
+    action = act.MoveTabRelative(-1),
+  },
+  {
+    key = "RightArrow",
+    mods = "CMD|SHIFT|CTRL",
+    action = act.MoveTabRelative(1),
+  },
+
+  -- Scrollback semantic navigation — Cmd + Up/Down jumps to prev/next prompt.
+  -- Requires OSC 133 markers from the shell (see zshrc `_osc133_precmd`).
+  {
+    key = "UpArrow",
+    mods = "CMD",
+    action = act.ScrollToPrompt(-1),
+  },
+  {
+    key = "DownArrow",
+    mods = "CMD",
+    action = act.ScrollToPrompt(1),
+  },
+
+  -- Cmd+Shift+↑ — fast path: copy the latest output direct to clipboard
+  -- (status bar flash, no picker). For the 80% case "I just want what I
+  -- just saw" — single keystroke, zero friction.
+  {
+    key = "UpArrow",
+    mods = "CMD|SHIFT",
+    action = copy_last_output_action,
+  },
+
+  -- Ctrl+Shift+O — full picker over every output of this pane (fzf preview).
+  -- Mnemonic: Output. Avoids plain Ctrl+O (zsh readline `operate-and-get-next`).
+  -- Opens in a split pane below the current one; nothing hits clipboard until
+  -- you press Enter on a selection (keeps the clipboard history clean).
+  {
+    key = "o",
+    mods = "CTRL|SHIFT",
+    action = pick_output_action,
+  },
+
   -- Rename current tab (empty input clears the custom title and reverts to
   -- the pane title). Persisted across restarts by resurrect's tab_state.
   -- `phys:Comma` matches the physical key regardless of how Shift transforms
@@ -563,12 +970,39 @@ config.keys = {
     action = act.QuickSelect,
   },
 
+  -- CharSelect — Unicode / Nerd Font / emoji picker, matches the macOS system
+  -- emoji shortcut (Cmd+Ctrl+Space) so muscle memory transfers from other apps.
+  -- group=NerdFonts so the picker opens directly on the full Nerd Font glyph set
+  -- (the implicit default is RecentlyUsed which is empty/sparse). Inside the
+  -- picker: Tab cycles to Emoji/UnicodeNames/etc., fuzzy filter live as you type.
+  {
+    key = "Space",
+    mods = "CMD|CTRL",
+    action = act.CharSelect({
+      group = "NerdFonts",
+      copy_on_select = true,
+      copy_to = "ClipboardAndPrimarySelection",
+    }),
+  },
+
   -- macOS text-field habit: terminals usually ignore Cmd+Backspace — send Ctrl+U instead
   -- (zsh emacs/vi insert: kill line backward; vim insert: delete to start of insert).
   {
     key = "Backspace",
     mods = "CMD",
     action = act.SendKey({ key = "u", mods = "CTRL" }),
+  },
+
+  -- btop (and similar) ignore Ctrl/Cmd+C under kitty keyboard — send "q" instead.
+  {
+    key = "c",
+    mods = "CMD",
+    action = tui_quit_or(act.CopyTo("Clipboard")),
+  },
+  {
+    key = "c",
+    mods = "CTRL",
+    action = tui_quit_or(act.SendKey({ key = "c", mods = "CTRL" })),
   },
 
   -- Disable Ctrl-based defaults that conflict with home-row mods (Kyria CAGS).
@@ -633,6 +1067,14 @@ config.keys = {
     key = "l",
     mods = "CMD|SHIFT",
     action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }),
+  },
+
+  -- Launch menu (config.launch_menu entries) — quick-launch CLIs in the current pane.
+  -- Cmd+Shift+; is free in the existing keymap and sits next to Cmd+Shift+L (other launcher).
+  {
+    key = "phys:Semicolon",
+    mods = "CMD|SHIFT",
+    action = act.ShowLauncherArgs({ flags = "FUZZY|LAUNCH_MENU_ITEMS" }),
   },
   {
     key = "n",

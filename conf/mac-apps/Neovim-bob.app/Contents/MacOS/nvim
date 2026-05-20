@@ -1,0 +1,11 @@
+#!/bin/bash
+# Launch bob-managed Neovim (GUI / Finder / duti default handler).
+NVIM="${HOME}/.local/share/bob/nvim-bin/nvim"
+if [[ ! -x "$NVIM" ]]; then
+  NVIM="$(command -v nvim)"
+fi
+if [[ ! -x "$NVIM" ]]; then
+  osascript -e 'display alert "Neovim not found" message "Install with: bob install stable"'
+  exit 1
+fi
+exec "$NVIM" "$@"

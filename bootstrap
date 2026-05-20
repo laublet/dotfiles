@@ -44,6 +44,14 @@ fi
 echo "==> Linking dotfiles..."
 bash "$BASEDIR/install"
 
+# ── macOS post-link (Neovim.app, duti, bob) ───────────────────────
+if [[ "$OS" == "Darwin" ]]; then
+  if command -v bob &>/dev/null && [[ ! -x "${HOME}/.local/share/bob/nvim-bin/nvim" ]]; then
+    echo "==> Installing Neovim via bob (pin v0.11.x — see Brewfile)..."
+    bob install v0.11.5 || bob install stable
+  fi
+fi
+
 # ── Set default shell to zsh ─────────────────────────────────────
 if [[ "$SHELL" != */zsh ]]; then
   echo "==> Setting zsh as default shell..."
@@ -51,4 +59,15 @@ if [[ "$SHELL" != */zsh ]]; then
 fi
 
 echo ""
+if [[ "$OS" == "Darwin" ]]; then
+  echo "==> macOS: text files open in Neovim if duti + Neovim.app are linked (just link / install-mac)."
+  echo "    Re-apply handlers: mac-neovim-defaults"
+fi
 echo "==> Done! Restart your shell or run: exec zsh"
+if [[ "$OS" == "Darwin" ]]; then
+  echo ""
+  echo "macOS extras (if not applied during install):"
+  echo "  bob install v0.11.5     # if nvim missing (0.11 pin)"
+  echo "  mac-neovim-defaults     # Finder default app for .json, .csv, … (needs duti)"
+  echo "  nvim -c MasonToolsInstallAll   # Mason formatters (prettierd, prettier, stylua)"
+fi

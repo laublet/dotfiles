@@ -249,7 +249,7 @@ These plugins live only in standalone Neovim — Zed has built-in or extension e
 | `fzf-lua` (files / grep / git pickers) | File finder + project search panel; granular fd/rg variants collapse to in-panel toggles. Telescope-like picker: shipping in next release. |
 | `flash.nvim` (labelled jumps) | No equivalent today (vim core `f/t/F/T`, `/`, `*` only). |
 | `which-key.nvim` | Native (Zed ≥ Dec 2025). No custom group descriptions yet. |
-| `neo-tree` | Project panel (`Space + e`) — sidebar tree. `Space + o` / `-` for oil bulk edits. |
+| `neo-tree` | Project panel (`Space + e`) — sidebar tree. `Space + O` / `-` for oil bulk edits. |
 | `gitsigns` (hunks) | `Space + h*` bindings + `] c` / `[ c` vim mode. |
 | `neogit` / `gitui` integration | Run `gu` (gitui) in terminal (`Space + t`). Neogit lives only in Neovim. |
 | `surround.vim` / `nvim-surround` | Built into vim mode (`ys`, `cs`, `ds`). |

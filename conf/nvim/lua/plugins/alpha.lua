@@ -37,7 +37,9 @@ return {
     -- pool below appears under the plugin stats every time alpha shows.
     -- See cheatsheets/vim-fundamentals.md for the full reference.
     local vim_tips = {
-      "Cycle buffers : `:bn` / `:bp` — or `<C-^>` to toggle the last two",
+      "Cycle buffers : `<leader>b` (fzf list + Ctrl-x delete, picker stays open) — or `<C-Tab>` for last-two toggle",
+      "Stuck float / picker : `<leader>Ux` closes all floats — `<leader>Ur` refocuses the top one",
+      "Diffview edit flow : `<leader>gv` → edit the right pane (B), `:w` saves — left pane is read-only git ref",
       "Close one buffer keeping the split : `<leader>q` (custom) — vim native `:bd` closes the window too",
       "List all buffers with markers : `:ls` (% = current, # = alternate, + = modified)",
       "Close all buffers except current : `:%bd|e#`",
@@ -48,7 +50,7 @@ return {
       "Equalize all splits : `<C-w>=` — maximize : `<C-w>|` (width) or `<C-w>_` (height)",
       "Close current split : `<C-w>c` (or `<leader>x`) — close all OTHERS : `<C-w>o`",
       "Toggle zoom on a split : `<leader>z` (saves layout, restores on second press)",
-      "Tab pages (rare) : `gt` / `gT` next/prev — `:tabnew` to create, `:tabc` to close",
+      "Tab pages : `<leader>Tn` / `<leader>Tp` next/prev — `<leader>TN` new (rare) — `<leader>Tc` close — `1gt` jump to tab N",
       "Move current window to a new tab : `<C-w>T`",
       "Re-source the file you are editing : `:source %` (great to reload nvim config live)",
       "Run a shell command from nvim : `:!ls -la` — read its output into buffer : `:r !date`",
@@ -62,7 +64,8 @@ return {
       "Diagnose a plugin : `:checkhealth <plugin>` (try `:checkhealth persistence`)",
       "Force quit nvim without saving : `:qa!`",
       "Save all + quit all : `:wqa`",
-      "Clear the search highlight : `:noh` (or `<leader>c`)",
+      "Autosave : on when you leave insert / switch buffer / lose focus (2s debounce) — `:ASToggle` to disable",
+      "Clear the search highlight : `:noh` (or `<leader>nh`)",
       "Toggle the last two files instantly : `<C-^>` (or `<C-6>`)",
       "Show your undo history as a tree : `<leader>u` (Undotree, opens on the right)",
       "Floating terminal : `<leader>t` — bottom split terminal : `<leader>;`",

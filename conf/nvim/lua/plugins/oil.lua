@@ -7,7 +7,7 @@
 --
 -- Keymaps (intentionally NOT <leader>e, which stays on Neotree toggle):
 --   -          → Oil at the parent of the current file (vim-vinegar style)
---   <leader>o  → Oil in a floating window (modal, q/<Esc> to close)
+--   <leader>O  → Oil in a floating window (modal, q/<Esc> to close)
 --   :Oil       → Oil for a specific path
 --
 -- Dracula highlight wiring: oil uses its own hl groups (OilDir, OilFile, ...)
@@ -47,7 +47,7 @@ return {
   cmd = { "Oil" },
   keys = {
     { "-",         "<cmd>Oil<cr>",         desc = "File explorer (oil, parent dir)" },
-    { "<leader>o", "<cmd>Oil --float<cr>", desc = "File explorer (oil, floating)" },
+    { "<leader>O", "<cmd>Oil --float<cr>", desc = "File explorer (oil, floating)" },
   },
   lazy = false, -- needed so :Oil works on `nvim <dir>` (hijacks netrw)
   config = function(_, opts)

@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+# mac-startup-clean — fzf inventory of macOS auto-launch sources.
+#
+# Lists three categories:
+#   - Login Items  (legacy "System Events" — modern SMAppService apps are NOT visible here;
+#                   for those use System Settings → General → Login Items)
+#   - User LaunchAgents    (~/Library/LaunchAgents/*.plist) — removable without sudo
+#   - System LaunchAgents/Daemons (/Library/Launch{Agents,Daemons}/*.plist) — shown read-only;
+#                                 the script prints the exact sudo commands to run.
+#
+# Usage:
+#   mac-startup-clean              fzf picker, multi-select with Tab, Enter to remove.
+#   mac-startup-clean --dry-run    Same UI but only prints what would be removed.
+#   mac-startup-clean --preview "<kind>\t<target>"   Internal: render preview pane.
+#
+# Safety:
+#   - User LaunchAgents are sent to ~/.Trash via Finder (Put Back works).
+#   - Login Items are removed via osascript (re-addable in System Settings).
+#   - System items are NEVER touched automatically; you must run the printed sudo commands yourself.
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+command -v fzf >/dev/null 2>&1 || { echo "Missing: fzf (brew install fzf)" >&2; exit 1; }
+
+# ── Preview self-invocation ───────────────────────────────────────────
+# fzf calls back into this script so we can render plist contents nicely
+# without exporting bash functions (brittle across shells).
+if [[ "${1:-}" == "--preview" ]]; then
+  shift
+  IFS=$'\t' read -r kind target <<<"$1"
+  case "$kind" in
+    login-item)
+      printf "Login Item\n  %s\n\nWill be removed via:\n  osascript -e 'tell application \"System Events\" to delete login item \"%s\"'\n" "$target" "$target"
+      ;;
+    user-agent)
+      printf "User LaunchAgent\n  %s\n\nWill be:\n  1. launchctl bootout gui/<uid>/<Label>\n  2. moved to ~/.Trash via Finder (Put Back available)\n\n──────── content ────────\n" "$target"
+      plutil -p "$target" 2>/dev/null || cat "$target"
+      ;;
+    system-agent|system-daemon)
+      printf "%s (READ-ONLY — system scope)\n  %s\n\nTo remove manually:\n  sudo launchctl bootout system %s\n  sudo rm %s\n\n──────── content ────────\n" "$kind" "$target" "$target" "$target"
+      plutil -p "$target" 2>/dev/null || cat "$target"
+      ;;
+  esac
+  exit 0
+fi
+
+DRY_RUN=0
+if [[ "${1:-}" == "--dry-run" || "${1:-}" == "-n" ]]; then
+  DRY_RUN=1
+fi
+
+# ── Collectors ────────────────────────────────────────────────────────
+list_login_items() {
+  osascript -e 'tell application "System Events" to get the name of every login item' 2>/dev/null \
+    | tr ',' '\n' \
+    | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+    | awk 'NF { printf "login-item\t%s\n", $0 }'
+}
+
+list_user_agents() {
+  shopt -s nullglob
+  for f in "$HOME/Library/LaunchAgents"/*.plist; do
+    printf 'user-agent\t%s\n' "$f"
+  done
+}
+
+list_system_agents() {
+  shopt -s nullglob
+  for f in /Library/LaunchAgents/*.plist; do
+    printf 'system-agent\t%s\n' "$f"
+  done
+  for f in /Library/LaunchDaemons/*.plist; do
+    printf 'system-daemon\t%s\n' "$f"
+  done
+}
+
+# ── Removers ──────────────────────────────────────────────────────────
+remove_login_item() {
+  local name="$1"
+  if (( DRY_RUN )); then
+    echo "  [dry-run] would delete login item: $name"
+    return
+  fi
+  osascript -e "tell application \"System Events\" to delete login item \"$name\"" >/dev/null
+  echo "  ✓ removed login item: $name"
+}
+
+remove_user_agent() {
+  local f="$1"
+  local label
+  label=$(/usr/libexec/PlistBuddy -c 'Print :Label' "$f" 2>/dev/null || true)
+  if (( DRY_RUN )); then
+    echo "  [dry-run] would bootout label=$label and trash $f"
+    return
+  fi
+  if [[ -n "$label" ]]; then
+    launchctl bootout "gui/$(id -u)/$label" 2>/dev/null || true
+  fi
+  # Use Finder so the plist gets a proper "Put Back" entry in Trash.
+  if osascript -e "tell application \"Finder\" to delete (POSIX file \"$f\" as alias)" >/dev/null 2>&1; then
+    echo "  ✓ trashed user agent: $f (label=${label:-none})"
+  else
+    # Fallback if Finder is unavailable (rare).
+    mv "$f" "$HOME/.Trash/" && echo "  ✓ moved to ~/.Trash: $f"
+  fi
+}
+
+# ── Picker ────────────────────────────────────────────────────────────
+selection=$({
+  list_login_items
+  list_user_agents
+  list_system_agents
+} | fzf --multi \
+       --delimiter=$'\t' \
+       --with-nth=1,2 \
+       --preview "'$0' --preview {}" \
+       --preview-window=right:60%:wrap \
+       --header="Tab=multi-select | Enter=remove (user scope only) | Esc=cancel" \
+       --prompt="auto-launch> ") || exit 0
+
+[[ -z "$selection" ]] && exit 0
+
+echo
+echo "Selected:"
+echo "$selection" | awk -F'\t' '{ printf "  [%s] %s\n", $1, $2 }'
+echo
+
+if (( DRY_RUN )); then
+  echo "(dry-run — nothing will be removed)"
+else
+  read -rp "Confirm removal of user-scope items? [y/N] " ans
+  [[ "$ans" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 0; }
+fi
+
+system_pending=()
+while IFS=$'\t' read -r kind target; do
+  case "$kind" in
+    login-item) remove_login_item "$target" ;;
+    user-agent) remove_user_agent "$target" ;;
+    system-agent|system-daemon) system_pending+=("$kind|$target") ;;
+  esac
+done <<<"$selection"
+
+if (( ${#system_pending[@]} > 0 )); then
+  echo
+  echo "System-scope items require manual sudo (not run by this script):"
+  for entry in "${system_pending[@]}"; do
+    target="${entry#*|}"
+    echo "  sudo launchctl bootout system $target"
+    echo "  sudo rm $target"
+  done
+fi
+
+echo
+echo "Done. Restart to verify nothing comes back."

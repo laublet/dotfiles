@@ -11,6 +11,7 @@ brew "bat"
 brew "bottom"
 brew "btop"
 brew "difftastic"
+brew "duti"
 brew "dust"
 brew "eza"
 brew "fd"
@@ -60,10 +61,10 @@ cask "firefox@developer-edition"
 cask "google-chrome"
 cask "iina"
 cask "languagetool"
-cask "maccy"
 cask "mouseless"
 cask "obsidian"
 cask "postman"
+cask "raycast"
 cask "signal"
 cask "slack"
 cask "steermouse"
@@ -74,9 +75,6 @@ cask "zed"
 
 # ── Keyboard ─────────────────────────────────────────────────────
 cask "qmk-toolbox"
-
-# Albert (Homebrew cask `albertlauncher/albert/albert`): widgetsboxmodel needs QtStateMachine
-brew "qtscxml"
 
 # ── Mac App Store (requires `mas`) ───────────────────────────────
 mas "Amphetamine", id: 937984704

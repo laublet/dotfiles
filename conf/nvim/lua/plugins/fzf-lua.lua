@@ -79,6 +79,28 @@ return {
       { "<leader>gb", function() fz().git_branches() end, desc = "Git branches" },
       { "<leader>gf", function() fz().git_files() end, desc = "Git tracked files" },
 
+      {
+        "<leader>b",
+        function()
+          local actions = require("fzf-lua.actions")
+          fz().buffers({
+            _resume_reload = true,
+            fzf_opts = {
+              ["--header"] = "Enter=open | Ctrl-x=delete | Esc=cancel",
+            },
+            actions = {
+              ["ctrl-x"] = {
+                fn = function(selected, opts)
+                  actions.buf_del(selected, opts)
+                  actions.resume(selected, opts)
+                end,
+                noclose = true,
+              },
+            },
+          })
+        end,
+        desc = "Buffers (fuzzy)",
+      },
       { "<leader>r", function() fz().oldfiles() end, desc = "Recent files" },
       { "<leader>/", function() fz().grep_curbuf() end, desc = "Search in buffer (alias)" },
       { "<leader>s", function() fz().lsp_document_symbols() end, desc = "Document symbols" },
@@ -101,25 +123,6 @@ return {
           })
         end,
         desc = "Cheatsheets",
-      },
-      {
-        "<leader>K",
-        function()
-          local cheats = vim.fn.expand("~/dev/perso/dotfiles/cheatsheets")
-          require("fzf-lua").files({
-            cwd = cheats,
-            cmd = [[printf '%s\n' keymaps-hub.md keyboard-navigation.md tridactyl.md]],
-            prompt = "Keymaps❯ ",
-            actions = {
-              ["default"] = function(selected)
-                local file = selected[1]:match("[^%s]+$") or selected[1]
-                local path = cheats .. "/" .. file
-                vim.cmd("edit " .. vim.fn.fnameescape(path))
-              end,
-            },
-          })
-        end,
-        desc = "Keymaps cheatsheets (hub + nav + tridactyl)",
       },
     }
   end)(),
@@ -145,6 +148,7 @@ return {
         file_icons = false,
         git_icons = false,
       },
+      -- buffers picker opts live on <leader>b (noclose + resume — reload=true closes the float)
     })
   end,
 }

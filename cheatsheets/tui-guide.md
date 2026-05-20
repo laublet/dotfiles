@@ -35,7 +35,7 @@
 |--------------|------|-----|
 | Browse files visually (previews) | [yazi](yazi.md) | shell, `y` |
 | Sidebar tree (orientation) | neo-tree | nvim, `<leader>e` |
-| Edit filesystem like a buffer (rename, create, move) | [oil.nvim](oil.md) | nvim, `-` or `<leader>o` |
+| Edit filesystem like a buffer (rename, create, move) | [oil.nvim](oil.md) | nvim, `-` or `<leader>O` |
 | Find a file by name | [fd](fd.md) | shell, `fd pattern` |
 | Find a file interactively | [fzf](fzf.md) | shell, `Ctrl+T` |
 | Search text in files | [ripgrep](ripgrep.md) | shell, `rg pattern` |
@@ -71,7 +71,7 @@
 
 | I want to... | Tool | How |
 |--------------|------|-----|
-| Take a note in vault | obsidian.nvim | nvim, `<leader>od` (daily) / `<leader>oe` (vault) |
+| Take a note in vault | obsidian.nvim | nvim, `<leader>nd` (daily) / `<leader>nf` (find) / `<leader>nn` (new) |
 | Markdown preview | [glow](glow.md) | shell, `glow file.md` |
 | Pomodoro / ASCII clock | [arttime](arttime.md) | shell, `arttime -t 25m` |
 

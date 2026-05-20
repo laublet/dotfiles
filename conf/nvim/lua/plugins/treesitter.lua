@@ -11,7 +11,7 @@ return {
     opts = {
       ensure_installed = {
         "typescript", "tsx", "javascript",
-        "lua", "rust",
+        "lua",
         "json", "yaml", "toml",
         "html", "css",
         "bash", "markdown", "markdown_inline",

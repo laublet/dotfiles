@@ -65,7 +65,10 @@ if not vim.g.vscode then
   opt.termguicolors = true
   opt.number = true
   opt.relativenumber = true
+  -- Crosshair: line + column — subtle Dracula tints in dracula.lua (easier to spot
+  -- the active window/cell when many splits (code, agent, terminal, tree)).
   opt.cursorline = true
+  opt.cursorcolumn = true
   -- Block in normal/visual; bar in insert (terminal); VSCode UI ignores this
   opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50"
   opt.signcolumn = "yes"

@@ -51,9 +51,18 @@
         MOUSELESS_DIR=~/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs
         [ -f conf/mac-apps/mouseless.yaml ] && mkdir -p "$MOUSELESS_DIR" && cp conf/mac-apps/mouseless.yaml "$MOUSELESS_DIR/config.yaml" || true
         chmod +x ~/.local/bin/mac-startup-clean ~/.local/bin/wezterm-output-picker \
-          ~/.local/bin/mac-neovim-defaults ~/.local/bin/yazi-pick 2>/dev/null || true
+          ~/.local/bin/mac-neovim-defaults ~/.local/bin/yazi-pick ~/.local/bin/glab-pick 2>/dev/null || true
         chmod +x ~/Applications/Neovim.app/Contents/MacOS/nvim 2>/dev/null || true
         # glab: local config only (never symlink — auth writes tokens into config.yml)
+        # Remove legacy macOS path (duplicate config warning)
+        if [[ -d "$HOME/Library/Application Support/glab-cli" ]]; then
+          if [[ -f "$HOME/Library/Application Support/glab-cli/aliases.yml" && ! -f "$HOME/.config/glab-cli/aliases.yml" ]]; then
+            mkdir -p "$HOME/.config/glab-cli"
+            cp "$HOME/Library/Application Support/glab-cli/aliases.yml" "$HOME/.config/glab-cli/aliases.yml"
+            chmod 600 "$HOME/.config/glab-cli/aliases.yml" 2>/dev/null || true
+          fi
+          rm -rf "$HOME/Library/Application Support/glab-cli"
+        fi
         mkdir -p ~/.config/glab-cli
         GLAB_CONF="$HOME/.config/glab-cli/config.yml"
         if [[ -L "$GLAB_CONF" ]]; then

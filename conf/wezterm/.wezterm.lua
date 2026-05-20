@@ -17,7 +17,7 @@
 --   Ctrl + Shift + O         → fzf picker on every output of this pane (floats inline in zsh via ZLE widget;
 --                              split fallback when foreground is not zsh). Enter copies, preview on right.
 --   Cmd + Ctrl + Space       → CharSelect (Nerd Font / emoji picker, matches macOS system shortcut)
---   Cmd + Shift + ;          → launch_menu picker (btop, gitui, lazydocker, …)
+--   Cmd + Shift + ;          → launch_menu picker (btop, gitui, glab-pick, lazydocker, …)
 --   Cmd + Alt + Space        → copy mode; / ? = EditPattern (defaults); Enter validates pattern + auto-selects match;
 --                              n / Shift+n (or Ctrl+n/p, arrows) cycle matches; y copies; Esc clears pattern + closes;
 --                              Cmd+F = separate scrollback overlay (see cheatsheet)
@@ -183,6 +183,7 @@ end)
 config.launch_menu = {
   { label = "btop",              args = { "btop" } },
   { label = "gitui",             args = { "gitui" } },
+  { label = "glab-pick",         args = { "glab-pick" } },
   { label = "lazydocker",        args = { "lazydocker" } },
   { label = "nettop",            args = { "nettop" } },
   { label = "mac-startup-clean", args = { "mac-startup-clean" } },

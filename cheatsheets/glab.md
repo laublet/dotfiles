@@ -14,6 +14,35 @@ Auth is stored in `~/.config/glab-cli/`. Tokens never end up in this dotfiles re
 
 **Browser (macOS):** dotfiles set `browser: open -a "Google Chrome"` in `conf/glab/config.yml` so OAuth / `--web` open in Chrome instead of the system default (Choosy/Firefox). Override: `glab config set -g browser 'open -a "Firefox"'` or `export BROWSER=...` (env wins over config).
 
+**Duplicate config warning:** old glab versions used `~/Library/Application Support/glab-cli/`. Keep only `~/.config/glab-cli/`. Fix: `rm -rf ~/Library/Application\ Support/glab-cli` (aliases are migrated to XDG on `just link`).
+
+**“Remotes point to github.com”:** `glab` infers the project from `git remote` in the **current directory**. This dotfiles repo is on GitHub — use an explicit repo or `cd` into a GitLab clone:
+
+```bash
+glab mr list -R neo-k/my-project          # group/project on gitlab.com
+glab mr list -R https://gitlab.com/neo-k/my-project
+cd ~/dev/work/some-gitlab-repo && glab mr list
+```
+
+## TUI picker (`glab-pick`)
+
+```bash
+gp                     # alias — smart context (see below)
+gp -a                  # always show project picker
+gp -f blank            # only paths matching *blank*
+gp -R neo-k/foo        # skip project picker
+```
+
+**Smart context (default):**
+
+1. Inside a GitLab clone → uses `git remote` (no project list, fast).
+2. Else if `$PWD` has a segment like `blank` → filters neo-k projects to `*blank*` only.
+3. Else → cached project list (`~/.cache/glab-pick/`, 5 min TTL).
+
+**MRs:** use **All open MRs** first — review/assigned/authored filter with `@me` and can show “none” while MRs exist on the project.
+
+Actions: MRs (open / review / assigned / authored), CI status/view, issues @me, open project in browser.
+
 ## Merge Requests
 
 ```bash
@@ -60,6 +89,10 @@ glab issue close 42
 ## Repo
 
 ```bash
+glab repo list --member                    # projects you belong to (default: --mine = owner only → often empty)
+glab repo list -g neo-k                    # projects in a group
+glab repo list -g neo-k -G                 # include subgroups
+
 glab repo clone group/project              # clone by path
 glab repo view --web                       # open project page
 glab repo fork                             # fork current repo

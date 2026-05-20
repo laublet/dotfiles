@@ -48,6 +48,17 @@ return {
       end
     end
 
+    -- Neovim 0.11: nil keeps fzf-lua defaults (headless child via fn_preprocess/transform).
+    -- false explicitly disables them; previewer git_diff also spawns headless.
+    local git_status_opts = {
+      fn_preprocess = false,
+      fn_transform = false,
+      previewer = false,
+      file_icons = false,
+      color_icons = false,
+      multiprocess = false,
+    }
+
     local pick_default = files({})
 
     return {
@@ -74,7 +85,7 @@ return {
       { "<leader>f/", function() fz().grep_curbuf() end, desc = "Search in buffer" },
 
       -- Git — prefix <leader>g
-      { "<leader>gs", function() fz().git_status() end, desc = "Git status" },
+      { "<leader>gs", function() fz().git_status(git_status_opts) end, desc = "Git status" },
       { "<leader>gc", function() fz().git_commits() end, desc = "Git commits" },
       { "<leader>gb", function() fz().git_branches() end, desc = "Git branches" },
       { "<leader>gf", function() fz().git_files() end, desc = "Git tracked files" },
@@ -108,6 +119,44 @@ return {
       { "<leader>:", function() fz().command_history() end, desc = "Command history" },
       { "<leader>?", function() fz().keymaps() end, desc = "Keymaps" },
       {
+        "<leader>vr",
+        function()
+          local actions = require("fzf-lua.actions")
+          fz().registers({
+            ignore_empty = true,
+            fzf_opts = {
+              ["--header"] = "Enter=paste | Ctrl-x=clear register | Esc=cancel",
+            },
+            actions = {
+              ["enter"] = actions.paste_register,
+              ["ctrl-x"] = {
+                fn = function(selected)
+                  local line = selected[1]
+                  if not line then
+                    return
+                  end
+                  local reg = line:match("^%[([^%]]+)%]")
+                  if reg then
+                    pcall(vim.fn.setreg, reg, "")
+                  end
+                end,
+                reload = true,
+              },
+            },
+          })
+        end,
+        desc = "Registers (fzf)",
+      },
+      {
+        "<leader>vm",
+        function()
+          fz().marks({
+            fzf_opts = { ["--header"] = "Enter=jump | Ctrl-x=delete mark | Esc=cancel" },
+          })
+        end,
+        desc = "Marks (fzf, not harpoon)",
+      },
+      {
         "<leader>H",
         function()
           require("fzf-lua").files({
@@ -130,9 +179,11 @@ return {
     -- Workaround: Neovim 0.11 has a bug with require() in -l (script) mode
     -- that breaks fzf-lua's headless child process (spawn.lua:37 deserialize).
     -- Any option that triggers fn_transform (file_icons, git_icons, rg_glob,
-    -- strip_cwd_prefix, etc.) forces the headless wrapper.
+    -- strip_cwd_prefix, git.status fn_preprocess, etc.) forces the headless wrapper.
     -- Solution: disable all such options so fd/rg pipe raw to fzf.
     -- Grep uses live_grep_native() which explicitly disables all processing.
+    vim.env.FZF_LUA_NVIM_BIN = vim.v.progpath
+    vim.env.FZF_LUA_NVIM_RUNTIME = vim.env.VIMRUNTIME
     require("fzf-lua").setup({
       defaults = {
         file_icons = false,
@@ -147,6 +198,16 @@ return {
       files = {
         file_icons = false,
         git_icons = false,
+      },
+      git = {
+        status = {
+          fn_preprocess = false,
+          fn_transform = false,
+          previewer = false,
+          file_icons = false,
+          color_icons = false,
+          multiprocess = false,
+        },
       },
       -- buffers picker opts live on <leader>b (noclose + resume — reload=true closes the float)
     })

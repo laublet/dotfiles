@@ -1,0 +1,274 @@
+#!/usr/bin/env bash
+# glab-pick — fzf hub for GitLab (glab): project → action → optional MR drill-down.
+#
+# Usage:
+#   glab-pick                 # smart: git remote → else cwd path filter → else cached picker
+#   glab-pick -a              # always show project picker
+#   glab-pick -g neo-k        # limit projects to a group
+#   glab-pick -f blank        # only projects whose path contains "blank"
+#   glab-pick -R neo-k/foo    # skip project picker
+#
+# Env:
+#   GLAB_PICK_GROUP      default group (neo-k); empty = all member projects
+#   GLAB_PICK_CACHE_TTL  cache seconds (default 300)
+#
+# Requires: glab, fzf
+
+set -euo pipefail
+
+GROUP="${GLAB_PICK_GROUP:-neo-k}"
+REPO=""
+PATH_FILTER=""
+FORCE_PICKER=0
+PER_PAGE=200
+CACHE_TTL="${GLAB_PICK_CACHE_TTL:-300}"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/glab-pick"
+
+usage() {
+  sed -n '2,16p' "$0"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -a|--all) FORCE_PICKER=1; shift ;;
+    -g|--group) GROUP="$2"; shift 2 ;;
+    -f|--filter) PATH_FILTER="$2"; shift 2 ;;
+    -R|--repo) REPO="$2"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "glab-pick: unknown arg: $1" >&2; usage >&2; exit 1 ;;
+  esac
+done
+
+command -v glab >/dev/null 2>&1 || {
+  echo "glab-pick: glab not in PATH (brew install glab)" >&2
+  exit 1
+}
+command -v fzf >/dev/null 2>&1 || {
+  echo "glab-pick: fzf not in PATH" >&2
+  exit 1
+}
+
+if ! glab auth status >/dev/null 2>&1; then
+  echo "glab-pick: not logged in — run: glab auth login --hostname gitlab.com --web --git-protocol ssh" >&2
+  exit 1
+fi
+
+fzf_pick() {
+  local prompt="$1"
+  shift
+  fzf --prompt="$prompt " \
+    --height=40% \
+    --border \
+    --layout=reverse \
+    --info=inline \
+    "$@"
+}
+
+# git@gitlab.com:group/project.git → group/project
+gitlab_repo_from_remote() {
+  local url="${1%.git}"
+  if [[ "$url" =~ ^git@([^:]+):(.+)$ ]]; then
+    printf '%s\n' "${BASH_REMATCH[2]}"
+  elif [[ "$url" =~ ^ssh://git@([^/]+)/(.+)$ ]]; then
+    printf '%s\n' "${BASH_REMATCH[2]}"
+  elif [[ "$url" =~ ^https?://[^/]+/(.+)$ ]]; then
+    printf '%s\n' "${BASH_REMATCH[1]}"
+  fi
+}
+
+repo_from_git() {
+  local url
+  url=$(git remote get-url origin 2>/dev/null) || return 1
+  [[ "$url" == *gitlab.com* ]] || return 1
+  gitlab_repo_from_remote "$url"
+}
+
+# e.g. ~/dev/work/blank/foo → "blank" (any path segment matching *blank*)
+path_filter_from_pwd() {
+  local p="$PWD" part
+  while [[ "$p" != "/" && -n "$p" ]]; do
+    part="${p##*/}"
+    p="${p%/*}"
+    [[ "$part" == *blank* ]] && {
+      printf '%s\n' "blank"
+      return 0
+    }
+  done
+  return 1
+}
+
+cache_file() {
+  local key="${GROUP:-all}-${PATH_FILTER:-all}"
+  key="${key//\//-}"
+  printf '%s/repos-%s.tsv' "$CACHE_DIR" "$key"
+}
+
+cache_fresh() {
+  local f="$1"
+  [[ -f "$f" ]] || return 1
+  local age=$(( $(date +%s) - $(stat -f %m "$f" 2>/dev/null || stat -c %Y "$f" 2>/dev/null || echo 0) ))
+  (( age < CACHE_TTL ))
+}
+
+fetch_repos_tsv() {
+  local args=(repo list --member -P "$PER_PAGE")
+  [[ -n "$GROUP" ]] && args+=(-g "$GROUP" -G)
+  glab "${args[@]}" 2>/dev/null \
+    | awk -F'\t' 'NF >= 2 && $1 ~ /\// { desc=$3; sub(/^[ \t]+/,"",desc); print $1 "\t" desc }'
+}
+
+repos_tsv() {
+  mkdir -p "$CACHE_DIR"
+  local f
+  f=$(cache_file)
+  if cache_fresh "$f"; then
+    cat "$f"
+    return
+  fi
+  fetch_repos_tsv | tee "$f"
+}
+
+filter_repos_tsv() {
+  local needle="${1:-}"
+  if [[ -z "$needle" ]]; then
+    cat
+    return
+  fi
+  awk -F'\t' -v n="$needle" 'tolower($1) ~ tolower(n) { print }'
+}
+
+pick_repo() {
+  local lines hint=""
+  lines=$(repos_tsv | filter_repos_tsv "$PATH_FILTER") || true
+  if [[ -z "$lines" ]]; then
+    echo "glab-pick: no projects (filter=${PATH_FILTER:-none}; try -a or -g '')" >&2
+    exit 1
+  fi
+  local count
+  count=$(wc -l < <(printf '%s\n' "$lines") | tr -d ' ')
+  [[ -n "$PATH_FILTER" ]] && hint=" (path ~ *${PATH_FILTER}*)"
+  fzf_pick "project${hint}>" \
+    --delimiter=$'\t' \
+    --with-nth=1,2 \
+    --preview='cut -f2 <<< "{}"' \
+    <<<"$lines" | awk -F'\t' '{print $1; exit}'
+}
+
+resolve_repo() {
+  if [[ -n "$REPO" ]]; then
+    return 0
+  fi
+  if (( ! FORCE_PICKER )); then
+    local git_repo
+    if git_repo=$(repo_from_git); then
+      REPO="$git_repo"
+      echo "glab-pick: repo from git remote → $REPO" >&2
+      return 0
+    fi
+    if [[ -z "$PATH_FILTER" ]]; then
+      PATH_FILTER=$(path_filter_from_pwd 2>/dev/null) || true
+    fi
+    if [[ -n "$PATH_FILTER" ]]; then
+      echo "glab-pick: filtering projects → *${PATH_FILTER}* (use -a to pick any project)" >&2
+    fi
+  fi
+  REPO=$(pick_repo) || true
+}
+
+pick_action() {
+  local repo="$1"
+  local menu
+  menu=$(cat <<EOF
+mr-open	All open MRs
+mr-review	MRs awaiting my review
+mr-assign	MRs assigned to me
+mr-mine	MRs I authored
+ci-status	CI status
+ci-view	CI pipeline (glab TUI)
+issue-mine	Issues assigned to me
+repo-web	Open project in browser
+EOF
+)
+  local key
+  key=$(fzf_pick "action>" --delimiter=$'\t' --with-nth=2,1 <<<"$menu" | awk -F'\t' '{print $1}')
+  [[ -n "$key" ]] && run_action "$repo" "$key"
+}
+
+mr_list() {
+  local repo="$1"
+  shift
+  local out
+  out=$(glab mr list -R "$repo" -P 50 "$@" 2>&1) || true
+  if [[ "$out" == *"No open merge requests"* ]]; then
+    return 0
+  fi
+  printf '%s\n' "$out" \
+    | awk 'match($0, /![0-9]+/) {
+        id=substr($0,RSTART,RLENGTH); sub("^!","",id)
+        title=$0; sub(/^[^\t]*\t[^\t]*\t/,"",title)
+        print id "\t" title
+      }'
+}
+
+pick_mr() {
+  local repo="$1"
+  shift
+  local lines
+  lines=$(mr_list "$repo" "$@") || true
+  [[ -z "$lines" ]] && {
+    echo "glab-pick: no open MRs for $repo (this filter may exclude existing MRs)" >&2
+    return 1
+  }
+  local pick id
+  pick=$(fzf_pick "mr>" \
+    --delimiter=$'\t' \
+    --with-nth=1,2 \
+    --preview-window=down:8 \
+    --preview='echo {2}' \
+    <<<"$lines") || return 0
+  id=$(awk -F'\t' '{print $1; exit}' <<<"$pick")
+
+  local actions
+  actions=$(cat <<EOF
+view	View MR (TUI)
+diff	Show diff
+checkout	Checkout branch
+web	Open in browser
+approve	Approve
+EOF
+)
+  local act
+  act=$(fzf_pick "mr ${id}>" --delimiter=$'\t' --with-nth=2 <<<"$actions" | awk -F'\t' '{print $1}') || return 0
+
+  case "$act" in
+    view)     glab mr view "$id" -R "$repo" ;;
+    diff)     glab mr diff "$id" -R "$repo" ;;
+    checkout) glab mr checkout "$id" -R "$repo" ;;
+    web)      glab mr view "$id" -R "$repo" --web ;;
+    approve)  glab mr approve "$id" -R "$repo" ;;
+  esac
+}
+
+run_action() {
+  local repo="$1"
+  local key="$2"
+  case "$key" in
+    mr-open)    pick_mr "$repo" ;;
+    mr-review)  pick_mr "$repo" --reviewer=@me ;;
+    mr-assign)  pick_mr "$repo" --assignee=@me ;;
+    mr-mine)    pick_mr "$repo" --author=@me ;;
+    ci-status)  glab ci status -R "$repo" ;;
+    ci-view)    glab ci view -R "$repo" ;;
+    issue-mine) glab issue list -R "$repo" --assignee=@me ;;
+    repo-web)   glab repo view -R "$repo" --web ;;
+    *) echo "glab-pick: unknown action: $key" >&2; exit 1 ;;
+  esac
+}
+
+main() {
+  resolve_repo
+  [[ -z "${REPO:-}" ]] && exit 0
+  pick_action "$REPO"
+}
+
+main

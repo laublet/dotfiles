@@ -70,6 +70,25 @@ else
   -- Clear search highlight — not <leader>c (neotest prefix ct/cf/…)
   map("n", "<leader>nh", ":noh<CR>", { desc = "Clear search highlight" })
 
+  local function yank_path(text)
+    if text == "" then
+      vim.notify("Not a file on disk", vim.log.levels.WARN)
+      return
+    end
+    vim.fn.setreg("+", text)
+    vim.notify(text, vim.log.levels.INFO, { title = "Yanked path" })
+  end
+  map("n", "<leader>yp", function()
+    yank_path(vim.fn.expand("%:p"))
+  end, { desc = "Yank absolute file path" })
+  map("n", "<leader>yr", function()
+    yank_path(vim.fn.expand("%:."))
+  end, { desc = "Yank relative file path (from cwd)" })
+
+  map("n", "<leader>Uk", function()
+    require("utils.keylog").toggle()
+  end, { desc = "Toggle keystroke log (analysis)" })
+
   -- Save
   map("n", "<C-s>", ":w<CR>", opts)
   map("n", "<leader>w", ":w!<CR>", opts)

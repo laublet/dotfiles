@@ -213,6 +213,11 @@ install_homeserver() {
 install_desktop() {
   install_homeserver
 
+  echo "==> [desktop] Installing dev toolchain (Go)..."
+  if ! command -v go &>/dev/null; then
+    sudo apt install -y golang-go
+  fi
+
   echo "==> [desktop] Installing GUI apps and desktop tools..."
 
   # WezTerm

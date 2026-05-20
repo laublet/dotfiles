@@ -63,7 +63,7 @@ Full cheatsheet (panes, tabs, copy mode, workspaces, resurrect, config) : [wezte
 | Cmd + Shift + Up | Fast copy of the latest command output (status bar flashes purple to confirm) |
 | Ctrl + Shift + O | fzf picker on all outputs of this pane (preview with bat, Enter copies, Esc cancels — opens as a split pane, auto-closes) |
 | Cmd + Ctrl + Space | CharSelect — fuzzy Unicode / Nerd Font / emoji picker (matches macOS system shortcut) |
-| Cmd + Shift + ; | Launch menu picker (btop, gitui, lazydocker, bandwhich, nettop, mac-startup-clean) |
+| Cmd + Shift + ; | Launch menu picker (btop, gitui, glab-pick, lazydocker, bandwhich, nettop, mac-startup-clean) |
 | Cmd + click on `file.ts:42:10` | Open path at line/column in Cursor (works in any compiler/linter output) |
 | `printf '\a'` after a command | macOS toast notification (audible bell disabled, subtle cursor flash) |
 | Ctrl + Shift + R / Cmd + R | Reload WezTerm config (defaults) |
@@ -190,8 +190,11 @@ Quick reference (Mason, debug, tests, troubleshooting): [neovim-ide.md](neovim-i
 | Space + F + second key | More grep modes: I/W/H/N/glob/resume/fixed (`ripgrep.md`; `fF` = fixed string) |
 | Space + F / | Search in buffer (fzf-lua) |
 | Space + g + g | Neogit (status, magit-style — in-editor git) |
+| Space + g + s | Git status quick list (fzf-lua) |
 | Space + g + C / p / P / l / v / V / x | Neogit commit / push / pull / log ; Diffview open / file history / close |
-| Space + G + S/C/B/F | Git pickers (fzf-lua): status / commits / branches / tracked files |
+| Space + G + S/C/B/F | Git pickers (fzf-lua): commits / branches / tracked files (`g+S` ≠ `g+s`) |
+| Space + v + r | Registers (fzf-lua; Enter = paste, Ctrl-x = clear) |
+| Space + v + m | Vim marks (fzf-lua; not harpoon — Enter = jump, Ctrl-x = delete) |
 | Space + H + n / N | Next / previous hunk |
 | Space + H + p/s/r/u | Hunk preview / stage / reset / undo stage |
 | Space + H + S / R | Hunk stage/reset for whole buffer |
@@ -212,7 +215,8 @@ Quick reference (Mason, debug, tests, troubleshooting): [neovim-ide.md](neovim-i
 
 > Note : à l'intérieur du buffer Neo-tree, `timeoutlen` est bumpé à 600ms (vs 300ms global) pour laisser le temps de taper les séquences `zX` sur clavier layered.
 | Space + O | Oil floating (manipulation fs: rename, create, move, then `:w`) |
-| `-` | Oil parent dir (vinegar style) |
+| g + - | Oil parent dir (`g-`, vinegar style) |
+| (in buffer) za / zc / zo | Treesitter folds: toggle / close / open (see `vim-fundamentals.md`) |
 | Space + w | Save (manual; autosave also writes on focus/buffer change) |
 | Space + q | Close buffer (keep window/split) |
 | Space + Q | Close buffer + force (closes window too) |
@@ -232,6 +236,7 @@ Quick reference (Mason, debug, tests, troubleshooting): [neovim-ide.md](neovim-i
 | Space + u | Undo tree (Undotree, opens on the RIGHT — layout 3 to avoid clashing with Neo-tree sidebar) |
 | Space + Ur | Refocus float UI (fzf, which-key, …) — normal/terminal only; **Shift+u**, then `r` |
 | Space + Ux | Close all floating windows — normal/terminal only; **Shift+u**, then `x` |
+| Space + Uk | Toggle keystroke log (analysis; on at startup) — **Shift+u**, then `k` |
 | Alt + Esc (insert) | Close all floating windows — no leader (avoids Space timeout in insert) |
 | Space + \| | Vertical split |
 | Space + - | Horizontal split |
@@ -270,6 +275,24 @@ Mason: `:MasonInstall js-debug-adapter`. Optional: `.vscode/launch.json` loaded 
 | Space + c + o | Output |
 | Space + c + n / N | Next / prev failure |
 | Space + c + y | Summary |
+| Space + c + D | Debug nearest test (DAP) |
+
+### Harpoon (pinned files per project)
+
+| Key | Action |
+|---|---|
+| Space + m + a | Add current file |
+| Space + m + m | Toggle harpoon menu |
+| Space + 1–9 | Jump to slot |
+| Space + m + n / p | Next / prev mark |
+
+### Tasks (overseer — npm / make / vscode tasks)
+
+| Key | Action |
+|---|---|
+| Space + o + r | Run task (picker) |
+| Space + o + t | Toggle task list |
+| Space + o + R | Restart last task |
 
 ### AI — who does what (avoid overlap)
 
@@ -281,6 +304,8 @@ Mason: `:MasonInstall js-debug-adapter`. Optional: `.vscode/launch.json` loaded 
 | Lint (TS/JS) | eslint LSP + ts_ls | Mason: `eslint-lsp` |
 | Debug (TS/JS) | nvim-dap + js-debug-adapter | Mason: `js-debug-adapter` |
 | Tests | neotest (jest + vitest) | `Space + c + t` nearest |
+| Tasks | overseer | `Space + o + r` |
+| Go | gopls + gofumpt | Mason: `gopls` `gofumpt` |
 
 ### Notes — Obsidian + Markdown (Space + n, in markdown files)
 

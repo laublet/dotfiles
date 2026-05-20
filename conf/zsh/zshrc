@@ -71,6 +71,11 @@ elif [[ "$OSTYPE" == linux* ]]; then
   alias open="xdg-open"
 fi
 
+# Go — Brewfile (macOS) or packages-linux.sh desktop (golang-go)
+if command -v go &>/dev/null; then
+  export PATH="$(go env GOPATH)/bin:$PATH"
+fi
+
 # ── OSC 133 — semantic prompts (WezTerm/iTerm2/Kitty/Ghostty) ────
 # Hand-rolled minimal FinalTerm subset matching WezTerm's official shell
 # integration script (assets/shell-integration/wezterm.sh). Required by:
@@ -100,6 +105,9 @@ if [[ "$TERM" != "dumb" && "$TERM" != "linux" ]]; then
   precmd_functions+=(_osc133_precmd)
   preexec_functions+=(_osc133_preexec)
 fi
+
+# GitLab hub (glab + fzf) — project → MR / CI / issues
+command -v glab-pick >/dev/null 2>&1 && alias gp='glab-pick'
 
 # ── fzf ──────────────────────────────────────────────────────────
 if command -v fzf &>/dev/null; then

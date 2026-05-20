@@ -72,6 +72,8 @@ if not vim.g.vscode then
   -- Block in normal/visual; bar in insert (terminal); VSCode UI ignores this
   opt.guicursor = "n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50"
   opt.signcolumn = "yes"
+  opt.foldcolumn = "1"
+  opt.foldminlines = 1
   opt.showmode = false
   opt.cmdheight = 1
   opt.pumheight = 10

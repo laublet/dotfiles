@@ -40,3 +40,8 @@ require("lazy").setup("plugins", {
     },
   },
 })
+
+-- Keylog: local utils (must run after lazy.setup; LazyDone already fired by then).
+if not vim.g.vscode then
+  require("utils.keylog").setup()
+end

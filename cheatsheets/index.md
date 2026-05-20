@@ -47,9 +47,16 @@
 | Structural diff (AST-aware) | `git dft` | [difftastic](difftastic.md) |
 | Git TUI in Neovim | `<leader>gg` | [neogit](neogit.md) |
 | Git TUI standalone (Cursor / shell) | `gu` | [gitui](gitui.md) |
-| GitLab MR / CI from terminal | `glab mr list`, `glab ci view` | [glab](glab.md) |
+| GitLab MR / CI from terminal | `gp` (glab-pick), `glab mr list`, `glab ci view` | [glab](glab.md) |
 | Docker TUI client | `lzd` | lazydocker |
 | HTTP client (TUI Postman) | `posting` | [posting](posting.md) |
+
+## Develop
+
+| I want to... | Command | Tool |
+|--------------|---------|------|
+| Go module / build / test | `go test ./...` | [go](go.md) |
+| Go in Neovim (LSP, format) | open `go.mod` project | [neovim-ide](neovim-ide.md#go) |
 
 ## Benchmark, diff & explore data
 

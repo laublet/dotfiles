@@ -58,6 +58,12 @@ return {
         },
       })
 
+      vim.lsp.config("gopls", {
+        cmd = { mason_bin("gopls") },
+        filetypes = { "go" },
+        root_markers = { "go.work", "go.mod", ".git" },
+      })
+
       vim.lsp.config("eslint", {
         cmd = { mason_bin("vscode-eslint-language-server"), "--stdio" },
         filetypes = {
@@ -110,7 +116,7 @@ return {
         return "fr"
       end
 
-      vim.lsp.enable({ "ts_ls", "lua_ls", "eslint" })
+      vim.lsp.enable({ "ts_ls", "lua_ls", "eslint", "gopls" })
 
       local function ltex_start(bufnr)
         local cmd = ltex_cmd()[1]
@@ -251,7 +257,7 @@ return {
     "williamboman/mason-lspconfig.nvim",
     cond = not vim.g.vscode,
     opts = {
-      ensure_installed = { "ts_ls", "lua_ls", "eslint", "ltex" },
+      ensure_installed = { "ts_ls", "lua_ls", "eslint", "ltex", "gopls" },
       automatic_enable = false,
     },
   },
@@ -260,7 +266,7 @@ return {
     cond = not vim.g.vscode,
     dependencies = { "williamboman/mason.nvim" },
     opts = {
-      ensure_installed = { "prettierd", "prettier", "stylua", "js-debug-adapter" },
+      ensure_installed = { "prettierd", "prettier", "stylua", "gofumpt", "js-debug-adapter" },
     },
   },
   {
@@ -282,6 +288,7 @@ return {
         html = { "prettierd", "prettier", stop_after_first = true },
         css = { "prettierd", "prettier", stop_after_first = true },
         lua = { "stylua" },
+        go = { "gofumpt" },
       },
       format_on_save = {
         timeout_ms = 3000,

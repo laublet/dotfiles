@@ -1,11 +1,31 @@
 -- https://github.com/goolord/alpha-nvim
 
+local function should_show_dashboard()
+  local argc = vim.fn.argc()
+  if argc > 0 then
+    if argc ~= 1 or vim.fn.isdirectory(vim.fn.argv(0)) ~= 1 then
+      return false
+    end
+  end
+  local p = require("persistence")
+  local file = p.current()
+  if vim.fn.filereadable(file) == 0 then
+    file = p.current({ branch = false })
+  end
+  return vim.fn.filereadable(file) == 0
+end
+
 return {
   "goolord/alpha-nvim",
   cond = not vim.g.vscode,
   event = "VimEnter",
-  dependencies = { "nvim-tree/nvim-web-devicons" },
+  priority = 1000,
+  dependencies = { "folke/persistence.nvim", "nvim-tree/nvim-web-devicons" },
   config = function()
+    if not should_show_dashboard() then
+      return
+    end
+
     local alpha = require("alpha")
     local dashboard = require("alpha.themes.dashboard")
 

@@ -11,10 +11,23 @@ return {
   config = function()
     local dracula = require("dracula")
     local cross_bg = "#313442"
+    local wk_float_bg = "#3d4060"
+
+    local function which_key_hl(colors)
+      return {
+        WhichKeyNormal = { bg = wk_float_bg },
+        WhichKeyBorder = { fg = colors.purple },
+        WhichKeyTitle = { fg = colors.yellow, bold = true },
+        WhichKey = { fg = colors.pink, bold = true },
+        WhichKeyGroup = { fg = colors.purple, bold = true },
+        WhichKeyDesc = { fg = colors.fg },
+        WhichKeySeparator = { fg = colors.cyan },
+      }
+    end
 
     dracula.setup({
       overrides = function(colors)
-        return {
+        return vim.tbl_extend("force", which_key_hl(colors), {
           -- Crosshair: Dracula defaults differ (line = selection, column = black).
           CursorLine = { bg = cross_bg },
           CursorColumn = { bg = cross_bg },
@@ -43,7 +56,7 @@ return {
           markdownH4Delimiter = { fg = colors.orange, bold = true },
           markdownH5Delimiter = { fg = colors.pink, bold = true },
           markdownH6Delimiter = { fg = colors.fg, bold = true },
-        }
+        })
       end,
     })
     vim.cmd.colorscheme("dracula")
@@ -68,6 +81,9 @@ return {
         for _, g in ipairs(groups) do
           vim.api.nvim_set_hl(0, g, link_hl)
         end
+        for name, hl in pairs(which_key_hl(c)) do
+          vim.api.nvim_set_hl(0, name, hl)
+        end
       end,
     })
     -- Also apply now (ColorScheme event already fired)
@@ -87,6 +103,9 @@ return {
     }
     for _, g in ipairs(groups) do
       vim.api.nvim_set_hl(0, g, link_hl)
+    end
+    for name, hl in pairs(which_key_hl(c)) do
+      vim.api.nvim_set_hl(0, name, hl)
     end
   end,
 }

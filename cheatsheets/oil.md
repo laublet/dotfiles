@@ -7,9 +7,9 @@
 
 | Key (normal mode) | Action |
 |-------------------|--------|
-| `-` | Open Oil at the parent directory of the current buffer (vinegar style) |
+| `g-` | Open Oil at the parent directory of the current buffer (vinegar style) |
 | `<leader>O` | Open Oil in a floating window (modal) |
-| `:Oil` | Same as `-` (current file's parent dir) |
+| `:Oil` | Same as `g-` (current file's parent dir) |
 | `:Oil --float` | Same as `<leader>O` |
 | `:Oil /some/path` | Open a specific directory |
 
@@ -28,8 +28,8 @@ When you launch `nvim <dir>`, Oil hijacks netrw and opens the directory as an Oi
 | `<C-t>` | Open in new tab |
 | `<C-p>` | Preview file (toggle) |
 | `<C-l>` | Refresh listing |
-| `-` | Go to parent directory |
-| `_` | Go to current working directory (cwd) |
+| `-` | Go to parent directory (only inside an Oil buffer) |
+| `_` | Open cwd as Oil listing (only inside an Oil buffer) |
 | `` ` `` | `:cd` into current Oil directory (global) |
 | `~` | Same but tab-local (`:tcd`) |
 | `gs` | Cycle sort order |

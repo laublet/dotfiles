@@ -6,7 +6,7 @@ From the shell, run `cheat` when your setup exposes cheatsheets that way (same i
 
 ## Neovim
 
-**Standalone IDE** (replaces Cursor for TS/debug/tests): [neovim-ide.md](neovim-ide.md) — Mason, dap, neotest, WezTerm links.
+**Standalone IDE** (replaces Cursor for TS/debug/tests): [neovim-ide.md](neovim-ide.md) — Mason, dap, neotest, overseer, harpoon, Go, WezTerm links.
 
 In standalone Neovim: **Space + H** opens an fzf picker on the whole cheatsheets directory.
 

@@ -16,7 +16,7 @@
 | Read a colored diff in `git diff` / `log` | [delta](delta.md) | automatic (configured pager) |
 | AST-aware diff (refactor that moves blocks) | [difftastic](difftastic.md) | shell, `git dft HEAD~1` |
 | Fuzzy-search commits / branches / files | fzf-lua git pickers | nvim, `<leader>gc/gb/gf` |
-| Manage GitLab MRs / CI / issues | [glab](glab.md) | shell, `glab mr list`, `glab ci view` |
+| Manage GitLab MRs / CI / issues | [glab](glab.md) | shell, `gp` / WezTerm `Cmd+Shift+;` → glab-pick |
 
 ### System & process inspection
 

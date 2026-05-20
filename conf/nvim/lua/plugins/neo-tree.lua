@@ -6,7 +6,7 @@
 -- not on every BufEnter, so no race.
 --
 -- For filesystem manipulation (bulk rename, create, move, etc.), use oil.nvim
--- (open via `-`). Neo-tree stays read-mostly: navigate + open files.
+-- (open via `g-` / `<leader>O`). Neo-tree stays read-mostly: navigate + open files.
 
 return {
   "nvim-neo-tree/neo-tree.nvim",

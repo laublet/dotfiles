@@ -110,6 +110,12 @@
     ~/.local/bin/yazi-pick:
       create: true
       path: bin/yazi-pick
+    ~/.local/bin/glab-pick:
+      create: true
+      path: bin/glab-pick
+    ~/.local/bin/nvim-keylog-analyze:
+      create: true
+      path: bin/nvim-keylog-analyze
 
     # zsh
     ~/.zshrc:

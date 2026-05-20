@@ -21,6 +21,13 @@ return {
     { "<leader>cn", function() require("neotest").jump.next({ status = "failed" }) end, desc = "Test: next failure" },
     { "<leader>cN", function() require("neotest").jump.prev({ status = "failed" }) end, desc = "Test: prev failure" },
     { "<leader>cy", function() require("neotest").summary.toggle() end, desc = "Test: summary" },
+    {
+      "<leader>cD",
+      function()
+        require("neotest").run.run({ strategy = "dap" })
+      end,
+      desc = "Test: debug nearest (DAP)",
+    },
   },
   config = function()
     require("neotest").setup({

@@ -9,13 +9,15 @@
 typescript-language-server   → ts_ls
 eslint-lsp                   → eslint (needs eslint in project package.json)
 lua-language-server          → lua_ls
+gopls                        → Go LSP
 ltex-ls                      → LTeX (grammar, on demand)
-prettier / prettierd           → conform format
+prettier / prettierd           → conform format (TS/JS/JSON/…)
 stylua                       → Lua format
+gofumpt                      → Go format
 js-debug-adapter             → nvim-dap Node/TS
 ```
 
-`:Mason` · `:MasonInstall <name>` · `:checkhealth vim.lsp`
+`:Mason` · `:MasonInstall <name>` · `:checkhealth vim.lsp` · `:Lazy sync` after dotbot
 
 ## Daily workflow
 
@@ -23,28 +25,61 @@ js-debug-adapter             → nvim-dap Node/TS
 |------|----------------|
 | Open file | `<C-p>` or `<leader>pp` |
 | Buffers | `<leader>b` |
-| Git status | `<leader>gg` (Neogit) |
+| Git status (full UI) | `<leader>gg` (Neogit) |
+| Git status (quick fzf) | `<leader>gs` (fzf-lua) |
 | Diff repo | `<leader>gv` / close `<leader>gx` |
 | Format | `<leader>lf` or format-on-save |
 | Lint list | `<leader>ud` (workspace) · `<leader>uD` (buffer) |
 | Diagnostics jump | `]d` / `[d` |
+| Tasks (npm / make) | `<leader>or` · list `<leader>ot` · restart `<leader>oR` |
 | AI agent | `<leader>aa` ask · `<leader>at` sidebar · `<leader>ac` CLI split |
 | Inline complete | Tab (Supermaven ghost, then cmp) |
 | Clear search | `<leader>nh` |
+| Yank path (abs / rel) | `<leader>yp` / `<leader>yr` |
+| Registers (fzf) | `<leader>vr` — Enter = coller ; Ctrl-x = vider le registre |
+| Marks vim (fzf) | `<leader>vm` — Enter = sauter ; Ctrl-x = effacer |
+| Keystroke log (analyse) | actif au démarrage ; `<leader>Uk` toggle ; `:NvimKeylogDisable` pour couper |
 
-## Debug (Node / TypeScript)
+## Keystroke log (habitudes clavier)
+
+Log JSONL : `~/.local/state/nvim-keylog.jsonl` (écriture bufferisée, pas de notif au boot).
+
+| Commande / touche | Action |
+|-------------------|--------|
+| (démarrage) | Logging actif |
+| `<leader>Uk` | Toggle on/off |
+| `:NvimKeylogDisable` | Stop + flush |
+| `:NvimKeylogAnalyze` | Rapport dans une notif |
+| `nvim-keylog-analyze` | Même analyse en terminal (`--since 2026-05-20` optionnel) |
+
+> `<leader>vl` ne fait rien ici : `Space+v+lettre` = aide Vim (`v`+`l` = « right »). Pas de conflit avec registers (`vr`) / marks (`vm`).
+
+## Harpoon (fichiers épinglés)
+
+Liste courte par projet (cwd), indépendante de la liste de buffers. Persistée sur disque par repo.
 
 | Key | Action |
 |-----|--------|
-| F5 | Continue / launch |
-| F10 / F11 / F12 | Step over / into / out |
-| `<leader>db` | Toggle breakpoint |
-| `<leader>du` | DAP UI |
-| `<leader>dt` | Terminate |
+| `<leader>ma` | Ajouter le fichier courant |
+| `<leader>mm` | Menu (réordonner, supprimer une ligne, Enter = ouvrir) |
+| `<leader>1` … `<leader>9` | Aller au slot |
+| `<leader>mn` / `<leader>mp` | Slot suivant / précédent |
 
-`.vscode/launch.json` is read automatically (`:help dap-providers`). Add configs there for attach / npm scripts.
+Workflow typique : ouvre 3–5 fichiers du ticket avec `<C-p>`, puis `<leader>ma` sur chacun. Ensuite tu navigues avec `<leader>1` etc. ; le reste des buffers peut être fermé (`<leader>q`) sans perdre tes épingles.
 
-## Tests (Jest or Vitest — auto per repo)
+Dans le menu : `<C-v>` / `<C-x>` / `<C-t>` = split vertical / horizontal / tab.
+
+## Premier test (Jest ou Vitest)
+
+1. Ouvre un repo avec `package.json` + `jest.config.*` ou `vitest.config.*`.
+2. Ouvre un fichier `*.test.ts` (ou place le curseur dans un `it` / `test`).
+3. `<leader>ct` — lance le test le plus proche.
+4. Si échec : `<leader>co` (output) ou `<leader>cy` (summary) ; `<leader>cn` / `<leader>cN` entre les échecs.
+5. Tout le fichier : `<leader>cf` · tout le package : `<leader>cS`.
+
+L’adapter (jest vs vitest) est choisi automatiquement selon la config du repo.
+
+## Tests (raccourcis)
 
 | Key | Action |
 |-----|--------|
@@ -53,10 +88,73 @@ js-debug-adapter             → nvim-dap Node/TS
 | `<leader>cS` | Suite (cwd) |
 | `<leader>cw` | Watch file |
 | `<leader>co` | Output |
+| `<leader>cp` | Output panel |
 | `<leader>cn` / `<leader>cN` | Next / prev failure |
 | `<leader>cy` | Summary |
+| `<leader>cD` | Debug nearest test (DAP) |
 
 Vitest adapter: `marilari88/neotest-vitest` (not `nvim-neotest/neotest-vitest`).
+
+## Premier debug (Node / TypeScript)
+
+1. `:MasonInstall js-debug-adapter` si pas déjà fait.
+2. Ouvre un `.ts` / `.js` sauvegardé, racine workspace = dossier avec `package.json` ou `tsconfig.json`.
+3. `<leader>db` sur une ligne — breakpoint.
+4. **F5** ou `<leader>dc` — lance **Launch file** (fichier courant).
+5. **F10** / **F11** / **F12** — step over / into / out ; **`<leader>dt`** pour arrêter.
+
+**Attach** (API déjà lancée) : terminal `node --inspect-brk=9229 …`, puis F5 → config **Attach to port 9229**.
+
+**Scripts npm** : ajoute `.vscode/launch.json` à la racine du repo (lu automatiquement par nvim-dap).
+
+## Debug (raccourcis)
+
+| Key | Action |
+|-----|--------|
+| F5 / `<leader>dc` | Continue / launch |
+| F10 / `<leader>do` | Step over |
+| F11 / `<leader>di` | Step into |
+| F12 / `<leader>dO` | Step out |
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dB` | Conditional breakpoint |
+| `<leader>du` | DAP UI |
+| `<leader>dr` | REPL |
+| `<leader>dt` | Terminate |
+| `<leader>dl` | Re-run last configuration |
+
+## Tasks (overseer)
+
+| Key | Action |
+|-----|--------|
+| `<leader>or` | Pick & run task (`:OverseerRun`) |
+| `<leader>ot` | Task list |
+| `<leader>oR` | Restart last task |
+
+Détecte automatiquement les scripts **npm** (`package.json`), **make**, et **`.vscode/tasks.json`**. Pour **just**, expose souvent des recipes via un `Makefile` ou ajoute des tasks VS Code.
+
+## Go
+
+Install toolchain: **macOS** `brew install go` (Brewfile) · **Linux desktop** `golang-go` via `packages-linux.sh desktop`.
+
+| Key / command | Action |
+|---------------|--------|
+| `:MasonInstall gopls gofumpt` | LSP + formatter (after `go` on PATH) |
+| `:TSInstall go` | Treesitter (ou `:TSUpdate`) |
+| `<leader>lf` | `gofumpt` on save / manual format |
+
+`gopls` s’attache sur `go.mod` / `go.work`. Binaires installés via `go install` → `$(go env GOPATH)/bin` (déjà dans le PATH zsh).
+
+## Folds (treesitter)
+
+Auto folds on functions/blocks (like VS Code). File opens **unfolded** (`foldlevelstart=99`).
+
+| Key | Action |
+|-----|--------|
+| `za` | Toggle fold under cursor |
+| `zc` / `zo` | Close / open fold |
+| `zM` / `zR` | Close all / open all |
+
+Requires treesitter parser for the filetype (`:TSInstall` if missing).
 
 ## WezTerm integration
 
@@ -80,6 +178,20 @@ Supermaven is off for markdown, Avante buffers, neo-tree, oil.
 | Insert | `<M-Esc>` |
 | Refocus picker | `<leader>Ur` |
 
+## Validation (~1 semaine sur un repo pro TS)
+
+Coche mentalement après une vraie journée de travail (pas une démo de 5 min) :
+
+- [ ] LSP : `gd` / `gr`, diagnostics, `<leader>lf`, eslint sur un fichier `.ts`
+- [ ] Test : `<leader>ct` sur un test qui passe et un qui échoue ; `<leader>co` pour lire l’erreur
+- [ ] Debug : breakpoint + F5 sur un fichier ou test ; step F10/F11
+- [ ] Git : `<leader>gg`, diff `<leader>gv`
+- [ ] Tasks : `<leader>or` → `npm run test` ou script du repo
+- [ ] Optionnel : Avante `<leader>aa` sur une petite refacto
+- [ ] WezTerm : Cmd+clic sur une stack trace → bon fichier/ligne
+
+Si un point bloque, note le symptôme dans Troubleshooting ci-dessous avant d’ajouter d’autres plugins.
+
 ## Troubleshooting
 
 | Issue | Fix |
@@ -89,10 +201,13 @@ Supermaven is off for markdown, Avante buffers, neo-tree, oil.
 | neotest-vitest not installed | `:Lazy sync` — dep is `marilari88/neotest-vitest` |
 | Keychain popup on test run | Mac login password to unlock keychain; Git uses SSH / `gh auth`, not GitHub passkey |
 | Neo-tree on startup | `persistence` restored session — `<leader>qd` then quit once |
+| Overseer: no tasks | Open repo root with `package.json` or `Makefile` / `.vscode/tasks.json` |
+| `<leader>cD` no-op | `:MasonInstall js-debug-adapter` ; jest/vitest adapter needs `dap = { enabled = true }` (already on) |
+| gopls missing | `:MasonInstall gopls gofumpt` |
+| `<leader>gs` Command failed `nvim -u NONE -l` | fzf-lua headless bug on 0.11 — config disables `git.status` preprocess/transform ; use `<leader>gg` (Neogit) |
+| No fold markers | `:TSInstall <lang>` for buffer filetype |
 
-## Next steps (not configured yet)
+## Optional later
 
-- **Go**: `gopls` + treesitter `go` + `gofumpt` when you start Go
-- **Tasks**: `overseer.nvim` for `npm run …` / `just` from nvim
-- **Open in existing nvim** on Cmd+click (remote / socket) — optional UX polish
+- **Open in existing nvim** on Cmd+click (remote / socket)
 - **Zed**: evaluate when feature-complete; same keymap hub applies

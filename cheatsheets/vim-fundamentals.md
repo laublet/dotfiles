@@ -104,6 +104,17 @@ All under `<C-w>` prefix (W as Window):
 
 > Loïc's custom: `<leader>z` = zoom toggle (saves layout, maximizes, restore on second press).
 
+## Folds (dotfiles: treesitter)
+
+Configured in `treesitter.lua`: folds appear automatically; new buffers start unfolded.
+
+| Key | Action |
+|-----|--------|
+| `za` | Toggle fold at cursor |
+| `zc` / `zo` | Close / open fold |
+| `zM` / `zR` | Close all / open all folds |
+| `zj` / `zk` | Move to next / previous fold |
+
 ## Tab pages (rare but useful)
 
 Custom mappings (see `keymaps.lua`): `<leader>Tn` / `<leader>Tp` next/prev, `<leader>TN` new tab, `<leader>Tc` / `<leader>To` close. On LSP buffers, `gt` is type definition — use `<leader>Tn`/`Tp` for tabpages, not `gt`/`gT`.
@@ -137,7 +148,10 @@ Custom mappings (see `keymaps.lua`): `<leader>Tn` / `<leader>Tp` next/prev, `<le
 | `:source %` | Source the current file (reload nvim config on the fly) |
 | `:noh` | Clear search highlight |
 | `:reg` (or `:registers`) | Show all registers (clipboard, yanks, macros) |
+| `<leader>vr` | Registers picker (fzf-lua, Enter = paste, Ctrl-x = clear) |
 | `:marks` | Show all marks |
+| `<leader>vm` | Marks picker (fzf-lua, Enter = jump, Ctrl-x = delete) |
+| `<leader>Uk` | Toggle keystroke log (`:NvimKeylogAnalyze`, `nvim-keylog-analyze`) |
 | `:undolist` | Undo history |
 | `:checkhealth` | Diagnose plugins / nvim setup |
 | `:Lazy` | Open lazy.nvim plugin manager |

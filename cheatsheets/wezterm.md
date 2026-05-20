@@ -89,7 +89,7 @@ Usage typique : tu lances `cargo test`, ça échoue, tu copies direct avec `Cmd+
 |-----------|--------|
 | `Cmd + Shift + P` | Command palette WezTerm (toutes les actions / key bindings, défaut) |
 | `Cmd + Ctrl + Space` | **CharSelect** — ouvre direct sur le groupe **NerdFonts** (fuzzy filter live). `Tab` cycle vers Emoji / UnicodeNames / etc. Copie au clipboard (et Primary). |
-| `Cmd + Shift + ;` | **Launch menu** — pré-rempli avec `btop`, `gitui`, `lazydocker`, `nettop`, `mac-startup-clean`. Le sélectionné se lance dans le pane courant. |
+| `Cmd + Shift + ;` | **Launch menu** — pré-rempli avec `btop`, `gitui`, `glab-pick`, `lazydocker`, `nettop`, `mac-startup-clean`. Le sélectionné se lance dans le pane courant. |
 | `Cmd + Shift + L` | Workspace switcher (voir section Workspaces) |
 
 Pour ajouter une entrée au launch menu : éditer `config.launch_menu` dans `.wezterm.lua` (`{ label = "...", args = { ... } }`).

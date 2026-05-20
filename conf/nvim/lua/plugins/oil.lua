@@ -1,12 +1,13 @@
 -- https://github.com/stevearc/oil.nvim
 -- Buffer-based file explorer. Complements neo-tree (sidebar orientation only).
 -- Use oil when you want to:
---   - Open a directory as a buffer (`-` from any file → parent dir)
+--   - Open a directory as a buffer (`g-` from any file → parent dir)
 --   - Bulk rename / create / move files by editing the buffer and `:w`
 --   - Avoid the debounced renderer races that plague neo-tree's follow_current_file
 --
 -- Keymaps (intentionally NOT <leader>e, which stays on Neotree toggle):
---   -          → Oil at the parent of the current file (vim-vinegar style)
+--   g-         → Oil at the parent of the current file (vinegar; not bare `-` — that
+--                steals Vim's `-` motion and <leader>- horizontal split confusion)
 --   <leader>O  → Oil in a floating window (modal, q/<Esc> to close)
 --   :Oil       → Oil for a specific path
 --
@@ -46,7 +47,7 @@ return {
   dependencies = { "nvim-tree/nvim-web-devicons" },
   cmd = { "Oil" },
   keys = {
-    { "-",         "<cmd>Oil<cr>",         desc = "File explorer (oil, parent dir)" },
+    { "g-",        "<cmd>Oil<cr>",         desc = "Oil (parent of current file)" },
     { "<leader>O", "<cmd>Oil --float<cr>", desc = "File explorer (oil, floating)" },
   },
   lazy = false, -- needed so :Oil works on `nvim <dir>` (hijacks netrw)

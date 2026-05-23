@@ -35,11 +35,21 @@ Fichier déployé : `~/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/c
 
 | Fichier | Effet |
 |---------|--------|
-| `com.system76.CosmicComp/v1/autotile` | Tiling activé par défaut |
+| `com.system76.CosmicComp/v1/autotile` | Tiling activé |
+| `com.system76.CosmicComp/v1/autotile_behavior` | `Global` (toutes fenêtres, pas par workspace) |
 | `com.system76.CosmicAppList/v1/favorites` | Apps épinglées au dock |
+| `com.system76.CosmicPanel.Dock/v1/autohide` | Dock masqué, révélé au survol du bord |
+| `com.system76.CosmicPanel.Dock/v1/exclusive_zone` | `false` (requis avec autohide) |
 | `shortcuts.ron` | Raccourcis custom |
 
-Après `./install` : **se déconnecter / reconnecter** ou redémarrer COSMIC pour le dock ; le tiling s’applique aux nouvelles fenêtres.
+Après `./install` : **se déconnecter / reconnecter** (dock + tiling). Si un workspace reste en flottant : **LCAG+Y** (`Ctrl+Cmd+Alt+Y`) = basculer tiling.
+
+## Dépannage raccourcis WM
+
+1. **Tiling** : `autotile` + `autotile_behavior: Global` — sans tiling, LCAG+flèches ne fait presque rien.
+2. **Ordre des touches** : maintenir **Cmd (Super)** puis **Ctrl+Alt+flèche** pour LCAG.
+3. **Workspaces** : **Cmd+Alt + chiffre** (pas Cmd+chiffre seul — celui-là est pris par COSMIC par défaut).
+4. Config non prise en compte → logout/login (pas seulement `./install`).
 
 ## Workspaces perso (suggestion manuelle)
 

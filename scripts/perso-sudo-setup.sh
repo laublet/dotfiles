@@ -7,10 +7,44 @@ set -euo pipefail
 BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$BASEDIR"
 
-echo "==> Hostname → perso"
-sudo hostnamectl set-hostname perso
-sudo sed -i 's/\bpop-os\b/perso/g' /etc/hosts
-sudo tailscale set --hostname=perso
+install_greenclip() {
+  if command -v greenclip &>/dev/null; then
+    return 0
+  fi
+  echo "==> greenclip (GitHub release — not in Pop!_OS apt)"
+  local tmp arch url
+  tmp="$(mktemp)"
+  arch="$(uname -m)"
+  case "$arch" in
+    x86_64) url="https://github.com/erebe/greenclip/releases/latest/download/greenclip" ;;
+    aarch64|arm64) url="https://github.com/erebe/greenclip/releases/latest/download/greenclip-arm64" ;;
+    *) echo "greenclip: unsupported arch $arch"; return 1 ;;
+  esac
+  curl -fsSL -o "$tmp" "$url"
+  chmod +x "$tmp"
+  sudo install -m 755 "$tmp" /usr/local/bin/greenclip
+  rm -f "$tmp"
+}
+
+install_cursor() {
+  if [[ -x ~/.local/bin/cursor ]]; then
+    return 0
+  fi
+  echo "==> Cursor (linux x64)"
+  mkdir -p ~/.local/bin
+  curl -fsSL -o ~/.local/bin/cursor \
+    "https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/latest"
+  chmod +x ~/.local/bin/cursor
+}
+
+if [[ "$(hostname)" != "perso" ]]; then
+  echo "==> Hostname → perso"
+  sudo hostnamectl set-hostname perso
+  sudo sed -i 's/\bpop-os\b/perso/g' /etc/hosts
+  sudo tailscale set --hostname=perso
+else
+  echo "==> Hostname already perso — skip"
+fi
 
 echo "==> Apt packages (desktop gaps)"
 sudo apt update
@@ -19,20 +53,17 @@ sudo apt install -y \
   tmux \
   mosh \
   rofi \
-  greenclip \
   golang-go \
   git-delta
+
+install_greenclip
 
 echo "==> bat/fd symlinks"
 mkdir -p ~/.local/bin
 [[ ! -e ~/.local/bin/bat ]] && ln -sf "$(command -v batcat)" ~/.local/bin/bat
 [[ ! -e ~/.local/bin/fd ]]  && ln -sf "$(command -v fdfind)" ~/.local/bin/fd
 
-echo "==> Cursor AppImage"
-if [[ ! -x ~/.local/bin/cursor ]]; then
-  curl -fsSL -o ~/.local/bin/cursor "https://downloader.cursor.sh/linux/appImage/x64"
-  chmod +x ~/.local/bin/cursor
-fi
+install_cursor
 
 echo "==> fzf-tab (prezto contrib)"
 if [[ ! -d ~/.zprezto/contrib/fzf-tab ]]; then
@@ -50,10 +81,8 @@ if command -v keyd &>/dev/null && [[ -f conf/keyd/default.conf ]]; then
 fi
 
 echo "==> Dotbot link"
-./install
+./install || true
 
 echo ""
-echo "Done. After Tailscale DNS updates (~1 min), from Mac:"
-echo "  ssh perso-ts"
-echo "Update conf/ssh/hosts HostName to perso.tail6c9b30.ts.net when MagicDNS shows perso."
+echo "Done. From Mac: ssh perso-ts"
 echo "Run: exec zsh"

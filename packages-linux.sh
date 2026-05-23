@@ -231,8 +231,10 @@ install_desktop() {
 
   # Cursor
   if ! command -v cursor &>/dev/null; then
-    echo "    → Cursor (AppImage)"
-    curl -sLo ~/.local/bin/cursor "https://downloader.cursor.sh/linux/appImage/x64"
+    echo "    → Cursor"
+    mkdir -p ~/.local/bin
+    curl -fsSL -o ~/.local/bin/cursor \
+      "https://api2.cursor.sh/updates/download/golden/linux-x64/cursor/latest"
     chmod +x ~/.local/bin/cursor
   fi
 

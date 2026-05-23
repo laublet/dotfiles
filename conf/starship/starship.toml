@@ -58,6 +58,7 @@ ssh_symbol = ""
 format = "[@$hostname]($style) "
 style = "bold orange"
 disabled = false
+aliases = { "perso" = "perso", "pop-os" = "perso" }
 
 # ── Directory ────────────────────────────────────────────────────
 [directory]

@@ -64,6 +64,8 @@ if [[ "$OSTYPE" == darwin* ]]; then
   mac-neovim-defaults() { _dotfiles_bin mac-neovim-defaults "$@"; }
   yazi-pick() { _dotfiles_bin yazi-pick "$@"; }
 
+  [[ -f "${0:A:h}/yt-dlp.zsh" ]] && source "${0:A:h}/yt-dlp.zsh"
+
 elif [[ "$OSTYPE" == linux* ]]; then
   export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
   alias c="cursor --no-sandbox ."
@@ -111,7 +113,13 @@ command -v glab-pick >/dev/null 2>&1 && alias gp='glab-pick'
 
 # ── fzf ──────────────────────────────────────────────────────────
 if command -v fzf &>/dev/null; then
-  source <(fzf --zsh)
+  if fzf --help 2>&1 | grep -q -- '--zsh'; then
+    source <(fzf --zsh)
+  elif [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
+    # Debian/Ubuntu package (e.g. Pop!_OS 0.44.x — no --zsh flag yet)
+    source /usr/share/doc/fzf/examples/key-bindings.zsh
+    source /usr/share/doc/fzf/examples/completion.zsh
+  fi
 fi
 
 # Use fd for fzf if available

@@ -8,10 +8,21 @@ BASEDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$BASEDIR"
 
 install_greenclip() {
+  # Wayland (Pop!_OS COSMIC): cliphist + wl-clipboard — greenclip is X11-only
+  if [[ "${XDG_SESSION_TYPE:-}" == wayland ]] || [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+    echo "==> Wayland clipboard (cliphist + wl-clipboard)"
+    sudo apt install -y wl-clipboard xdg-utils
+    if ! command -v cliphist &>/dev/null; then
+      export PATH="$HOME/.local/bin:$(go env GOPATH 2>/dev/null)/bin:$PATH"
+      go install go.senan.xyz/cliphist@latest
+    fi
+    return 0
+  fi
+
   if command -v greenclip &>/dev/null; then
     return 0
   fi
-  echo "==> greenclip (GitHub release — not in Pop!_OS apt)"
+  echo "==> greenclip (X11 — GitHub release)"
   local tmp arch url
   tmp="$(mktemp)"
   arch="$(uname -m)"

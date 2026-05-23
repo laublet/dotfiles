@@ -1,5 +1,22 @@
 #!/usr/bin/env bash
-# Clipboard history via rofi + greenclip
-# Bind to Ctrl+Shift+V in your window manager
+# Clipboard history picker — Wayland (cliphist) or X11 (greenclip + rofi modi)
+set -euo pipefail
 
-rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
+_is_wayland() {
+  [[ "${XDG_SESSION_TYPE:-}" == wayland ]] || [[ -n "${WAYLAND_DISPLAY:-}" ]]
+}
+
+if _is_wayland; then
+  if ! command -v cliphist &>/dev/null || ! command -v wl-copy &>/dev/null; then
+    echo "clipboard-rofi: install cliphist + wl-clipboard (Wayland)" >&2
+    exit 1
+  fi
+  sel=$(cliphist list | rofi -dmenu -i -p clipboard -display-columns 2)
+  [[ -n "${sel:-}" ]] || exit 0
+  printf '%s\n' "$sel" | cliphist decode | wl-copy
+elif command -v greenclip &>/dev/null; then
+  rofi -modi "clipboard:greenclip print" -show clipboard -run-command '{cmd}'
+else
+  echo "clipboard-rofi: no clipboard backend (cliphist or greenclip)" >&2
+  exit 1
+fi

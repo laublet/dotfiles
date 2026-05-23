@@ -33,10 +33,13 @@
     ~/.config/greenclip.toml:
       path: conf/greenclip/greenclip.toml
 
-    # clipboard script for rofi
+    # clipboard script (Wayland: cliphist / X11: greenclip)
     ~/.local/bin/clipboard-rofi:
       create: true
       path: bin/clipboard-rofi
+    ~/.local/bin/cliphist-wl-daemon:
+      create: true
+      path: bin/cliphist-wl-daemon
 
 - shell:
     # keyd: macOS-like modifiers (requires root)

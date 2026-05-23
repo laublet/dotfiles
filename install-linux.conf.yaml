@@ -46,7 +46,7 @@
     - command: |
         if command -v keyd &>/dev/null && [ -f conf/keyd/default.conf ]; then
           echo "Deploying keyd config..."
-          sudo cp conf/keyd/default.conf conf/keyd/gtk-apps.conf /etc/keyd/
+          sudo cp conf/keyd/default.conf conf/keyd/mac-cmd-passthrough.conf /etc/keyd/
           sudo systemctl restart keyd
         fi
       description: Deploying keyd config (macOS-like modifiers)

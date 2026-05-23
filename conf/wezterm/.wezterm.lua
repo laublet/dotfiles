@@ -26,7 +26,7 @@
 --   Cmd + Shift + z          → zoom pane (Cmd+z stays free for undo)
 --   Cmd + Shift + x          → rotate panes (2 panes = swap positions; 3+ = cycle)
 --   Cmd + t / 1-9            → new tab / tab by number
---   Cmd + Shift + f          → quick select (URLs, paths, hashes, words 3+)
+--   Cmd + Shift + f          → quick select (defaults + words 3+, `/…`, `cd /…`, `[|]…`)
 --   (in copy mode) s         → quick select (easymotion-style jump to any word)
 --   Cmd + Shift + p          → command palette
 --   (recharger la config : défauts WezTerm — Ctrl+Shift+R, Cmd+R)
@@ -48,9 +48,30 @@
 -- =============================================================================
 
 local wezterm = require("wezterm")
+
+-- Hide macOS pointer until physical move (pairs with AeroSpace move-mouse on window focus).
+-- Cursor hide disabled (broken on this Mac + caused click lag). Warp only via AeroSpace/HS.
+local function hide_cursor_until_move()
+end
 local act = wezterm.action
 local mux = wezterm.mux
 local config = wezterm.config_builder()
+
+-- Linux + keyd: physical Cmd (Super) is remapped to Ctrl before WezTerm sees it.
+-- Map mac-style "CMD" chords to CTRL so bindings match unified OS-wide keyd.
+local is_linux = wezterm.target_triple:find("linux") ~= nil
+local function mac_mods(chord)
+  if not is_linux then
+    return chord
+  end
+  if chord == "CMD|CTRL" then
+    return "CTRL|ALT" -- CharSelect (no CTRL|CTRL); test and tune if needed
+  end
+  if chord == "CMD|SHIFT|CTRL" then
+    return "CTRL|SHIFT|ALT" -- tab move; triple-mod + keyd may need tuning
+  end
+  return chord:gsub("CMD", "CTRL")
+end
 
 -- =============================================================================
 -- Plugins
@@ -113,6 +134,9 @@ config.default_cursor_style = "BlinkingBar"
 config.cursor_blink_rate = 500
 config.cursor_blink_ease_in = "Constant"
 config.cursor_blink_ease_out = "Constant"
+
+-- Hide pointer while typing over the terminal (in addition to focus-based hide below).
+config.hide_mouse_cursor_when_typing = true
 
 -- Scrollback
 config.scrollback_lines = 50000
@@ -301,6 +325,7 @@ local function split_nav(resize_or_move, key, move_mods)
           win:perform_action({ AdjustPaneSize = { dir, 3 } }, pane)
         else
           win:perform_action({ ActivatePaneDirection = dir }, pane)
+          hide_cursor_until_move()
         end
       end
     end),
@@ -310,6 +335,12 @@ end
 -- Neovim smart-splits: OSC user vars for zero-latency cross-boundary navigation/resize
 -- SMART_SPLITS_MOVE=<Direction> → ActivatePaneDirection
 -- SMART_SPLITS_RESIZE=<Direction>:<Amount> → AdjustPaneSize
+wezterm.on("window-focus-changed", function(window, _pane)
+  if window:is_focused() then
+    hide_cursor_until_move()
+  end
+end)
+
 wezterm.on("user-var-changed", function(window, pane, name, value)
   if not value or value == "" then
     return
@@ -317,6 +348,7 @@ wezterm.on("user-var-changed", function(window, pane, name, value)
 
   if name == "SMART_SPLITS_MOVE" then
     window:perform_action({ ActivatePaneDirection = value }, pane)
+    hide_cursor_until_move()
   elseif name == "SMART_SPLITS_RESIZE" then
     local direction, amount = value:match("^(%a+):(%d+)$")
     if direction and amount then
@@ -826,6 +858,32 @@ local resurrect_restore_action = wezterm.action_callback(function(win, pane)
   })
 end)
 
+-- Linux + keyd: Cmd and Ctrl both arrive as CTRL — copy on Ctrl+C, SIGINT on Ctrl+Shift+C.
+-- macOS: Cmd+C copy, Ctrl+C interrupt (distinct modifiers).
+local copy_interrupt_bindings = is_linux and {
+    {
+      key = "c",
+      mods = "CTRL",
+      action = tui_quit_or(act.CopyTo("Clipboard")),
+    },
+    {
+      key = "c",
+      mods = "CTRL|SHIFT",
+      action = tui_quit_or(act.SendKey({ key = "c", mods = "CTRL" })),
+    },
+  } or {
+    {
+      key = "c",
+      mods = "CMD",
+      action = tui_quit_or(act.CopyTo("Clipboard")),
+    },
+    {
+      key = "c",
+      mods = "CTRL",
+      action = tui_quit_or(act.SendKey({ key = "c", mods = "CTRL" })),
+    },
+  }
+
 config.keys = {
   -- Smart-splits: pane navigation (Ctrl + arrows)
   split_nav("move", "LeftArrow", "CTRL"),
@@ -853,45 +911,45 @@ config.keys = {
   -- Neovim uses Space+| / Space+- (different level: app vs editor)
   {
     key = "d",
-    mods = "CMD",
+    mods = mac_mods("CMD"),
     action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
   },
   {
     key = "d",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.SplitVertical({ domain = "CurrentPaneDomain" }),
   },
 
   -- Close pane
   {
     key = "w",
-    mods = "CMD",
+    mods = mac_mods("CMD"),
     action = act.CloseCurrentPane({ confirm = true }),
   },
 
   -- Zoom pane (Cmd+Shift+Z so Cmd+Z passes through to undo in shell / vim)
   {
     key = "z",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.TogglePaneZoomState,
   },
 
   -- Rotate pane order (sizes stay fixed; contents move). Two panes = swap left/right or top/bottom.
   {
     key = "x",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.RotatePanes("Clockwise"),
   },
 
   -- Tab navigation — Cmd + Shift + left/right
   {
     key = "LeftArrow",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.ActivateTabRelative(-1),
   },
   {
     key = "RightArrow",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.ActivateTabRelative(1),
   },
 
@@ -899,12 +957,12 @@ config.keys = {
   -- Wraps around the tab strip; press repeatedly to intercalate at any position.
   {
     key = "LeftArrow",
-    mods = "CMD|SHIFT|CTRL",
+    mods = mac_mods("CMD|SHIFT|CTRL"),
     action = act.MoveTabRelative(-1),
   },
   {
     key = "RightArrow",
-    mods = "CMD|SHIFT|CTRL",
+    mods = mac_mods("CMD|SHIFT|CTRL"),
     action = act.MoveTabRelative(1),
   },
 
@@ -912,12 +970,12 @@ config.keys = {
   -- Requires OSC 133 markers from the shell (see zshrc `_osc133_precmd`).
   {
     key = "UpArrow",
-    mods = "CMD",
+    mods = mac_mods("CMD"),
     action = act.ScrollToPrompt(-1),
   },
   {
     key = "DownArrow",
-    mods = "CMD",
+    mods = mac_mods("CMD"),
     action = act.ScrollToPrompt(1),
   },
 
@@ -926,7 +984,7 @@ config.keys = {
   -- just saw" — single keystroke, zero friction.
   {
     key = "UpArrow",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = copy_last_output_action,
   },
 
@@ -946,7 +1004,7 @@ config.keys = {
   -- it (Cmd+Shift+, would otherwise send Cmd+< on macOS layouts and miss).
   {
     key = "phys:Comma",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.PromptInputLine({
       description = "Rename tab (empty to reset)",
       action = wezterm.action_callback(function(window, _, line)
@@ -960,14 +1018,14 @@ config.keys = {
   -- Cmd+Shift+Space is grabbed by Slack to focus the active huddle window.
   {
     key = "Space",
-    mods = "CMD|ALT",
+    mods = mac_mods("CMD|ALT"),
     action = act.ActivateCopyMode,
   },
 
   -- Quick select (URLs, paths, hashes)
   {
     key = "f",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.QuickSelect,
   },
 
@@ -978,7 +1036,7 @@ config.keys = {
   -- picker: Tab cycles to Emoji/UnicodeNames/etc., fuzzy filter live as you type.
   {
     key = "Space",
-    mods = "CMD|CTRL",
+    mods = mac_mods("CMD|CTRL"),
     action = act.CharSelect({
       group = "NerdFonts",
       copy_on_select = true,
@@ -990,21 +1048,11 @@ config.keys = {
   -- (zsh emacs/vi insert: kill line backward; vim insert: delete to start of insert).
   {
     key = "Backspace",
-    mods = "CMD",
+    mods = mac_mods("CMD"),
     action = act.SendKey({ key = "u", mods = "CTRL" }),
   },
 
-  -- btop (and similar) ignore Ctrl/Cmd+C under kitty keyboard — send "q" instead.
-  {
-    key = "c",
-    mods = "CMD",
-    action = tui_quit_or(act.CopyTo("Clipboard")),
-  },
-  {
-    key = "c",
-    mods = "CTRL",
-    action = tui_quit_or(act.SendKey({ key = "c", mods = "CTRL" })),
-  },
+  -- Copy / interrupt: appended after config.keys (see copy_interrupt_bindings above).
 
   -- Disable Ctrl-based defaults that conflict with home-row mods (Kyria CAGS).
   -- Keep Ctrl+Tab available for terminal apps (Neovim buffer nav).
@@ -1018,17 +1066,17 @@ config.keys = {
 
   -- Resurrect: save / restore — phys:S/O matches Cmd+Shift on US key positions (layout-independent).
   -- Also mapped s/S/o/O: macOS may emit different key/mods; see wezterm.org/config/keys.html (phys vs mapped).
-  { key = "phys:S", mods = "CMD|SHIFT", action = resurrect_save_action },
-  { key = "phys:O", mods = "CMD|SHIFT", action = resurrect_restore_action },
-  { key = "s", mods = "CMD|SHIFT", action = resurrect_save_action },
-  { key = "S", mods = "CMD|SHIFT", action = resurrect_save_action },
-  { key = "o", mods = "CMD|SHIFT", action = resurrect_restore_action },
-  { key = "O", mods = "CMD|SHIFT", action = resurrect_restore_action },
+  { key = "phys:S", mods = mac_mods("CMD|SHIFT"), action = resurrect_save_action },
+  { key = "phys:O", mods = mac_mods("CMD|SHIFT"), action = resurrect_restore_action },
+  { key = "s", mods = mac_mods("CMD|SHIFT"), action = resurrect_save_action },
+  { key = "S", mods = mac_mods("CMD|SHIFT"), action = resurrect_save_action },
+  { key = "o", mods = mac_mods("CMD|SHIFT"), action = resurrect_restore_action },
+  { key = "O", mods = mac_mods("CMD|SHIFT"), action = resurrect_restore_action },
 
   -- Resurrect: delete saved session
   {
     key = "d",
-    mods = "CMD|SHIFT|CTRL",
+    mods = mac_mods("CMD|SHIFT|CTRL"),
     action = wezterm.action_callback(function(win, pane)
       resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id)
         resurrect.state_manager.delete_state(id)
@@ -1044,7 +1092,7 @@ config.keys = {
   -- Resurrect: wipe all saved states (type DELETE)
   {
     key = "x",
-    mods = "CMD|SHIFT|CTRL",
+    mods = mac_mods("CMD|SHIFT|CTRL"),
     action = act.PromptInputLine({
       description = "Wipe ALL resurrect states. Type DELETE to confirm (Esc to cancel).",
       action = wezterm.action_callback(function(_, _, line)
@@ -1066,7 +1114,7 @@ config.keys = {
   --             and switches the current window to it.
   {
     key = "l",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }),
   },
 
@@ -1074,12 +1122,12 @@ config.keys = {
   -- Cmd+Shift+; is free in the existing keymap and sits next to Cmd+Shift+L (other launcher).
   {
     key = "phys:Semicolon",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.ShowLauncherArgs({ flags = "FUZZY|LAUNCH_MENU_ITEMS" }),
   },
   {
     key = "n",
-    mods = "CMD|SHIFT",
+    mods = mac_mods("CMD|SHIFT"),
     action = act.PromptInputLine({
       description = "Workspace name (new or existing)",
       action = wezterm.action_callback(function(window, pane, line)
@@ -1090,6 +1138,10 @@ config.keys = {
     }),
   },
 }
+
+for _, binding in ipairs(copy_interrupt_bindings) do
+  table.insert(config.keys, binding)
+end
 
 -- search_mode: Enter → AcceptPattern (exit to copy_mode at current match);
 -- Escape → Close. Wezterm's default Enter is PriorMatch (cycles inside
@@ -1165,12 +1217,20 @@ config.key_tables = config.key_tables or {}
 config.key_tables.search_mode = build_search_mode_accept_pattern()
 config.key_tables.copy_mode = build_copy_mode_smart_escape()
 
--- Quick select — easymotion-like jump-to-word. Defaults already match URLs,
--- paths, hashes, IPs, file:line; we add plain words (3+ chars) so any visible
--- token gets a label. Trigger: Cmd+Shift+F (top-level), or `s` inside copy mode.
+-- Quick select — easymotion-like. Custom patterns are OR'd with WezTerm defaults
+-- (URLs, paths, hashes, …). Do NOT use variable-width lookbehind (?<=\d+\s+) etc.:
+-- one bad pattern breaks the whole alternation → zero highlights.
+-- No raw `|` in a pattern (it splits the outer alternation); use [|] if needed.
 config.quick_select_patterns = {
   "\\b\\w{3,}\\b",
+  -- Absolute paths (/Users/…). No look-around.
+  "/[A-Za-z0-9._~+/_-]+",
+  -- atuin `12|cd /path` — whole tail after pipe (includes "cd "); pick `/…` label for path only
+  "[|][^\\n]+",
+  -- `cd /path` as one token (copies "cd " + path; path-only is the `/…` match above)
+  "\\bcd /\\S+",
 }
+config.disable_default_quick_select_patterns = false
 
 if config.key_tables.copy_mode then
   -- `s` triggers QuickSelect from copy mode (easymotion-style copy)

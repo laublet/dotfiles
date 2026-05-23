@@ -90,6 +90,9 @@ if command -v keyd &>/dev/null && [[ -f conf/keyd/default.conf ]]; then
   sudo rm -f /etc/keyd/mac-cmd-passthrough.conf
   sudo systemctl enable keyd
   sudo systemctl restart keyd
+  if getent group keyd &>/dev/null; then
+    sudo usermod -aG keyd "$USER" 2>/dev/null || true
+  fi
 fi
 
 echo "==> Dotbot link"

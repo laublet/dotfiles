@@ -62,6 +62,9 @@
     - command: |
         if [ -d ~/.config/cosmic ] && [ -d conf/cosmic ]; then
           echo "Deploying COSMIC config..."
+          if [ -x scripts/gen-cosmic-shortcuts.sh ]; then
+            scripts/gen-cosmic-shortcuts.sh
+          fi
           COSMIC_SHORTCUTS=~/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1
           mkdir -p "$COSMIC_SHORTCUTS"
           cp conf/cosmic/shortcuts.ron "$COSMIC_SHORTCUTS/custom"

@@ -87,6 +87,7 @@ rm -f ~/.local/bin/nvim
 echo "==> keyd config"
 if command -v keyd &>/dev/null && [[ -f conf/keyd/default.conf ]]; then
   sudo cp conf/keyd/default.conf conf/keyd/games-classic.conf /etc/keyd/
+  sudo rm -f /etc/keyd/mac-cmd-passthrough.conf
   sudo systemctl enable keyd
   sudo systemctl restart keyd
 fi

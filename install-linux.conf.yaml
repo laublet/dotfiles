@@ -47,6 +47,7 @@
         if command -v keyd &>/dev/null && [ -f conf/keyd/default.conf ]; then
           echo "Deploying keyd config..."
           sudo cp conf/keyd/default.conf conf/keyd/games-classic.conf /etc/keyd/
+          sudo rm -f /etc/keyd/mac-cmd-passthrough.conf
           sudo systemctl restart keyd
         fi
       description: Deploying keyd config (macOS-like modifiers)

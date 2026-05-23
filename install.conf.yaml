@@ -39,29 +39,6 @@
       create: true
       path: conf/yazi
 
-    # agent hub (canonical: Research vault) — global from any workspace
-    ~/.agents/skills:
-      create: true
-      path: ../vaults/Research/.agents/skills
-    ~/.cursor/skills:
-      create: true
-      path: ../vaults/Research/.agents/skills
-    ~/.cursor/rules/research-hub.mdc:
-      create: true
-      path: ../vaults/Research/.cursor/rules/research-hub.mdc
-    ~/.cursor/mcp.json:
-      create: true
-      force: true
-      path: ../vaults/Research/.cursor/mcp.json
-    ~/.claude/CLAUDE.md:
-      create: true
-      force: true
-      path: ../vaults/Research/templates/CLAUDE-home.md
-    ~/.codex/AGENTS.md:
-      create: true
-      force: true
-      path: ../vaults/Research/templates/AGENTS-home.md
-
     # obsidian (vault: ~/dev/perso/vaults/Main)
     ~/dev/perso/vaults/Main/.obsidian.vimrc:
       force: true
@@ -137,15 +114,6 @@
     ~/.local/bin/nvim-keylog-analyze:
       create: true
       path: bin/nvim-keylog-analyze
-    ~/.local/bin/research-capture:
-      create: true
-      path: bin/research-capture
-    ~/.local/bin/work-agents-stub:
-      create: true
-      path: bin/work-agents-stub
-    ~/.local/bin/claude-project-init:
-      create: true
-      path: bin/claude-project-init
 
     # zsh
     ~/.zshrc:

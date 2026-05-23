@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Cliphist (Wayland clipboard)
+Comment=Watch clipboard for rofi history (perso / COSMIC)
+Exec=bash -lc 'cliphist-wl-daemon'
+Hidden=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Phase=Applications

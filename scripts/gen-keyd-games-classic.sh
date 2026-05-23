@@ -18,6 +18,13 @@ APPS=(
   Wine
   proton
   Proton
+  # Add game WM_CLASS prefix: xprop WM_CLASS on the game window, then re-run gen script
+  # Helldivers
+  Helldivers
+  # Generic
+  glfw
+  GLFW
+  SDL
 )
 
 {

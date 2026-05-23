@@ -41,6 +41,11 @@
       create: true
       path: bin/cliphist-wl-daemon
 
+    # Wayland clipboard daemon autostart (COSMIC / Pop 24)
+    ~/.config/autostart/cliphist-wl-daemon.desktop:
+      create: true
+      path: conf/autostart/cliphist-wl-daemon.desktop
+
 - shell:
     # keyd: macOS-like modifiers (requires root)
     - command: |

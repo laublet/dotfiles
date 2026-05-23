@@ -141,6 +141,11 @@
     (modifiers: [Super], key: "w"): System(WorkspaceOverview),
 
     // ═══════════════════════════════════════════════════════════════
+    // CLIPBOARD — Ctrl+Shift+V (= physical Cmd+Shift+V via keyd)
+    // ═══════════════════════════════════════════════════════════════
+    (modifiers: [Ctrl, Shift], key: "v"): Spawn("clipboard-rofi"),
+
+    // ═══════════════════════════════════════════════════════════════
     // MEDIA / HARDWARE (unchanged from defaults)
     // ═══════════════════════════════════════════════════════════════
     (modifiers: [], key: "Print"): System(Screenshot),

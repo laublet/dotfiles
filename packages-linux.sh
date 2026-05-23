@@ -292,6 +292,8 @@ install_desktop() {
       com.todoist.Todoist \
       com.getpostman.Postman \
       org.mozilla.Thunderbird \
+      com.obsproject.Studio \
+      org.jellyfin.JellyfinDesktop \
       2>/dev/null || true
   fi
 

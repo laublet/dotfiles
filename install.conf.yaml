@@ -18,7 +18,9 @@
     ~/dev/perso/.gitconfig-perso:
       path: conf/git/gitconfig-perso
 
-    # ssh (config only — keys are NOT tracked; OS-specific link in install-mac/linux)
+    # ssh (OS-specific config in install-mac/linux; shared hosts below)
+    ~/.ssh/hosts:
+      path: conf/ssh/hosts
 
     # neovim
     ~/.config/nvim:

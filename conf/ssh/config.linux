@@ -1,3 +1,5 @@
+Include ~/.ssh/hosts
+
 Host github.com
   AddKeysToAgent yes
   IdentityFile ~/.ssh/github_perso
@@ -5,5 +7,3 @@ Host github.com
 Host gitlab.com
   PreferredAuthentications publickey
   IdentityFile ~/.ssh/gitlab_pro
-
-Include hosts

@@ -100,7 +100,6 @@ if command -v flatpak &>/dev/null; then
   flatpak remote-add --if-not-exists --user flathub \
     https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
   flatpak install -y --noninteractive --user flathub \
-    com.obsproject.Studio \
     org.jellyfin.JellyfinDesktop \
     com.discordapp.Discord \
     2>/dev/null || true

@@ -60,13 +60,18 @@
 
     # COSMIC DE keybindings (Pop!_OS 24.04+)
     - command: |
-        COSMIC_DIR=~/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1
-        if [ -d ~/.config/cosmic ] && [ -f conf/cosmic/shortcuts.ron ]; then
-          echo "Deploying COSMIC custom keybindings..."
-          mkdir -p "$COSMIC_DIR"
-          cp conf/cosmic/shortcuts.ron "$COSMIC_DIR/custom"
+        if [ -d ~/.config/cosmic ] && [ -d conf/cosmic ]; then
+          echo "Deploying COSMIC config..."
+          COSMIC_SHORTCUTS=~/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1
+          mkdir -p "$COSMIC_SHORTCUTS"
+          cp conf/cosmic/shortcuts.ron "$COSMIC_SHORTCUTS/custom"
+          for pkg in conf/cosmic/com.system76.*; do
+            [ -d "$pkg" ] || continue
+            mkdir -p ~/.config/cosmic/"$(basename "$pkg")"
+            cp -r "$pkg"/* ~/.config/cosmic/"$(basename "$pkg")"/
+          done
         fi
-      description: Deploying COSMIC keybindings
+      description: Deploying COSMIC keybindings and panel/tiling config
       quiet: true
 
     # Pop Shell + GNOME settings (legacy — Pop!_OS 22.04 with GNOME)

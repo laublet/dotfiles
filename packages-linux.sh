@@ -294,7 +294,6 @@ install_desktop() {
       com.todoist.Todoist \
       com.getpostman.Postman \
       org.mozilla.Thunderbird \
-      com.obsproject.Studio \
       org.jellyfin.JellyfinDesktop \
       com.discordapp.Discord \
       2>/dev/null || true

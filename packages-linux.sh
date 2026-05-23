@@ -283,10 +283,12 @@ install_desktop() {
     rm -f /tmp/FiraCode.zip
   fi
 
-  # Flatpak apps
+  # Flatpak apps (--user avoids system+user flathub conflict on Pop!_OS)
   if command -v flatpak &>/dev/null; then
-    echo "    → Flatpak apps..."
-    flatpak install -y --noninteractive flathub \
+    echo "    → Flatpak apps (user)..."
+    flatpak remote-add --if-not-exists --user flathub \
+      https://flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+    flatpak install -y --noninteractive --user flathub \
       com.slack.Slack \
       org.signal.Signal \
       com.todoist.Todoist \
@@ -294,6 +296,7 @@ install_desktop() {
       org.mozilla.Thunderbird \
       com.obsproject.Studio \
       org.jellyfin.JellyfinDesktop \
+      com.discordapp.Discord \
       2>/dev/null || true
   fi
 

@@ -1,163 +1,18 @@
-// https://github.com/pop-os/cosmic-epoch
-// COSMIC custom keybindings — identical modifier architecture to AeroSpace
+// COSMIC custom shortcuts — overrides only (WM uses system defaults + keyd remap).
 //
-// Deployed to: ~/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom
+// keyd translates physical AeroSpace chords → COSMIC default Super chords.
+// See conf/keyd/default.conf and /usr/share/cosmic/.../Shortcuts/v1/defaults
 //
-// keyd preserves Super in multi-modifier combos (via explicit passthrough),
-// so COSMIC sees the exact same modifiers as AeroSpace on macOS.
-//
-// Physical keys → COSMIC action:
-//   Super (tap)                    → Launcher
-//   Super + key                    → Ctrl+key (app shortcut, via keyd)
-//   Ctrl+Super+Alt + arrows        → [Super,Ctrl,Alt] Focus      (= LCAG)
-//   Ctrl+Super+Alt+Shift + arrows  → [Super,Ctrl,Alt,Shift] Move (= HYPR)
-//   Super+Alt + number             → [Super,Alt] Workspace N
-//   Super+Alt + arrows             → [Super,Alt] WS prev/next
-//   Super+Alt + Up/Down            → [Super,Alt] Monitor focus
-//   Ctrl + arrows                  → in-app split nav (not intercepted)
+// Deployed: ~/.config/cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom
 
 {
-    // ═══════════════════════════════════════════════════════════════
-    // SYSTEM
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super], key: "Escape"): System(LockScreen),
-    (modifiers: [Super, Shift], key: "Escape"): System(LogOut),
-    (modifiers: [Super, Alt], key: "Escape"): Terminate,
-
-    // Close window (Ctrl+Q via keyd = physical Super+Q, same as macOS Cmd+Q)
+    // Cmd+Q → Ctrl+Q via keyd
     (modifiers: [Ctrl], key: "q"): Close,
-    (modifiers: [Alt], key: "F4"): Close,
 
-    // ═══════════════════════════════════════════════════════════════
-    // FOCUS WINDOW — Ctrl+Super+Alt + arrows (LCAG)
-    //   = AeroSpace ctrl-cmd-alt + arrows
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super, Ctrl, Alt], key: "Left"): Focus(Left),
-    (modifiers: [Super, Ctrl, Alt], key: "Right"): Focus(Right),
-    (modifiers: [Super, Ctrl, Alt], key: "Up"): Focus(Up),
-    (modifiers: [Super, Ctrl, Alt], key: "Down"): Focus(Down),
-
-    // ═══════════════════════════════════════════════════════════════
-    // MOVE WINDOW — Ctrl+Super+Alt+Shift + arrows (HYPR)
-    //   = AeroSpace ctrl-cmd-alt-shift + arrows
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super, Ctrl, Alt, Shift], key: "Left"): Move(Left),
-    (modifiers: [Super, Ctrl, Alt, Shift], key: "Right"): Move(Right),
-    (modifiers: [Super, Ctrl, Alt, Shift], key: "Up"): Move(Up),
-    (modifiers: [Super, Ctrl, Alt, Shift], key: "Down"): Move(Down),
-
-    // ═══════════════════════════════════════════════════════════════
-    // RESIZE — HYPR + minus/equal
-    //   = AeroSpace ctrl-cmd-alt-shift + minus/equal
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super, Ctrl, Alt, Shift], key: "minus"): Resizing(Inwards),
-    (modifiers: [Super, Ctrl, Alt, Shift], key: "equal"): Resizing(Outwards),
-
-    // ═══════════════════════════════════════════════════════════════
-    // WORKSPACES — Super+Alt + number
-    //   = AeroSpace cmd-alt + number
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super, Alt], key: "1"): Workspace(1),
-    (modifiers: [Super, Alt], key: "2"): Workspace(2),
-    (modifiers: [Super, Alt], key: "3"): Workspace(3),
-    (modifiers: [Super, Alt], key: "4"): Workspace(4),
-    (modifiers: [Super, Alt], key: "5"): Workspace(5),
-    (modifiers: [Super, Alt], key: "6"): Workspace(6),
-    (modifiers: [Super, Alt], key: "7"): Workspace(7),
-    (modifiers: [Super, Alt], key: "8"): Workspace(8),
-    (modifiers: [Super, Alt], key: "9"): Workspace(9),
-    (modifiers: [Super, Alt], key: "0"): LastWorkspace,
-
-    // Move to workspace — Super+Alt+Shift + number
-    //   = AeroSpace cmd-alt-shift + number
-    (modifiers: [Super, Alt, Shift], key: "1"): MoveToWorkspace(1),
-    (modifiers: [Super, Alt, Shift], key: "2"): MoveToWorkspace(2),
-    (modifiers: [Super, Alt, Shift], key: "3"): MoveToWorkspace(3),
-    (modifiers: [Super, Alt, Shift], key: "4"): MoveToWorkspace(4),
-    (modifiers: [Super, Alt, Shift], key: "5"): MoveToWorkspace(5),
-    (modifiers: [Super, Alt, Shift], key: "6"): MoveToWorkspace(6),
-    (modifiers: [Super, Alt, Shift], key: "7"): MoveToWorkspace(7),
-    (modifiers: [Super, Alt, Shift], key: "8"): MoveToWorkspace(8),
-    (modifiers: [Super, Alt, Shift], key: "9"): MoveToWorkspace(9),
-    (modifiers: [Super, Alt, Shift], key: "0"): MoveToLastWorkspace,
-
-    // Workspace prev/next — Super+Alt + Left/Right
-    //   = AeroSpace cmd-alt + left/right
-    (modifiers: [Super, Alt], key: "Left"): PreviousWorkspace,
-    (modifiers: [Super, Alt], key: "Right"): NextWorkspace,
-    (modifiers: [Super, Alt, Shift], key: "Left"): MoveToPreviousWorkspace,
-    (modifiers: [Super, Alt, Shift], key: "Right"): MoveToNextWorkspace,
-
-    // Workspace back-and-forth — Super+Alt+Tab
-    //   = AeroSpace cmd-alt-tab (no COSMIC equivalent, use PreviousWorkspace)
-
-    // ═══════════════════════════════════════════════════════════════
-    // MONITOR / OUTPUT — Super+Alt + Up/Down
-    //   = AeroSpace cmd-alt + up/down
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super, Alt], key: "Up"): SwitchOutput(Up),
-    (modifiers: [Super, Alt], key: "Down"): SwitchOutput(Down),
-    (modifiers: [Super, Alt, Shift], key: "Up"): MoveToOutput(Up),
-    (modifiers: [Super, Alt, Shift], key: "Down"): MoveToOutput(Down),
-
-    // ═══════════════════════════════════════════════════════════════
-    // LAYOUT / TILING — LCAG + key
-    //   = AeroSpace ctrl-cmd-alt + key
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super, Ctrl, Alt], key: "f"): Fullscreen,
-    (modifiers: [Super, Ctrl, Alt, Shift], key: "f"): Fullscreen,
-    (modifiers: [Super, Ctrl, Alt], key: "m"): Maximize,
-    (modifiers: [Super, Ctrl, Alt], key: "y"): ToggleTiling,
-    (modifiers: [Super, Ctrl, Alt], key: "g"): ToggleWindowFloating,
-    (modifiers: [Super, Ctrl, Alt], key: "t"): ToggleWindowFloating,
-    (modifiers: [Super, Ctrl, Alt], key: "o"): ToggleOrientation,
-    (modifiers: [Super, Ctrl, Alt], key: "s"): ToggleStacking,
-    (modifiers: [Super, Ctrl, Alt], key: "x"): SwapWindow,
-    (modifiers: [Super, Ctrl, Alt], key: "r"): Resizing(Outwards),
-    (modifiers: [Super, Ctrl, Alt, Shift], key: "r"): Resizing(Inwards),
-
-    // Balance sizes — LCAG + equal
-    //   = AeroSpace ctrl-cmd-alt-equal
-
-    // ═══════════════════════════════════════════════════════════════
-    // TERMINAL — LCAG + Enter
-    //   = AeroSpace ctrl-cmd-alt-enter
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super, Ctrl, Alt], key: "Return"): Spawn("wezterm"),
-
-    // ═══════════════════════════════════════════════════════════════
-    // APP SWITCHING
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Alt], key: "Tab"): System(WindowSwitcher),
-    (modifiers: [Alt, Shift], key: "Tab"): System(WindowSwitcherPrevious),
-
-    // ═══════════════════════════════════════════════════════════════
-    // LAUNCHER & SYSTEM
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [Super]): System(Launcher),
-    (modifiers: [Super], key: "slash"): System(Launcher),
-    (modifiers: [Super, Ctrl, Alt], key: "i"): System(InputSourceSwitch),
-    (modifiers: [Super], key: "a"): System(AppLibrary),
-    (modifiers: [Super], key: "w"): System(WorkspaceOverview),
-
-    // ═══════════════════════════════════════════════════════════════
-    // CLIPBOARD — Ctrl+Shift+V (= physical Cmd+Shift+V via keyd)
-    // ═══════════════════════════════════════════════════════════════
+    // Cmd+Shift+V → Ctrl+Shift+V via keyd
     (modifiers: [Ctrl, Shift], key: "v"): Spawn("clipboard-rofi"),
 
-    // ═══════════════════════════════════════════════════════════════
-    // MEDIA / HARDWARE (unchanged from defaults)
-    // ═══════════════════════════════════════════════════════════════
-    (modifiers: [], key: "Print"): System(Screenshot),
-    (modifiers: [], key: "XF86AudioRaiseVolume"): System(VolumeRaise),
-    (modifiers: [], key: "XF86AudioLowerVolume"): System(VolumeLower),
-    (modifiers: [], key: "XF86AudioMute"): System(Mute),
-    (modifiers: [], key: "XF86AudioMicMute"): System(MuteMic),
-    (modifiers: [], key: "XF86MonBrightnessUp"): System(BrightnessUp),
-    (modifiers: [], key: "XF86MonBrightnessDown"): System(BrightnessDown),
-    (modifiers: [], key: "XF86AudioPlay"): System(PlayPause),
-    (modifiers: [], key: "XF86AudioPrev"): System(PlayPrev),
-    (modifiers: [], key: "XF86AudioNext"): System(PlayNext),
-    (modifiers: [], key: "XF86PowerOff"): System(PowerOff),
-    (modifiers: [], key: "XF86TouchpadToggle"): System(TouchpadToggle),
+    // LCAG+Return / HYPR+Return — not COSMIC defaults
+    (modifiers: [Super, Ctrl, Alt], key: "Return"): Spawn("wezterm"),
+    (modifiers: [Super, Ctrl, Alt, Shift], key: "Return"): Spawn("cursor"),
 }

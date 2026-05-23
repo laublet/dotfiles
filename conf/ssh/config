@@ -1,36 +1,3 @@
-Host github.com
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityFile ~/.ssh/github_perso
-
-Host gitlab.com
-  PreferredAuthentications publickey
-  IdentityFile ~/.ssh/gitlab_pro
-
-# Homelab server (Debian) — LAN + Tailscale
-Host uruk uruk-ts
-  User laublet
-  IdentityFile ~/.ssh/uruk
-  IdentitiesOnly yes
-  ServerAliveInterval 60
-  ServerAliveCountMax 3
-
-Host uruk
-  HostName 192.168.1.104
-
-Host uruk-ts
-  HostName uruk.tail6c9b30.ts.net
-
-# Personal Pop!_OS desktop (perso) — LAN + Tailscale
-Host perso popos pop-os perso-ts popos-ts pop-os-ts
-  User laublet
-  IdentityFile ~/.ssh/popos
-  IdentitiesOnly yes
-  ServerAliveInterval 60
-  ServerAliveCountMax 3
-
-Host perso popos pop-os
-  HostName 192.168.1.167
-
-Host perso-ts popos-ts pop-os-ts
-  HostName perso.tail6c9b30.ts.net
+# Deprecated — use config.mac (macOS) or config.linux (Linux).
+# Linked by install-mac.conf.yaml / install-linux.conf.yaml.
+# Shared machine blocks live in ./hosts

@@ -7,6 +7,10 @@
       relink: true
 
 - link:
+    # ssh (Linux — no UseKeychain)
+    ~/.ssh/config:
+      path: conf/ssh/config.linux
+
     # cursor (Linux path)
     ~/.config/Cursor/User/keybindings.json:
       create: true

@@ -7,10 +7,18 @@
       relink: true
 
 - link:
+    # ssh (macOS — UseKeychain; paths relative to conf/ssh/)
+    ~/.ssh/config:
+      path: conf/ssh/config.mac
+
     # aerospace
     ~/.config/aerospace:
       create: true
       path: conf/aerospace
+
+    ~/.hammerspoon:
+      create: true
+      path: conf/hammerspoon
 
     # lazydocker (macOS path)
     ~/Library/Application Support/jesseduffield/lazydocker/config.yml:
@@ -29,12 +37,24 @@
     ~/.local/bin/mac-startup-clean:
       create: true
       path: bin/mac-startup-clean
+    ~/.local/bin/mac-post-update:
+      create: true
+      path: bin/mac-post-update
     ~/.local/bin/wezterm-output-picker:
       create: true
       path: bin/wezterm-output-picker
     ~/.local/bin/mac-neovim-defaults:
       create: true
       path: bin/mac-neovim-defaults
+    ~/.local/bin/mac-cursor:
+      create: true
+      path: bin/mac-cursor
+    ~/.local/bin/mac-hide-cursor-until-move:
+      create: true
+      path: bin/mac-hide-cursor-until-move
+    ~/.local/bin/mac-hide-after-focus:
+      create: true
+      path: bin/mac-hide-after-focus
     # Neovim.app wrapper (bob nvim) for Finder / duti default handlers
     ~/Applications/Neovim.app:
       create: true
@@ -49,9 +69,17 @@
         [ -f conf/mac-apps/languagetool.plist ] && defaults import org.languagetool.desktop conf/mac-apps/languagetool.plist || true
         [ -f conf/mac-apps/amphetamine.plist ] && defaults import com.if.Amphetamine conf/mac-apps/amphetamine.plist || true
         MOUSELESS_DIR=~/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs
-        [ -f conf/mac-apps/mouseless.yaml ] && mkdir -p "$MOUSELESS_DIR" && cp conf/mac-apps/mouseless.yaml "$MOUSELESS_DIR/config.yaml" || true
-        chmod +x ~/.local/bin/mac-startup-clean ~/.local/bin/wezterm-output-picker \
-          ~/.local/bin/mac-neovim-defaults ~/.local/bin/yazi-pick ~/.local/bin/glab-pick 2>/dev/null || true
+        [ -f conf/mac-apps/mouseless.yaml ] && mkdir -p "$MOUSELESS_DIR" && command cp -f conf/mac-apps/mouseless.yaml "$MOUSELESS_DIR/config.yaml" || true
+        chmod +x ~/.local/bin/mac-startup-clean ~/.local/bin/mac-post-update \
+                 ~/.local/bin/wezterm-output-picker \
+          ~/.local/bin/mac-neovim-defaults ~/.local/bin/mac-cursor \
+          ~/.local/bin/mac-hide-cursor-until-move ~/.local/bin/mac-hide-after-focus \
+          ~/.local/bin/yazi-pick ~/.local/bin/glab-pick 2>/dev/null || true
+        SWIFT_SRC=conf/mac-apps/mac-cursor.swift
+        BIN="${HOME}/.local/bin/mac-cursor.bin"
+        if [ -f "$SWIFT_SRC" ] && command -v swiftc >/dev/null; then
+          swiftc -O "$SWIFT_SRC" -o "$BIN" 2>/dev/null && chmod +x "$BIN" || true
+        fi
         chmod +x ~/Applications/Neovim.app/Contents/MacOS/nvim 2>/dev/null || true
         # glab: local config only (never symlink — auth writes tokens into config.yml)
         # Remove legacy macOS path (duplicate config warning)

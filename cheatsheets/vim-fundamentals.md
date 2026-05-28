@@ -1,5 +1,7 @@
 # Vim fundamentals — buffer / window / tab / ex commands
 
+> **Help:** `:help` · `:help user-manual` · `:help {topic}`
+
 > The 30 vim-native commands you need to stop forgetting when you come back from a VS Code / Cursor break.
 > Pure vim (no custom keymaps): works everywhere — local, ssh, container, fresh nvim install.
 > For Loïc's custom keymaps, see [keyboard-navigation.md](keyboard-navigation.md).
@@ -151,7 +153,7 @@ Custom mappings (see `keymaps.lua`): `<leader>Tn` / `<leader>Tp` next/prev, `<le
 | `<leader>vr` | Registers picker (fzf-lua, Enter = paste, Ctrl-x = clear) |
 | `:marks` | Show all marks |
 | `<leader>vm` | Marks picker (fzf-lua, Enter = jump, Ctrl-x = delete) |
-| `<leader>Uk` | Toggle keystroke log (`:NvimKeylogAnalyze`, `nvim-keylog-analyze`) |
+| `<leader>uk` | Toggle keystroke log (`:NvimKeylogAnalyze`, `nvim-keylog-analyze`) |
 | `:undolist` | Undo history |
 | `:checkhealth` | Diagnose plugins / nvim setup |
 | `:Lazy` | Open lazy.nvim plugin manager |
@@ -188,3 +190,8 @@ That's it. Do that for a week and you'll never forget again.
 - [keyboard-navigation.md](keyboard-navigation.md) — all your custom keymaps on top of these vim natives.
 - `:help windows`, `:help tabpage`, `:help buffers` — the canonical reference inside nvim itself.
 - `<leader>aa` (avante ask) — Claude/Cursor in a sidebar when you forget something specific.
+
+## Links
+
+- Repo: https://github.com/neovim/neovim
+- Help: `:help user-manual` inside Neovim

@@ -1,5 +1,7 @@
 # oil.nvim — buffer-based file explorer
 
+> **Help:** `g?` in oil buffer · `:help oil.nvim`
+
 > Complements neo-tree (sidebar tree = orientation). Use oil for **manipulation**: rename, create, move, bulk edits. The directory is a normal Neovim buffer — modify the lines, `:w` to apply.
 > No debounced renderer, no race conditions: oil cannot trigger the E95 bug that affects neo-tree's `follow_current_file`.
 
@@ -23,8 +25,8 @@ When you launch `nvim <dir>`, Oil hijacks netrw and opens the directory as an Oi
 |-----|--------|
 | `j` / `k` | Move (standard vim) |
 | `<CR>` | Open file / descend into directory |
-| `<C-s>` | Open in vertical split |
-| `<C-h>` | Open in horizontal split |
+| `<C-v>` | Open in vertical split |
+| `<C-x>` | Open in horizontal split |
 | `<C-t>` | Open in new tab |
 | `<C-p>` | Preview file (toggle) |
 | `<C-l>` | Refresh listing |

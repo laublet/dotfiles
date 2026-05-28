@@ -58,7 +58,7 @@ return {
     -- See cheatsheets/vim-fundamentals.md for the full reference.
     local vim_tips = {
       "Cycle buffers : `<leader>b` (fzf list + Ctrl-x delete, picker stays open) — or `<C-Tab>` for last-two toggle",
-      "Stuck float / picker : `<leader>Ux` closes all floats — `<leader>Ur` refocuses the top one",
+      "Stuck float / picker : `<leader>ux` closes all floats — `<leader>ur` refocuses the top one",
       "Diffview edit flow : `<leader>gv` → edit the right pane (B), `:w` saves — left pane is read-only git ref",
       "Close one buffer keeping the split : `<leader>q` (custom) — vim native `:bd` closes the window too",
       "List all buffers with markers : `:ls` (% = current, # = alternate, + = modified)",
@@ -87,9 +87,9 @@ return {
       "Autosave : on when you leave insert / switch buffer / lose focus (2s debounce) — `:ASToggle` to disable",
       "Clear the search highlight : `:noh` (or `<leader>nh`)",
       "Toggle the last two files instantly : `<C-^>` (or `<C-6>`)",
-      "Show your undo history as a tree : `<leader>u` (Undotree, opens on the right)",
+      "Show your undo history as a tree : `<leader>U` (Undotree, opens on the right)",
       "Floating terminal : `<leader>t` — bottom split terminal : `<leader>;`",
-      "Close any active terminal in one shot : `<C-q>`",
+      "Close a managed terminal in one shot : `<C-q>` (safe no-op outside managed terminal windows)",
     }
 
     local function pick_tip()

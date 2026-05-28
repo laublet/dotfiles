@@ -1,5 +1,7 @@
 # Neovim — standalone IDE (replace Cursor / VSCode)
 
+> **Help:** `:help` · `<leader>?` (all keymaps) · `Space` pause → which-key
+
 > Primary editor on macOS + Linux. Cursor is no longer the target for compile links or daily TS work.
 > Hub: [keymaps-hub.md](keymaps-hub.md) · Full map: [keyboard-navigation.md](keyboard-navigation.md#neovim-standalone)
 
@@ -19,6 +21,18 @@ js-debug-adapter             → nvim-dap Node/TS
 
 `:Mason` · `:MasonInstall <name>` · `:checkhealth vim.lsp` · `:Lazy sync` after dotbot
 
+### Lint (oxlint + ESLint LSP)
+
+| Layer | Role | Install |
+|-------|------|---------|
+| **oxlint** | Fast lint on save (style / common rules) | `brew install oxlint` · nvim: `lint.lua` |
+| **eslint LSP** | Project `eslint.config` rules + code actions | Mason: `eslint-lsp` |
+| **ts_ls** | Types (not replaced by oxlint) | Mason: `typescript-language-server` |
+
+Repos without `oxlint.config.*` use oxlint defaults. Duplicate ESLint diagnostics are possible — oxlint is for speed; use ESLint LSP for fixes (`<leader>la` etc.).
+
+First install: `:Lazy sync` (needs network; `nvim-lint` is pinned in `lazy-lock.json`). If clone fails: `cd ~/.local/share/nvim/lazy/nvim-lint && git fetch` or run `nvim --headless "+Lazy! sync" +qa` from a shell with git access.
+
 ## Daily workflow
 
 | Task | Keys / command |
@@ -27,6 +41,9 @@ js-debug-adapter             → nvim-dap Node/TS
 | Buffers | `<leader>b` |
 | Git status (full UI) | `<leader>gg` (Neogit) |
 | Git status (quick fzf) | `<leader>gs` (fzf-lua) |
+| Git hunk next / prev | `<leader>hn` / `<leader>hN` — repeat with `<leader>.` (leader dot) |
+| Git hunk (vim repeat) | `]c` / `[c` then `;` / `,` (gitsigns; diff → vim `]c`) |
+| Repeat last leader action | `<leader>.` after any wrapped map (gitsigns `h*` today) |
 | Diff repo | `<leader>gv` / close `<leader>gx` |
 | Format | `<leader>lf` or format-on-save |
 | Lint list | `<leader>ud` (workspace) · `<leader>uD` (buffer) |
@@ -38,7 +55,7 @@ js-debug-adapter             → nvim-dap Node/TS
 | Yank path (abs / rel) | `<leader>yp` / `<leader>yr` |
 | Registers (fzf) | `<leader>vr` — Enter = coller ; Ctrl-x = vider le registre |
 | Marks vim (fzf) | `<leader>vm` — Enter = sauter ; Ctrl-x = effacer |
-| Keystroke log (analyse) | actif au démarrage ; `<leader>Uk` toggle ; `:NvimKeylogDisable` pour couper |
+| Keystroke log (analyse) | actif au démarrage ; `<leader>uk` toggle ; `:NvimKeylogDisable` pour couper |
 
 ## Keystroke log (habitudes clavier)
 
@@ -47,7 +64,7 @@ Log JSONL : `~/.local/state/nvim-keylog.jsonl` (écriture bufferisée, pas de no
 | Commande / touche | Action |
 |-------------------|--------|
 | (démarrage) | Logging actif |
-| `<leader>Uk` | Toggle on/off |
+| `<leader>uk` | Toggle on/off |
 | `:NvimKeylogDisable` | Stop + flush |
 | `:NvimKeylogAnalyze` | Rapport dans une notif |
 | `nvim-keylog-analyze` | Même analyse en terminal (`--since 2026-05-20` optionnel) |
@@ -68,6 +85,9 @@ Liste courte par projet (cwd), indépendante de la liste de buffers. Persistée 
 Workflow typique : ouvre 3–5 fichiers du ticket avec `<C-p>`, puis `<leader>ma` sur chacun. Ensuite tu navigues avec `<leader>1` etc. ; le reste des buffers peut être fermé (`<leader>q`) sans perdre tes épingles.
 
 Dans le menu : `<C-v>` / `<C-x>` / `<C-t>` = split vertical / horizontal / tab.
+
+Même convention dans les autres pickers/menus quand dispo (Oil, Neo-tree, ast-grep/fzf).
+Création manuelle de split inchangée : `<leader>|` (vertical) et `<leader>-` (horizontal).
 
 ## Premier test (Jest ou Vitest)
 
@@ -174,9 +194,9 @@ Supermaven is off for markdown, Avante buffers, neo-tree, oil.
 
 | Mode | Close floats |
 |------|----------------|
-| Normal / terminal | `<leader>Ux` |
+| Normal / terminal | `<leader>ux` |
 | Insert | `<M-Esc>` |
-| Refocus picker | `<leader>Ur` |
+| Refocus picker | `<leader>ur` |
 
 ## Validation (~1 semaine sur un repo pro TS)
 
@@ -198,16 +218,23 @@ Si un point bloque, note le symptôme dans Troubleshooting ci-dessous avant d’
 |-------|-----|
 | `:LspInfo` unknown filetype jsx/tsx | Removed from eslint config — use `javascriptreact` / `typescriptreact` |
 | ESLint silent | `npm i -D eslint` + config in repo |
+| No oxlint diagnostics | `brew install oxlint` · `:Lazy sync` · reopen buffer |
 | neotest-vitest not installed | `:Lazy sync` — dep is `marilari88/neotest-vitest` |
 | Keychain popup on test run | Mac login password to unlock keychain; Git uses SSH / `gh auth`, not GitHub passkey |
 | Neo-tree on startup | `persistence` restored session — `<leader>qd` then quit once |
 | Overseer: no tasks | Open repo root with `package.json` or `Makefile` / `.vscode/tasks.json` |
 | `<leader>cD` no-op | `:MasonInstall js-debug-adapter` ; jest/vitest adapter needs `dap = { enabled = true }` (already on) |
 | gopls missing | `:MasonInstall gopls gofumpt` |
-| `<leader>gs` Command failed `nvim -u NONE -l` | fzf-lua headless bug on 0.11 — config disables `git.status` preprocess/transform ; use `<leader>gg` (Neogit) |
+| `<leader>gs` Command failed `…/bob/…/nvim` | fzf-lua: never `multiprocess=false` on git.status (use `1` + `fn_*=false`). Fallback: `<leader>gg` (Neogit) |
 | No fold markers | `:TSInstall <lang>` for buffer filetype |
 
 ## Optional later
 
 - **Open in existing nvim** on Cmd+click (remote / socket)
 - **Zed**: evaluate when feature-complete; same keymap hub applies
+
+## Links
+
+- Repo: https://github.com/neovim/neovim
+- Dotfiles config: [`conf/nvim/`](../conf/nvim/)
+- which-key spec: [`conf/nvim/lua/plugins/which-key.lua`](../conf/nvim/lua/plugins/which-key.lua)

@@ -1,6 +1,6 @@
 -- https://neovim.io/doc/user/api.html#nvim_open_win()
 -- Floating UI helpers (fzf-lua, which-key, LSP hovers, etc.)
--- Used on FocusGained and via <leader>Ur / <leader>Ux.
+-- Used on FocusGained and via <leader>ur / <leader>ux.
 
 local M = {}
 

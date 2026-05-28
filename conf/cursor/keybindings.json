@@ -8,10 +8,11 @@
 //   Tab switching       → Cmd + Shift + left/right (editor tabs, terminal instances, chat tabs)
 //   Tab reorder         → Cmd + Alt + left/right
 //   Split creation      → Cmd+d / Cmd+Shift+d (context-aware: editor or terminal)
+//                          WezTerm semantics: Cmd+d = horizontal (down), Cmd+Shift+d = vertical (right)
 //   Terminal mgmt       → Cmd+t (new), Cmd+w (kill), Cmd+d (split) — when terminal focused
 //   Leader layer        → Space + key (via vscode-neovim, from editor normal mode)
 //     Space+e  explorer   Space+f  quick open    Space+g  find in files
-//     Space+t  terminal   Space+v  git (scm)     Space+c  AI chat
+//     Space+t  terminal   Space+v  git (scm)     Space+a  AI chat
 //     Space+b  buffers    Space+d  debugger      Space+w  save
 //     Space+q  close      Space+z  zen mode
 //   AI accept/reject    → Cmd+Enter (inline chat), Cmd+Shift+Enter (accept diff/tool),
@@ -179,12 +180,12 @@
   },
 
   // =========================================================================
-  // Split creation — Cmd+d / Cmd+Shift+d (same as WezTerm, context-aware)
+  // Split creation — Cmd+d / Cmd+Shift+d (same as WezTerm semantics, context-aware)
   // =========================================================================
   // Editor splits
   {
     "key": "cmd+d",
-    "command": "workbench.action.splitEditor",
+    "command": "workbench.action.splitEditorDown",
     "when": "editorFocus"
   },
   {
@@ -193,7 +194,7 @@
   },
   {
     "key": "cmd+shift+d",
-    "command": "workbench.action.splitEditorDown",
+    "command": "workbench.action.splitEditor",
     "when": "editorFocus"
   },
   // Terminal splits

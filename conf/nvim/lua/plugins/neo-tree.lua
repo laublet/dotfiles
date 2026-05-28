@@ -7,6 +7,31 @@
 --
 -- For filesystem manipulation (bulk rename, create, move, etc.), use oil.nvim
 -- (open via `g-` / `<leader>O`). Neo-tree stays read-mostly: navigate + open files.
+--
+-- Workaround for intermittent E95 ("Buffer with this name already exists"):
+-- prune hidden/orphan neo-tree buffers after leaving/closing the tree window.
+local function cleanup_hidden_neotree_buffers()
+  local shown = {}
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    shown[vim.api.nvim_win_get_buf(win)] = true
+  end
+
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if not shown[buf] and vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
+      local ok_filetype, filetype = pcall(vim.api.nvim_get_option_value, "filetype", { buf = buf })
+      local ok_buftype, buftype = pcall(vim.api.nvim_get_option_value, "buftype", { buf = buf })
+      if ok_filetype and ok_buftype and filetype == "neo-tree" and buftype == "nofile" then
+        pcall(vim.api.nvim_buf_delete, buf, { force = true })
+      end
+    end
+  end
+end
+
+local function safe_neotree_close()
+  -- Use Neo-tree's close path so internal state is updated consistently.
+  vim.cmd("Neotree close")
+  vim.schedule(cleanup_hidden_neotree_buffers)
+end
 
 return {
   "nvim-neo-tree/neo-tree.nvim",
@@ -33,7 +58,16 @@ return {
     vim.api.nvim_create_autocmd("FileType", {
       group = vim.api.nvim_create_augroup("NeoTreeTimeoutlen", { clear = true }),
       pattern = "neo-tree",
-      callback = function() vim.opt_local.timeoutlen = 600 end,
+      callback = function(args)
+        vim.opt_local.timeoutlen = 600
+        -- Wipe hidden neo-tree buffers to avoid E95 on reopening.
+        vim.bo[args.buf].bufhidden = "wipe"
+        -- Force safe close paths when user is inside the neo-tree window.
+        vim.keymap.set("n", "q", safe_neotree_close, { buffer = args.buf, silent = true, desc = "Neo-tree close" })
+        vim.keymap.set("n", "<Esc>", safe_neotree_close, { buffer = args.buf, silent = true, desc = "Neo-tree close" })
+        vim.keymap.set("n", "ZQ", safe_neotree_close, { buffer = args.buf, silent = true, desc = "Neo-tree close" })
+        vim.keymap.set("n", "ZZ", safe_neotree_close, { buffer = args.buf, silent = true, desc = "Neo-tree close" })
+      end,
     })
   end,
   opts = {
@@ -45,6 +79,9 @@ return {
       filtered_items = {
         hide_dotfiles = false,
         hide_gitignored = false,
+        -- Neo-tree uses virtual ids ending with `_hidden_message` to display
+        -- hidden-count hints. Real files named `*_hidden_message` then collide.
+        show_hidden_count = false,
         hide_by_name = { "node_modules", ".git" },
       },
     },
@@ -55,6 +92,10 @@ return {
         ["<Right>"] = "open",
         ["<Left>"] = "close_node",
         ["<CR>"] = "open",
+        ["<C-v>"] = "open_vsplit",
+        ["<C-x>"] = "open_split",
+        ["<C-t>"] = "open_tabnew",
+        ["q"] = "close_window",
         ["P"] = { "toggle_preview", config = { use_float = true, use_image_nvim = false } },
         -- Fold-style expand/collapse, mirrors vim fold mnemonics.
         -- Uppercase (zR/zM) = whole tree; lowercase (zr/zm) = current subtree only.
@@ -82,6 +123,14 @@ return {
             vim.cmd("wincmd =")
           end
         end,
+      },
+      {
+        event = "neo_tree_buffer_leave",
+        handler = cleanup_hidden_neotree_buffers,
+      },
+      {
+        event = "neo_tree_window_after_close",
+        handler = cleanup_hidden_neotree_buffers,
       },
     },
     default_component_configs = {

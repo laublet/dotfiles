@@ -1,6 +1,8 @@
 # Zed — IDE (parallel transition from Cursor / Neovim)
 
-Config: [`conf/zed/settings.json`](../conf/zed/settings.json) and [`conf/zed/keymap.json`](../conf/zed/keymap.json) (linked to `~/.config/zed/`, XDG on macOS + Linux).
+> **Help:** `Space` pause → which-key · `Cmd+Shift+P` command palette
+
+Config: [`conf/zed/settings.json`](../conf/zed/settings.json) and [`conf/zed/keymap.json`](../conf/zed/keymap.json) (linked to `~/.config/zed/`, XDG on macOS + Linux). **When to use Zed vs nvim vs Cursor:** [`conf/zed/README.md`](../conf/zed/README.md) · `zed .` or `just zed`.
 
 Zed runs `vim_mode: true` with `base_keymap: "Cursor"`. Most Cmd-prefixed bindings (Cmd+P, Cmd+Shift+P, Cmd+B, Cmd+J, …) come from the Cursor base keymap; the leader layer below mirrors **Neovim** (see `conf/nvim/lua/plugins/which-key.lua`).
 
@@ -37,8 +39,8 @@ Zed unifies docks and editor splits in a single pane tree, so the same Ctrl+arro
 
 | Action | Shortcut |
 |--------|----------|
-| Split right | `Cmd + D` (in editor) or `Space + \` |
-| Split down | `Cmd + Shift + D` or `Space + -` |
+| Split down (horizontal) | `Cmd + D` (in editor) or `Space + -` |
+| Split right (vertical) | `Cmd + Shift + D` or `Space + \` |
 
 ## Leader layer (Vim normal mode) — mirrors Neovim
 
@@ -121,7 +123,7 @@ Vim mode also exposes git defaults: `] c` / `[ c` (next/prev change), `d o` (exp
 | `Space + d` | Toggle debugger panel |
 | `Space + v` | Command palette (mirror nvim `<leader>v` "vim commands") |
 | `Space + w` | Save |
-| `Space + q` / `Space + x` | Close active item |
+| `Space + q` | Close active item |
 | `Space + z` | Zen mode (centered layout) |
 | `Space + \\` | Split right |
 | `Space + -` | Split down |
@@ -213,7 +215,7 @@ When focused in the terminal panel, Cmd-prefixed bindings target the panel itsel
 |--------|----------|
 | New terminal | `Cmd + T` |
 | Close terminal | `Cmd + W` |
-| Split right / down | `Cmd + D` / `Cmd + Shift + D` |
+| Split down / right | `Cmd + D` / `Cmd + Shift + D` |
 | Switch terminal tabs | `Cmd + Shift + ←/→` |
 
 ## Project panel (file tree, vim-style)
@@ -261,3 +263,8 @@ These plugins live only in standalone Neovim — Zed has built-in or extension e
 | `persistence.nvim` | Auto-restore last session (`restore_on_startup`). |
 
 For a full keybindings comparison table, see [keymaps-hub.md](keymaps-hub.md).
+
+## Links
+
+- Repo: https://github.com/zed-industries/zed
+- Dotfiles config: [`conf/zed/`](../conf/zed/)

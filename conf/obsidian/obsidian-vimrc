@@ -48,7 +48,7 @@ nmap <Space>q :closeTab
 
 " --- Recherche ---
 exmap globalSearch obcommand global-search:open
-nmap <Space>g :globalSearch
+nmap <Space>s :globalSearch
 
 " --- Sidebar / zones ---
 exmap toggleLeftSidebar obcommand notebook-navigator:toggle-left-sidebar
@@ -58,7 +58,7 @@ exmap focusNavigator obcommand notebook-navigator:open
 nmap <Space>E :focusNavigator
 
 exmap toggleRightSidebar obcommand app:toggle-right-sidebar
-nmap <Space>r :toggleRightSidebar
+nmap <Space>u :toggleRightSidebar
 
 exmap revealFile obcommand notebook-navigator:reveal-file
 nmap <Space>R :revealFile
@@ -85,10 +85,10 @@ nmap <Space>[ :dailyPrev
 
 " --- Divers ---
 exmap commandPalette obcommand command-palette:open
-nmap <Space>p :commandPalette
+nmap <Space>v :commandPalette
 
 exmap togglePreview obcommand markdown:toggle-preview
-nmap <Space>v :togglePreview
+nmap <Space>V :togglePreview
 
 exmap graph obcommand graph:open
 nmap <Space>G :graph
@@ -103,7 +103,7 @@ nmap <Space>3 :h3
 
 " --- Checklist ---
 exmap toggleChecklist obcommand editor:toggle-checklist-status
-nmap <Space>x :toggleChecklist
+nmap <Space>X :toggleChecklist
 
 " --- Fold ---
 exmap toggleFold obcommand editor:toggle-fold

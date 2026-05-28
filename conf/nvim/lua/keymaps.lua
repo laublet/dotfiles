@@ -58,8 +58,9 @@ if vim.g.vscode then
   map("n", "<leader>z", function() vscode.action("workbench.action.toggleZenMode") end, opts)
 
   -- Leader layer — zones
-  map("n", "<leader>v", function() vscode.action("workbench.view.scm") end, opts)
-  map("n", "<leader>c", function() vscode.action("workbench.action.chat.open") end, opts)
+  map("n", "<leader>v", function() vscode.action("workbench.action.showCommands") end, opts)
+  map("n", "<leader>V", function() vscode.action("workbench.view.scm") end, opts)
+  map("n", "<leader>a", function() vscode.action("workbench.action.chat.open") end, opts)
   map("n", "<leader>d", function() vscode.action("workbench.view.debug") end, opts)
 
 -- =============================================================================
@@ -67,6 +68,8 @@ if vim.g.vscode then
 -- =============================================================================
 
 else
+  require("utils.open_url").setup()
+
   -- Clear search highlight — not <leader>c (neotest prefix ct/cf/…)
   map("n", "<leader>nh", ":noh<CR>", { desc = "Clear search highlight" })
 
@@ -85,7 +88,7 @@ else
     yank_path(vim.fn.expand("%:."))
   end, { desc = "Yank relative file path (from cwd)" })
 
-  map("n", "<leader>Uk", function()
+  map("n", "<leader>uk", function()
     require("utils.keylog").toggle()
   end, { desc = "Toggle keystroke log (analysis)" })
 
@@ -121,12 +124,12 @@ else
   map("n", "<leader>To", ":tabonly<CR>", { desc = "Close other tabs" })
 
   -- Stuck float / fzf after pane switch: refocus (force) or close all floats.
-  -- Not mapped in insert: leader is Space, so <leader>U* in insert would delay every Space by timeoutlen.
+  -- Not mapped in insert: leader is Space, so <leader>u* in insert would delay every Space by timeoutlen.
   local float = require("utils.float")
-  map({ "n", "t" }, "<leader>Ur", function()
+  map({ "n", "t" }, "<leader>ur", function()
     float.refocus({ force = true })
   end, { desc = "Refocus float UI (fzf, which-key, …)" })
-  map({ "n", "t" }, "<leader>Ux", function()
+  map({ "n", "t" }, "<leader>ux", function()
     float.close_all_floats()
   end, { desc = "Close all floating windows (escape hatch)" })
   map("i", "<M-Esc>", function()
@@ -239,7 +242,7 @@ else
   end
   map("n", "<leader>ac", toggle_cursor_agent_split, { desc = "Toggle cursor-agent (vsplit right)" })
 
-  -- Fluid one-key exit from ANY terminal (floating, bottom split, cursor-agent).
+  -- Fluid one-key exit from managed terminals (floating, bottom split, cursor-agent).
   -- <C-q> chosen because:
   --   - <C-t> is widely used by fzf-lua / oil (open-in-new-tab action)
   --   - <C-\> is awkward on the user's Kyria layout
@@ -253,8 +256,13 @@ else
     elseif cursor_agent_win and vim.api.nvim_win_is_valid(cursor_agent_win) and cur_win == cursor_agent_win then
       toggle_cursor_agent_split()
     else
-      vim.cmd([[stopinsert]])
-      pcall(vim.api.nvim_win_close, cur_win, false)
+      -- Safety: never close an arbitrary window when <C-q> is pressed outside
+      -- the managed terminal windows tracked above.
+      if vim.bo.buftype == "terminal" then
+        vim.cmd([[stopinsert]])
+      else
+        vim.notify("No managed terminal in current window", vim.log.levels.INFO)
+      end
     end
   end
   map("t", "<C-q>", close_active_terminal, { desc = "Close active terminal" })

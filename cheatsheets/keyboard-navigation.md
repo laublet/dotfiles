@@ -1,5 +1,7 @@
 # Keyboard Navigation — Unified Cheatsheet
 
+> **Help:** This file · `cheat keyboard-navigation` · Neovim: `<leader>H`
+
 Full shortcut map across the stack. Modifier escalation architecture:
 
 ```
@@ -13,6 +15,9 @@ LCAG + Shift      → AeroSpace move / resize (HYPR)
 ```
 
 ## System (macOS / Linux)
+
+**perso (Pop!_OS):** Mac-like shortcuts OS-wide via **keyd** — full inventory: [`conf/keyd/MAC-LINUX.md`](../conf/keyd/MAC-LINUX.md) in dotfiles.  
+Cmd → Ctrl (W close, Q quit, Z/X/C/V, etc.). WM/workspaces = composite layers → COSMIC.
 
 | Shortcut | Action |
 |---|---|
@@ -63,7 +68,7 @@ Full cheatsheet (panes, tabs, copy mode, workspaces, resurrect, config) : [wezte
 | Cmd + Shift + Up | Fast copy of the latest command output (status bar flashes purple to confirm) |
 | Ctrl + Shift + O | fzf picker on all outputs of this pane (preview with bat, Enter copies, Esc cancels — opens as a split pane, auto-closes) |
 | Cmd + Ctrl + Space | CharSelect — fuzzy Unicode / Nerd Font / emoji picker (matches macOS system shortcut) |
-| Cmd + Shift + ; | Launch menu picker (btop, gitui, glab-pick, lazydocker, bandwhich, nettop, mac-startup-clean) |
+| Cmd + Shift + ; | Launch menu picker (btop, gitui, glab-pick, lazydocker, nettop, mac-startup-clean) |
 | Cmd + click on `file.ts:42:10` | Open path at line/column in Cursor (works in any compiler/linter output) |
 | `printf '\a'` after a command | macOS toast notification (audible bell disabled, subtle cursor flash) |
 | Ctrl + Shift + R / Cmd + R | Reload WezTerm config (defaults) |
@@ -72,7 +77,7 @@ Full cheatsheet (panes, tabs, copy mode, workspaces, resurrect, config) : [wezte
 | Cmd + Shift + Ctrl + X | Resurrect: wipe all saved states (type `DELETE`) |
 | Cmd + Shift + L | Switch workspace (fuzzy launcher, lists existing) |
 | Cmd + Shift + N | New/switch workspace by name (prompt) |
-| Cmd + Shift + F | QuickSelect (URLs, paths, hashes, words 3+) |
+| Cmd + Shift + F | QuickSelect (paths, `cd` arg, `N\|cmd`, words 3+, …) |
 | Cmd + Alt + Space | Enter copy mode (vim-like) |
 | Cmd + Backspace | Sends Ctrl+U (kill line backward in zsh / vim insert) |
 | Cmd + T | New tab |
@@ -144,8 +149,8 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 
 | Shortcut | Action |
 |---|---|
-| Cmd + D | Split editor right |
-| Cmd + Shift + D | Split editor down |
+| Cmd + D | Split editor down (horizontal) |
+| Cmd + Shift + D | Split editor right (vertical) |
 
 ### Leader layer (Space + key, normal mode via vscode-neovim)
 
@@ -155,8 +160,9 @@ Note: Ctrl+Left from chat does NOT work (webview limitation). Use Escape.
 | Space + F | Quick open file |
 | Space + G | Find in files |
 | Space + T | Toggle terminal |
+| Space + v | Command palette |
 | Space + V | Git (SCM) |
-| Space + C | AI chat |
+| Space + A | AI chat |
 | Space + D | Debugger |
 | Space + B | Buffers (MRU) |
 | Space + W | Save file |
@@ -222,7 +228,7 @@ Quick reference (Mason, debug, tests, troubleshooting): [neovim-ide.md](neovim-i
 | Space + Q | Close buffer + force (closes window too) |
 | Space + t | Toggle floating terminal (modal) |
 | Space + ; | Toggle bottom split terminal (persistent, side-by-side with code) |
-| `Ctrl + q` | **Close** any active terminal (float / bottom / cursor-agent) — works from inside or outside |
+| `Ctrl + q` | Close a managed terminal (float / bottom / cursor-agent); safe no-op outside managed terminal windows |
 | `Esc Esc` | Exit terminal-insert mode without closing (then scroll, copy, `:q`, …) |
 | Space + z | Zoom toggle (maximize split — use on the tree to read long paths) |
 | Space + a + c | **cursor-agent** CLI in a vsplit on the right (toggle; raw TUI) |
@@ -233,10 +239,10 @@ Quick reference (Mason, debug, tests, troubleshooting): [neovim-ide.md](neovim-i
 | Space + a + n | New ask (clear conversation) |
 | Space + a + m | Switch ACP mode (agent / plan / ask) |
 | Space + a + ? | Switch provider/model |
-| Space + u | Undo tree (Undotree, opens on the RIGHT — layout 3 to avoid clashing with Neo-tree sidebar) |
-| Space + Ur | Refocus float UI (fzf, which-key, …) — normal/terminal only; **Shift+u**, then `r` |
-| Space + Ux | Close all floating windows — normal/terminal only; **Shift+u**, then `x` |
-| Space + Uk | Toggle keystroke log (analysis; on at startup) — **Shift+u**, then `k` |
+| Space + U | Undo tree (Undotree, opens on the RIGHT — layout 3 to avoid clashing with Neo-tree sidebar) |
+| Space + u + r | Refocus float UI (fzf, which-key, …) — normal/terminal only |
+| Space + u + x | Close all floating windows — normal/terminal only |
+| Space + u + k | Toggle keystroke log (analysis; on at startup) |
 | Alt + Esc (insert) | Close all floating windows — no leader (avoids Space timeout in insert) |
 | Space + \| | Vertical split |
 | Space + - | Horizontal split |
@@ -318,8 +324,10 @@ Mason: `:MasonInstall js-debug-adapter`. Optional: `.vscode/launch.json` loaded 
 | Space + ns | Search text in vault |
 | Space + nt | Tags |
 | Space + nl | Links in current note |
-| Space + nm | Toggle render-markdown |
-| Space + np | Preview with glow (popup) |
+| Space + nm | Toggle render-markdown (headings, tables — **not** Mermaid graphics) |
+| Space + np | Preview with glow (terminal, **no** Mermaid) |
+| Space + nv | Markdown + **Mermaid** preview in browser (toggle stop/start) |
+| Space + nV | Refresh browser preview |
 | gd | Follow [[wiki-link]] |
 
 ### LSP
@@ -376,16 +384,16 @@ Mason: `:MasonInstall js-debug-adapter`. Optional: `.vscode/launch.json` loaded 
 | Key | Action |
 |---|---|
 | Space + F | Quick switcher |
-| Space + G | Global search |
+| Space + s | Global search |
 | Space + W | Save |
 | Space + Q | Close |
 | Space + e | Toggle left sidebar |
 | Space + E | Focus Notebook Navigator |
-| Space + r | Toggle right sidebar |
+| Space + u | Toggle right sidebar |
 | Space + R | Reveal in Notebook Navigator |
 | Space + D | Daily note |
 | Space + ]/[ | Next/prev daily |
-| Space + P | Command palette |
+| Space + v | Command palette |
 | Space + V | Toggle preview |
 | Space + G | Graph view |
 | Space + 1/2/3 | Set heading H1/H2/H3 |
@@ -395,6 +403,8 @@ Mason: `:MasonInstall js-debug-adapter`. Optional: `.vscode/launch.json` loaded 
 | za / zM / zR | Toggle fold / fold all / unfold all |
 
 ## Tridactyl (Firefox)
+
+**2026-05:** Vimium active in Firefox; Tridactyl extension off — see [tridactyl.md § Status](tridactyl.md#status-2026-05). Table below = tridactylrc when re-enabled.
 
 Task-oriented detail: [tridactyl.md](tridactyl.md).
 
@@ -419,7 +429,7 @@ Hint chars: `asdfghjkl` (home row only).
 
 ## Mouseless
 
-**LCAG** (`Ctrl+Cmd+Alt+…`) for overlay, execute move, free mode; **`Cmd+Alt+J/K`** for moving the overlay between monitors (those are **not** LCAG). Full table: [conf/mac-apps/README.md § Mouseless](../conf/mac-apps/README.md#mouseless).
+**LCAG** (`Ctrl+Cmd+Alt+…`) for overlay, execute move, free mode; **`Cmd+Alt+J/K`** for moving the overlay between monitors (those are **not** LCAG). Full cheatsheet: **[mouseless.md](mouseless.md)**. Config & troubleshooting: [conf/mac-apps/README.md § Mouseless](../conf/mac-apps/README.md#mouseless).
 
 | Shortcut | Action |
 |---|---|
@@ -491,3 +501,9 @@ Capitalization: both shifts = **Caps Word** (1 word, auto-end), hold NAV + tap A
 Arcane keys (inner-bottom): on ALPHA same-hand = repeat, cross-hand = magic (alt-repeat); on NAV any side = one-shot Shift.
 
 Special bindings: **Shift+Backspace** = Delete, **Shift+Esc** = `~`, **GUI+Esc** = `` ` ``.
+
+## Links
+
+- Cheatsheets repo: https://github.com/laublet/dotfiles/tree/master/cheatsheets
+- Mouseless: [mouseless.md](mouseless.md) · https://mouseless.click
+- AeroSpace: [aerospace.md](aerospace.md) · https://github.com/nikitabobko/AeroSpace

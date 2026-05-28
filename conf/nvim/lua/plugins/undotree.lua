@@ -7,7 +7,7 @@ return {
   cond = not vim.g.vscode,
   cmd = "UndotreeToggle",
   keys = {
-    { "<leader>u", "<cmd>UndotreeToggle<cr>", desc = "Undo tree" },
+    { "<leader>U", "<cmd>UndotreeToggle<cr>", desc = "Undo tree" },
   },
   init = function()
     vim.g.undotree_WindowLayout = 3

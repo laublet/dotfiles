@@ -48,15 +48,19 @@ return {
       end
     end
 
-    -- Neovim 0.11: nil keeps fzf-lua defaults (headless child via fn_preprocess/transform).
-    -- false explicitly disables them; previewer git_diff also spawns headless.
+    -- Neovim 0.11 + Bob: do NOT set multiprocess=false — stringify_mt returns nil and
+    -- fzf falls back to headless spawn (`nvim -u NONE -l spawn.lua`), which shows
+    -- "Command failed: …/bob/v0.11.x/bin/nvim". Use 1 (optional) + fn_* = false so git
+    -- status is piped raw to fzf (no headless child).
     local git_status_opts = {
       fn_preprocess = false,
       fn_transform = false,
+      fn_postprocess = false,
       previewer = false,
       file_icons = false,
       color_icons = false,
-      multiprocess = false,
+      git_icons = false,
+      multiprocess = 1,
     }
 
     local pick_default = files({})
@@ -82,7 +86,37 @@ return {
       { "<leader>fF", live_grep_native({ rg_opts = rg_fixed() }), desc = "Live grep (fixed string)" },
       { "<leader>fg", function() fz().live_grep_glob() end, desc = "Live grep (glob in query)" },
       { "<leader>fr", function() fz().live_grep_resume() end, desc = "Resume live grep" },
-      { "<leader>f/", function() fz().grep_curbuf() end, desc = "Search in buffer" },
+      { "<leader>f/", function() fz().grep_curbuf() end, desc = "Search in buffer (alias of <leader>/)" },
+
+      -- ast-grep (sg) — pattern library + custom; see lua/utils/ast-grep.lua
+      {
+        "<leader>fs",
+        function()
+          require("utils.ast-grep").search_cwd()
+        end,
+        desc = "ast-grep: pick pattern (project cwd)",
+      },
+      {
+        "<leader>fS",
+        function()
+          require("utils.ast-grep").search_file_dir()
+        end,
+        desc = "ast-grep: pick pattern (file dir)",
+      },
+      {
+        "<leader>fc",
+        function()
+          require("utils.ast-grep").search_cwd_custom()
+        end,
+        desc = "ast-grep: type pattern (project cwd)",
+      },
+      {
+        "<leader>fC",
+        function()
+          require("utils.ast-grep").search_file_dir_custom()
+        end,
+        desc = "ast-grep: type pattern (file dir)",
+      },
 
       -- Git — prefix <leader>g
       { "<leader>gs", function() fz().git_status(git_status_opts) end, desc = "Git status" },
@@ -113,7 +147,7 @@ return {
         desc = "Buffers (fuzzy)",
       },
       { "<leader>r", function() fz().oldfiles() end, desc = "Recent files" },
-      { "<leader>/", function() fz().grep_curbuf() end, desc = "Search in buffer (alias)" },
+      { "<leader>/", function() fz().grep_curbuf() end, desc = "Search in buffer (canonical)" },
       { "<leader>s", function() fz().lsp_document_symbols() end, desc = "Document symbols" },
       { "<leader>S", function() fz().lsp_workspace_symbols() end, desc = "Workspace symbols" },
       { "<leader>:", function() fz().command_history() end, desc = "Command history" },
@@ -176,13 +210,11 @@ return {
     }
   end)(),
   config = function()
-    -- Workaround: Neovim 0.11 has a bug with require() in -l (script) mode
-    -- that breaks fzf-lua's headless child process (spawn.lua:37 deserialize).
-    -- Any option that triggers fn_transform (file_icons, git_icons, rg_glob,
-    -- strip_cwd_prefix, git.status fn_preprocess, etc.) forces the headless wrapper.
-    -- Solution: disable all such options so fd/rg pipe raw to fzf.
-    -- Grep uses live_grep_native() which explicitly disables all processing.
-    vim.env.FZF_LUA_NVIM_BIN = vim.v.progpath
+    -- Neovim 0.11 + Bob: fzf-lua headless child (`nvim -u NONE -l spawn.lua`) breaks easily.
+    -- Prefer piping fd/rg/git raw to fzf (file_icons/git_icons off; git.status: multiprocess=1,
+    -- fn_*=false — not multiprocess=false, that nils stringify_mt and re-triggers headless).
+    -- Grep uses live_grep_native() which avoids the wrapper entirely.
+    vim.env.FZF_LUA_NVIM_BIN = vim.fn.exepath("nvim") or vim.v.progpath
     vim.env.FZF_LUA_NVIM_RUNTIME = vim.env.VIMRUNTIME
     require("fzf-lua").setup({
       defaults = {
@@ -203,10 +235,12 @@ return {
         status = {
           fn_preprocess = false,
           fn_transform = false,
+          fn_postprocess = false,
           previewer = false,
           file_icons = false,
           color_icons = false,
-          multiprocess = false,
+          git_icons = false,
+          multiprocess = 1,
         },
       },
       -- buffers picker opts live on <leader>b (noclose + resume — reload=true closes the float)

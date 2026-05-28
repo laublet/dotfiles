@@ -50,13 +50,13 @@
   },
 
   // =========================================================================
-  // Splits — Cmd+d (right) / Cmd+Shift+d (down) — same as WezTerm / Cursor
+  // Splits — Cmd+d (down) / Cmd+Shift+d (right) — same as WezTerm semantics
   // =========================================================================
   {
     "context": "Editor",
     "bindings": {
-      "cmd-d": "pane::SplitRight",
-      "cmd-shift-d": "pane::SplitDown"
+      "cmd-d": "pane::SplitDown",
+      "cmd-shift-d": "pane::SplitRight"
     }
   },
 
@@ -134,7 +134,6 @@
       // ---- Actions ----
       "space w": "workspace::Save",
       "space q": "pane::CloseActiveItem",
-      "space x": "pane::CloseActiveItem",
       "space z": "workspace::ToggleCenteredLayout",
 
       // ---- Splits (mirror nvim <leader>| / <leader>-) ----
@@ -204,8 +203,8 @@
     "bindings": {
       "cmd-t": "workspace::NewTerminal",
       "cmd-w": "pane::CloseActiveItem",
-      "cmd-d": "pane::SplitRight",
-      "cmd-shift-d": "pane::SplitDown"
+      "cmd-d": "pane::SplitDown",
+      "cmd-shift-d": "pane::SplitRight"
     }
   },
 

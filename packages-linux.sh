@@ -133,6 +133,10 @@ install_server() {
     echo "==> [server] Installing atuin..."
     curl --proto '=https' --tlsv1.2 -LsSf https://setup.atuin.sh | sh -s -- --no-modify-path
   fi
+  if [[ -x "$HOME/.atuin/bin/atuin" ]]; then
+    mkdir -p "$HOME/.local/bin"
+    ln -sf "$HOME/.atuin/bin/atuin" "$HOME/.local/bin/atuin"
+  fi
 
   # lazygit — TUI for git; no apt package on stable Debian, use GitHub release
   if ! command -v lazygit &>/dev/null; then

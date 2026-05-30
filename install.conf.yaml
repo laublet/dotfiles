@@ -53,7 +53,7 @@
       path: conf/obsidian/app.json
     ~/dev/perso/vaults/Main/.obsidian/community-plugins.json:
       force: true
-      path: conf/obsidian/community-plugins.json
+      path: conf/obsidian/community-plugins-main.json
     ~/dev/perso/vaults/Main/.obsidian/plugins/notebook-navigator/data.json:
       force: true
       path: conf/obsidian/notebook-navigator.json
@@ -113,9 +113,19 @@
     ~/.local/bin/glab-pick:
       create: true
       path: bin/glab-pick
+    ~/.local/bin/sg-pick:
+      create: true
+      path: bin/sg-pick
     ~/.local/bin/nvim-keylog-analyze:
       create: true
       path: bin/nvim-keylog-analyze
+    ~/.local/bin/install-slk-tui:
+      create: true
+      path: bin/install-slk-tui
+    # macOS Choosy URL opener (harmless on Linux; zsh only wraps open on darwin)
+    ~/.local/bin/mac-open:
+      create: true
+      path: bin/mac-open
 
     # zsh
     ~/.zshrc:

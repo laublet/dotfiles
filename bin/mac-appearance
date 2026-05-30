@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# mac-appearance — Dracula RICE: dark mode, purple accent, dock, wallpaper.
+#
+# Reads conf/theme/dracula.env (WALLPAPER path). Requires macOS.
+#
+# Usage:
+#   mac-appearance                      Apply (from dracula.env)
+#   mac-appearance --dry-run            Print actions only
+#   mac-appearance --wallpaper PATH       Override wallpaper for this run
+#   mac-appearance --wallpaper minimal    Solid #282a36 PNG
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+DOTFILES="${DOTFILES:-$HOME/dev/perso/dotfiles}"
+ENV_FILE="${DOTFILES}/conf/theme/dracula.env"
+PLIST="${DOTFILES}/conf/mac-apps/appearance.plist"
+
+DRY_RUN=0
+WALLPAPER_OVERRIDE=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY_RUN=1 ;;
+    --wallpaper)
+      shift
+      WALLPAPER_OVERRIDE="${1:?--wallpaper needs a value}"
+      shift
+      continue
+      ;;
+    -h|--help)
+      sed -n '2,12p' "$0"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+run() {
+  if (( DRY_RUN )); then
+    printf '%s\n' "$*"
+  else
+    "$@"
+  fi
+}
+
+notify_accent_change() {
+  if (( DRY_RUN )); then
+    echo "notify: AppleColorPreferencesChangedNotification"
+    return 0
+  fi
+  python3 - <<'PY' || true
+import ctypes
+import ctypes.util
+
+libc = ctypes.CDLL(ctypes.util.find_library("c"))
+notify = libc.notify_post
+notify.argtypes = [ctypes.c_char_p]
+notify.restype = ctypes.c_int
+for name in (
+    b"AppleColorPreferencesChangedNotification",
+    b"AppleAquaColorVariantChanged",
+):
+    notify(name)
+PY
+}
+
+set_wallpaper() {
+  local path="$1"
+  [[ -f "$path" ]] || { echo "Wallpaper not found: $path" >&2; exit 1; }
+  local abs
+  abs="$(cd "$(dirname "$path")" && pwd)/$(basename "$path")"
+  if (( DRY_RUN )); then
+    echo "osascript: set desktop picture → $abs"
+    return 0
+  fi
+  osascript -e "tell application \"System Events\" to tell every desktop to set picture to POSIX file \"$abs\""
+  echo "Wallpaper: $abs"
+}
+
+generate_minimal_wallpaper() {
+  local out="${HOME}/Pictures/wallpapers/dracula-minimal.png"
+  mkdir -p "$(dirname "$out")"
+  if (( DRY_RUN )); then
+    echo "magick: generate $out (#282a36)"
+    echo "$out"
+    return 0
+  fi
+  if command -v magick &>/dev/null; then
+    magick -size 3840x2160 "xc:#282a36" "$out"
+  elif command -v convert &>/dev/null; then
+    convert -size 3840x2160 "xc:#282a36" "$out"
+  else
+    echo "Need imagemagick for --wallpaper minimal" >&2
+    exit 1
+  fi
+  echo "$out"
+}
+
+[[ -f "$ENV_FILE" ]] || {
+  echo "Missing: $ENV_FILE" >&2
+  exit 1
+}
+# shellcheck source=/dev/null
+source "$ENV_FILE"
+
+WALLPAPER_PATH="${WALLPAPER_OVERRIDE:-$WALLPAPER}"
+if [[ "$WALLPAPER_PATH" == "minimal" ]]; then
+  WALLPAPER_PATH="$(generate_minimal_wallpaper)"
+fi
+
+echo "Applying Dracula macOS appearance"
+
+run defaults write NSGlobalDomain AppleInterfaceStyle -string Dark
+run defaults delete NSGlobalDomain AppleInterfaceStyleSwitchesAutomatically 2>/dev/null || true
+
+run defaults write -globalDomain AppleAccentColor -int "${DRACULA_APPLE_ACCENT:-5}"
+run defaults write -globalDomain AppleHighlightColor -int "${DRACULA_APPLE_ACCENT:-5}"
+notify_accent_change
+
+run defaults write com.apple.dock tilesize -int 36
+run defaults write com.apple.dock autohide -bool true
+run defaults write com.apple.dock show-recents -bool false
+
+if [[ -n "$WALLPAPER_PATH" ]]; then
+  set_wallpaper "$WALLPAPER_PATH"
+fi
+
+if (( ! DRY_RUN )); then
+  killall Dock 2>/dev/null || true
+  killall Finder 2>/dev/null || true
+fi
+
+echo "Done. Dark mode, accent purple, dock minimal."

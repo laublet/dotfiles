@@ -5,5 +5,9 @@ nvim/.netrwhist
 *.swp
 *~
 
+# Python
+__pycache__/
+*.pyc
+
 # glab OAuth tokens (use config.yml.example + glab auth login locally)
 conf/glab/config.yml

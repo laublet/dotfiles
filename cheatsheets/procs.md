@@ -1,5 +1,7 @@
 # procs — modern process viewer
 
+> **Help:** `procs --help`
+
 > Replaces `ps`. Color output, tree view, keyword search.
 
 ## Everyday usage

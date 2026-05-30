@@ -1,5 +1,7 @@
 # ouch — painless compression & decompression
 
+> **Help:** `ouch --help`
+
 > Replaces `tar`, `zip`, `gzip`, etc. Unified interface, format detected from extension.
 
 ## Everyday usage

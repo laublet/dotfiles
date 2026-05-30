@@ -429,10 +429,8 @@
   },
 
   // =========================================================================
-  // Linux: Alt+arrows = word navigation (macOS Option+arrows, native on Mac)
-  // keyd handles this at system level for GTK/Qt, but Cursor/Electron needs
-  // explicit bindings since keyd's alt_override sends Ctrl+arrows which
-  // would conflict with split navigation in the editor.
+  // Linux: Alt+arrows = word navigation (macOS Option+arrows, native on Mac).
+  // Explicit here because Cursor/Electron does not always inherit GTK/Qt defaults.
   // =========================================================================
   {
     "key": "alt+left",

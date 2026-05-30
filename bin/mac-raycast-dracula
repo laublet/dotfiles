@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Deprecated name — use mac-raycast-appearance (Dracula custom theme requires Pro).
+exec "$(dirname "$0")/mac-raycast-appearance" "$@"

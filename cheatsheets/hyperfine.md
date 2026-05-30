@@ -1,5 +1,7 @@
 # hyperfine — command-line benchmarking
 
+> **Help:** `hyperfine --help`
+
 > Statistical CLI benchmark tool. Runs commands multiple times, computes mean / median / stddev / min / max, and compares alternatives.
 
 ## Everyday usage

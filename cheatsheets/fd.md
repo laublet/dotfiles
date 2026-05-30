@@ -1,5 +1,7 @@
 # fd — modern find
 
+> **Help:** `fd --help`
+
 > Replaces `find`. Fast, respects `.gitignore`, sane defaults. Powers fzf file search.
 
 ## Everyday usage

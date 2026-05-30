@@ -16,14 +16,15 @@
       create: true
       path: conf/aerospace
 
-    ~/.hammerspoon:
-      create: true
-      path: conf/hammerspoon
-
     # lazydocker (macOS path)
     ~/Library/Application Support/jesseduffield/lazydocker/config.yml:
       create: true
       path: conf/lazydocker/config.yml
+
+    # glow CLI (explicit dark style — avoids "auto" without colors in nested terminals)
+    ~/Library/Preferences/glow/glow.yml:
+      create: true
+      path: conf/glow/glow.yml
 
     # cursor (macOS path)
     ~/Library/Application Support/Cursor/User/keybindings.json:
@@ -40,21 +41,45 @@
     ~/.local/bin/mac-post-update:
       create: true
       path: bin/mac-post-update
+    ~/.local/bin/mac-doctor:
+      create: true
+      path: bin/mac-doctor
     ~/.local/bin/wezterm-output-picker:
       create: true
       path: bin/wezterm-output-picker
     ~/.local/bin/mac-neovim-defaults:
       create: true
       path: bin/mac-neovim-defaults
-    ~/.local/bin/mac-cursor:
+    ~/.local/bin/mac-open:
       create: true
-      path: bin/mac-cursor
-    ~/.local/bin/mac-hide-cursor-until-move:
+      path: bin/mac-open
+    ~/.local/bin/mac-comm-no-autostart:
       create: true
-      path: bin/mac-hide-cursor-until-move
-    ~/.local/bin/mac-hide-after-focus:
+      path: bin/mac-comm-no-autostart
+    ~/.local/bin/mac-video-defaults:
       create: true
-      path: bin/mac-hide-after-focus
+      path: bin/mac-video-defaults
+    ~/.local/bin/mac-stats-defaults:
+      create: true
+      path: bin/mac-stats-defaults
+    ~/.local/bin/mac-appearance:
+      create: true
+      path: bin/mac-appearance
+    ~/.local/bin/cursor-agent-launch:
+      create: true
+      path: bin/cursor-agent-launch
+    ~/.local/bin/mac-borders:
+      create: true
+      path: bin/mac-borders
+    ~/.local/bin/mac-raycast-appearance:
+      create: true
+      path: bin/mac-raycast-appearance
+    ~/.local/bin/mac-raycast-dracula:
+      create: true
+      path: bin/mac-raycast-dracula
+    ~/.local/bin/research-vault-mcp-remote:
+      create: true
+      path: bin/research-vault-mcp-remote
     # Neovim.app wrapper (bob nvim) for Finder / duti default handlers
     ~/Applications/Neovim.app:
       create: true
@@ -68,18 +93,22 @@
         [ -f conf/mac-apps/steermouse.plist ] && defaults import jp.plentycom.app.SteerMouse conf/mac-apps/steermouse.plist || true
         [ -f conf/mac-apps/languagetool.plist ] && defaults import org.languagetool.desktop conf/mac-apps/languagetool.plist || true
         [ -f conf/mac-apps/amphetamine.plist ] && defaults import com.if.Amphetamine conf/mac-apps/amphetamine.plist || true
+        [ -f conf/mac-apps/stats.plist ] && [ -x "$HOME/.local/bin/mac-stats-defaults" ] && "$HOME/.local/bin/mac-stats-defaults" --no-restart || true
+        [ -x "$HOME/.local/bin/mac-appearance" ] && "$HOME/.local/bin/mac-appearance" || true
         MOUSELESS_DIR=~/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs
         [ -f conf/mac-apps/mouseless.yaml ] && mkdir -p "$MOUSELESS_DIR" && command cp -f conf/mac-apps/mouseless.yaml "$MOUSELESS_DIR/config.yaml" || true
         chmod +x ~/.local/bin/mac-startup-clean ~/.local/bin/mac-post-update \
+          ~/.local/bin/mac-doctor \
                  ~/.local/bin/wezterm-output-picker \
-          ~/.local/bin/mac-neovim-defaults ~/.local/bin/mac-cursor \
-          ~/.local/bin/mac-hide-cursor-until-move ~/.local/bin/mac-hide-after-focus \
-          ~/.local/bin/yazi-pick ~/.local/bin/glab-pick 2>/dev/null || true
-        SWIFT_SRC=conf/mac-apps/mac-cursor.swift
-        BIN="${HOME}/.local/bin/mac-cursor.bin"
-        if [ -f "$SWIFT_SRC" ] && command -v swiftc >/dev/null; then
-          swiftc -O "$SWIFT_SRC" -o "$BIN" 2>/dev/null && chmod +x "$BIN" || true
-        fi
+          ~/.local/bin/mac-neovim-defaults ~/.local/bin/mac-open ~/.local/bin/mac-video-defaults \
+          ~/.local/bin/mac-stats-defaults \
+          ~/.local/bin/mac-borders \
+          ~/.local/bin/mac-appearance \
+          ~/.local/bin/mac-raycast-appearance \
+          ~/.local/bin/mac-raycast-dracula \
+          ~/.local/bin/mac-comm-no-autostart \
+          ~/.local/bin/install-slk-tui \
+          ~/.local/bin/yazi-pick ~/.local/bin/glab-pick ~/.local/bin/sg-pick 2>/dev/null || true
         chmod +x ~/Applications/Neovim.app/Contents/MacOS/nvim 2>/dev/null || true
         # glab: local config only (never symlink — auth writes tokens into config.yml)
         # Remove legacy macOS path (duplicate config warning)
@@ -107,12 +136,18 @@
           chmod 600 "$GLAB_CONF"
         fi
         if command -v glab >/dev/null; then
-          glab config set -g browser 'open -a "Google Chrome"' 2>/dev/null || true
+          glab config set -g browser "$HOME/.local/bin/mac-open" 2>/dev/null || true
           glab config set -g editor nvim 2>/dev/null || true
           glab config set -g git_protocol ssh 2>/dev/null || true
         fi
+        if command -v gh >/dev/null; then
+          gh config set browser "$HOME/.local/bin/mac-open" 2>/dev/null || true
+        fi
         if command -v duti >/dev/null && [[ -x "$HOME/.local/bin/mac-neovim-defaults" ]]; then
           "$HOME/.local/bin/mac-neovim-defaults"
+        fi
+        if [[ -x "$HOME/.local/bin/mac-comm-no-autostart" ]]; then
+          "$HOME/.local/bin/mac-comm-no-autostart"
         fi
       description: Importing Mac app configs
       quiet: true

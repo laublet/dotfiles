@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# mac-video-defaults — Finder defaults for video types that clash with dev extensions.
+#
+# On macOS, ".ts" is public.mpeg-2-transport-stream (MPEG transport), NOT TypeScript.
+# Run after mac-neovim-defaults if Neovim/Cursor was set for ".ts" by mistake.
+#
+# TypeScript sources: open via terminal (nvim path.ts), or use .tsx in Finder.
+#
+# Requires: IINA (brew install --cask iina), duti (brew install duti)
+#
+# Usage:
+#   mac-video-defaults
+#   mac-video-defaults --dry-run
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+DRY_RUN=0
+[[ "${1:-}" == "--dry-run" ]] && DRY_RUN=1
+
+command -v duti >/dev/null 2>&1 || {
+  echo "Missing: duti (brew install duti)" >&2
+  exit 1
+}
+
+IINA_APP="/Applications/IINA.app"
+if [[ ! -d "$IINA_APP" ]]; then
+  echo "Missing: $IINA_APP — brew install --cask iina" >&2
+  exit 1
+fi
+
+BUNDLE_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$IINA_APP/Contents/Info.plist")"
+
+# Extension → almost always video on macOS (do not assign to Neovim).
+EXTENSIONS=(ts)
+
+# UTIs for transport-stream / related (IINA handles playback).
+UTIS=(
+  public.mpeg-2-transport-stream
+)
+
+run_duti() {
+  if (( DRY_RUN )); then
+    printf 'duti -s %s %s all\n' "$BUNDLE_ID" "$2"
+    return 0
+  fi
+  if ! duti "$@"; then
+    echo "  ! skipped: duti $*" >&2
+  fi
+}
+
+echo "Bundle: $BUNDLE_ID ($IINA_APP)"
+echo "(.ts = video on macOS; edit TypeScript with: nvim file.ts or .tsx in Finder)"
+echo
+
+for ext in "${EXTENSIONS[@]}"; do
+  run_duti -s "$BUNDLE_ID" "$ext" all
+done
+
+for uti in "${UTIS[@]}"; do
+  run_duti -s "$BUNDLE_ID" "$uti" all
+done
+
+if (( DRY_RUN )); then
+  echo "(dry-run — no changes applied)"
+else
+  echo "Done. Double-click a .ts video to test with IINA."
+fi

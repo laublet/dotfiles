@@ -25,3 +25,4 @@ glab-pick|gitlab|GitLab fzf hub (gp — project → MR / CI)
 difft|git|Structural diff (AST-aware); prefer `git dft` from a repo
 tokei|stats|Count lines of code by language
 tldr|docs|Community man pages (tlrc)
+slk-tui|comms|Slack TUI (Vim keys, multi-workspace)

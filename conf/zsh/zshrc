@@ -40,6 +40,7 @@ if [[ "$OSTYPE" == darwin* ]]; then
   export PATH="$HOME/.local/bin:/opt/homebrew/bin:$PATH"
 
   alias c="cursor ."
+  alias mp="mprocs"
   alias ff='open -a "Firefox Developer Edition"'
 
   # Dotbot-linked helpers (install-mac.conf.yaml → ~/.local/bin). Fallback to repo bin/.
@@ -64,6 +65,23 @@ if [[ "$OSTYPE" == darwin* ]]; then
   mac-neovim-defaults() { _dotfiles_bin mac-neovim-defaults "$@"; }
   yazi-pick() { _dotfiles_bin yazi-pick "$@"; }
 
+  _mac_open_bin() {
+    local script="$HOME/.local/bin/mac-open"
+    if [[ ! -x "$script" ]]; then
+      for repo in "$HOME/dev/perso/dotfiles" "$HOME/dotfiles"; do
+        if [[ -x "$repo/bin/mac-open" ]]; then
+          script="$repo/bin/mac-open"
+          break
+        fi
+      done
+    fi
+    echo "$script"
+  }
+
+  # http(s) → Choosy (OAuth, gh/glab --web, npm docs, …). Files / -a / custom schemes unchanged.
+  open() { _dotfiles_bin mac-open "$@"; }
+  export BROWSER="${BROWSER:-$(_mac_open_bin)}"
+
   [[ -f "${0:A:h}/yt-dlp.zsh" ]] && source "${0:A:h}/yt-dlp.zsh"
 
 elif [[ "$OSTYPE" == linux* ]]; then
@@ -82,7 +100,7 @@ fi
 # Hand-rolled minimal FinalTerm subset matching WezTerm's official shell
 # integration script (assets/shell-integration/wezterm.sh). Required by:
 #   - WezTerm ScrollToPrompt (Cmd+↑/↓ in our keymap)
-#   - WezTerm SemanticZone selection (Cmd+Shift+↑/↓ copy last output/input)
+#   - WezTerm SemanticZone output copy (Cmd+Shift+C — fast path in keymap)
 # Three things matter:
 #   - BEL terminator (\a, 0x07) — more universally accepted than ST (\e\\)
 #   - ;A args (cl=m mode, aid=$$ for zone-to-pid correlation)
@@ -154,9 +172,17 @@ __wezterm_output_picker_widget() {
 zle -N __wezterm_output_picker_widget
 bindkey '^X^P' __wezterm_output_picker_widget
 
+# Cursor Agent CLI — colors need NO_COLOR unset, TERM != dumb, kitty stack popped.
+if command -v cursor-agent-launch &>/dev/null; then
+  agent() { cursor-agent-launch "$@"; }
+  cursor-agent() { cursor-agent-launch "$@"; }
+fi
+
 # ── atuin (shell history, replaces fzf Ctrl+R) ───────────────────
 if command -v atuin &>/dev/null; then
   eval "$(atuin init zsh --disable-up-arrow)"
+  # fzf --zsh leaves ^R on vicmd; atuin uses / there. Restore vi redo in normal mode.
+  bindkey -M vicmd '^R' redo
 fi
 
 # ── zoxide ───────────────────────────────────────────────────────
@@ -242,6 +268,95 @@ oq() {
 
 # oe — open vault in Neovim
 alias oe='nvim "$OBSIDIAN_VAULT"'
+
+# Slack terminal — cheat slkcli / slk-tui (`just install-slack-terminal`)
+# slk = slkcli (mise). slk-tui = gammons TUI (~/.local/bin).
+
+# Bitwarden CLI — cheat bitwarden-cli
+bw-help() {
+  command -v bw &>/dev/null || { echo "bw: not found — brew install bitwarden-cli" >&2; return 127; }
+  local pick
+  pick=$(bw --help 2>&1 \
+    | awk '/^Commands:/{f=1;next} f && /^  [a-z]/ {gsub(/^  /,""); print $1}' \
+    | sort -u \
+    | fzf --prompt 'bw command❯ ' --height 40%)
+  [[ -n "$pick" ]] && bw help "$pick" | ${PAGER:-less}
+}
+
+# Bitwarden vault status from `bw status --raw` (not unlock --check: ignores active session).
+_bw_vault_status() {
+  bw status --raw 2>/dev/null \
+    | python3 -c "import json,sys; print(json.load(sys.stdin).get('status',''))" 2>/dev/null
+}
+
+_bw_ensure_unlocked() {
+  local st
+  st=$(_bw_vault_status) || {
+    echo "bw status failed — run: bw login" >&2
+    return 1
+  }
+  if [[ "$st" == "unlocked" ]]; then
+    return 0
+  fi
+  if [[ "$st" == "locked" ]]; then
+    local key
+    key=$(bw unlock --raw) || return 1
+    export BW_SESSION="$key"
+    return 0
+  fi
+  echo "bw: unexpected status '$st' — run: bw login" >&2
+  return 1
+}
+
+bwpick() {
+  command -v bw &>/dev/null || { echo "bw: not found" >&2; return 127; }
+  _bw_ensure_unlocked || return 1
+  local search="${1:-}"
+  local args=(list items)
+  [[ -n "$search" ]] && args+=(--search "$search")
+
+  _bwpick_copy() {
+    local field="$1" name="$2"
+    local val
+    val=$(bw get "$field" "$name" --raw 2>/dev/null) || return 1
+    if [[ "$OSTYPE" == darwin* ]]; then
+      print -r -- "$val" | pbcopy
+    elif command -v wl-copy &>/dev/null; then
+      print -r -- "$val" | wl-copy
+    elif command -v xclip &>/dev/null; then
+      print -r -- "$val" | xclip -selection clipboard
+    else
+      print -r -- "$val"
+      return 0
+    fi
+    echo "Copied $field for: $name"
+  }
+
+  local -a expect
+  expect=("${(@f)$(bw "${args[@]}" 2>/dev/null \
+    | python3 -c "
+import json, sys
+for it in json.load(sys.stdin):
+    login = it.get('login') or {}
+    print(f\"{it.get('name','')}\t{login.get('username') or ''}\t{it.get('type',0)}\")
+" \
+    | fzf --delimiter=$'\t' \
+          --with-nth=1,2 \
+          --prompt 'bw item❯ ' \
+          --expect=ctrl-u,ctrl-n,ctrl-y,enter \
+          --header=$'Enter=password · Ctrl-u=username · Ctrl-n=notes · Ctrl-y=print cmd' \
+          --preview=$'printf "name: %s\nuser: %s\ntype: %s\n" {1} {2} {3}')}")
+  [[ ${#expect[@]} -lt 2 ]] && return 0
+  local key="${expect[1]}" line="${expect[2]}"
+  local name="${line%%$'\t'*}"
+  [[ -z "$name" ]] && return 0
+  case "$key" in
+    ctrl-u) _bwpick_copy username "$name" ;;
+    ctrl-n) _bwpick_copy notes "$name" ;;
+    ctrl-y) printf "bw get password %q\n" "$name" ;;
+    *)      _bwpick_copy password "$name" ;;
+  esac
+}
 
 # cheatsheets browser
 cheat() {
@@ -361,14 +476,81 @@ elif [[ "$OSTYPE" == linux* ]]; then
 fi
 
 # ── Keybindings ──────────────────────────────────────────────────
-bindkey '^ ' autosuggest-execute
+# zsh-autosuggestions (prezto: vi mode)
+#   Ctrl+→ / Ctrl+Shift+→ partial accept (plain → stays forward-char)
+#   Ctrl+Space           accept full suggestion, do not run
+#   Ctrl+Enter           accept full suggestion and run
+#
+# If Ctrl+→ drops you in normal mode with weird edits: the terminal sent Esc
+# before the rest of the sequence — we bind \\e[1;5C as one atomic key below.
 
-# Alt+arrows → word navigation (native on macOS, needs explicit binding on Linux)
+zle-autosuggest-forward() {
+  if [[ -n "$POSTDISPLAY" ]] && (( CURSOR == ${#BUFFER} )); then
+    if [[ $KEYMAP == vicmd ]]; then
+      zle vi-forward-word
+    else
+      zle forward-word
+    fi
+  else
+    if [[ $KEYMAP == vicmd ]]; then
+      zle vi-forward-char
+    else
+      zle forward-char
+    fi
+  fi
+}
+zle -N zle-autosuggest-forward
+
+# Override prezto vi-forward-word on Ctrl+arrows (must be whole sequences, not Esc + tail).
+_autosuggest_bind_partial() {
+  local keymap key
+  local -a keys
+  keys=(
+    ${(s: :)key_info[ControlRight]}
+    '\e[1;5C' '\e[5C' '\e\e[C' '\eOc'
+    '\e[1;6C' '\e[6C'
+  )
+  for keymap in viins emacs vicmd; do
+    for key in "${keys[@]}"; do
+      [[ -n "$key" && "$key" != $'\ufffd' ]] || continue
+      bindkey -M "$keymap" "$key" zle-autosuggest-forward
+    done
+  done
+}
+(( $+key_info )) && _autosuggest_bind_partial
+
+bindkey -M viins '^ ' autosuggest-accept
+bindkey -M emacs '^ ' autosuggest-accept
+
+# Accept + execute (WezTerm sends Esc+Return as \\er — see wezterm.lua Ctrl+Enter)
+for keymap in viins emacs; do
+  bindkey -M "$keymap" '\er' autosuggest-execute
+  bindkey -M "$keymap" '^[^M' autosuggest-execute
+  bindkey -M "$keymap" '^[[13;5u' autosuggest-execute
+done
+
+# WezTerm Cmd+Z (macOS): agent undo is ESC[127;5u. Without a bind, vi mode treats ESC
+# as vicmd then the trailing u as vi-undo-change — wipes the whole line.
+wezterm-cmd-z-undo() {
+  if [[ $KEYMAP == vicmd ]]; then
+    zle vi-undo-change
+  else
+    zle undo
+  fi
+}
+zle -N wezterm-cmd-z-undo
+for keymap in viins emacs vicmd; do
+  bindkey -M "$keymap" '\e[127;5u' wezterm-cmd-z-undo
+  bindkey -M "$keymap" '^_' wezterm-cmd-z-undo
+done
+
+# Linux: Alt+arrows word navigation (macOS: Option+arrow in many apps)
 if [[ "$OSTYPE" == linux* ]]; then
-  bindkey '\e[1;3D' backward-word   # Alt+Left
-  bindkey '\e[1;3C' forward-word    # Alt+Right
-  bindkey '\e^?' backward-kill-word # Alt+Backspace
+  bindkey '\e[1;3D' backward-word
+  bindkey '\e[1;3C' forward-word
+  bindkey '\e^?' backward-kill-word
 fi
 
 # ── Starship prompt (must be last) ───────────────────────────────
 eval "$(starship init zsh)"
+[ -f ~/.config/research-vault-mcp.env ] && source ~/.config/research-vault-mcp.env

@@ -1,10 +1,12 @@
 # CLI toolbox — what to use for what
 
+> **Help:** `cheat` (fzf all sheets) · `cheat <name>`
+
 > Quick reference: "I want to do X" → use this tool.
 > Run `cheat <tool>` for the full cheatsheet of any tool listed here, or `tui` to fuzzy-launch a TUI directly.
 > For TUI-by-task overview with launch contexts: [tui-guide.md](tui-guide.md).
 > Terminal local (panes / tabs / workspaces / resurrect) : [wezterm.md](wezterm.md).
-> Keyboard shortcuts across apps: [keymaps-hub.md](keymaps-hub.md) → [keyboard-navigation.md](keyboard-navigation.md). Firefox + Tridactyl (by task): [tridactyl.md](tridactyl.md). Kyria QMK keymap — current → [kyria.md](kyria.md) ; next iteration design (FR/EN/ES, Arcane on thumbs) → [kyria-next.md](kyria-next.md).
+> Keyboard shortcuts across apps: [keymaps-hub.md](keymaps-hub.md) → [keyboard-navigation.md](keyboard-navigation.md). Firefox: **Vimium** (active); Tridactyl paused — config + future hybrid notes: [tridactyl.md](tridactyl.md). Kyria QMK keymap — current → [kyria.md](kyria.md) ; next iteration design (FR/EN/ES, Arcane on thumbs) → [kyria-next.md](kyria-next.md).
 
 ## Launcher & clipboard
 
@@ -13,9 +15,18 @@
 | Launch app / search web (macOS) | `Cmd+Space` | [raycast](raycast.md) |
 | Launch app (Linux) | `Super+Space` | [rofi](rofi.md) |
 | Clipboard history | `Cmd+Shift+V` / `Ctrl+Shift+V` | [clipboard](clipboard.md) |
+| Open URL (Choosy / Chrome) | `ff` / `gc` (URL) or `ffp`/`ffc` / `gcp` (clipboard) in Raycast | raycast |
 | Search Kagi | `k query` in Raycast | raycast |
-| Translate (DeepL) | `tr texte` in Raycast | raycast |
+| Translate (DeepL) | `dl texte` in Raycast | raycast |
+| Prettify / minify JSON (clipboard) | `jfmt` / `jmin` in Raycast | raycast |
+| Jira / GitLab quick search | `jira` / `gl` in Raycast | raycast |
+| Read / post Slack (macOS CLI) | `slk read general` · `slk send …` | [slkcli](slkcli.md) |
+| Slack in terminal (full TUI) | `slk-tui` or `tui` | [slk-tui](slk-tui.md) |
 | Manage windows (macOS) | `Ctrl+Cmd+Alt + arrows` | [aerospace](aerospace.md) |
+| Hide menu bar clutter (notch MacBook) | Ice chevron / `Cmd`+drag icons | [`conf/mac-apps/README.md`](../conf/mac-apps/README.md) § Ice |
+| System metrics in menu bar (macOS) | Stats modules (visible zone) | [`conf/mac-apps/README.md`](../conf/mac-apps/README.md) § Ice |
+| Dracula RICE (wallpaper, accent, dark) | `just mac-appearance` | [mac-rice](mac-rice.md) |
+| Move/click without mouse (macOS) | `Ctrl+Cmd+Alt+M` then grid keys | [mouseless](mouseless.md) |
 
 ## Find & navigate
 
@@ -57,6 +68,13 @@
 |--------------|---------|------|
 | Go module / build / test | `go test ./...` | [go](go.md) |
 | Go in Neovim (LSP, format) | open `go.mod` project | [neovim-ide](neovim-ide.md#go) |
+| Fast TS/JS lint on save | open `.ts` in nvim | [neovim-ide](neovim-ide.md#lint-oxlint--eslint-lsp) (oxlint) |
+| Structural code search (pattern list) | nvim `<leader>fs` · `sg-pick` · Raycast | [ast-grep](ast-grep.md) |
+| Run several dev servers in one TUI | `mprocs` | [mprocs](mprocs.md) |
+| Open large repo in Zed | `zed .` or `just zed` | [zed](zed.md) |
+| Get a password for scripts | `bw get password Item` · `bwpick` · `bw-help` | [bitwarden-cli](bitwarden-cli.md) |
+| Save / browse bookmarks (Karakeep) | extension + web UI · `cheat karakeep` | [karakeep](karakeep.md) |
+| Compare bookmark / read-later apps | read doc | [bookmarks](bookmarks.md) |
 
 ## Benchmark, diff & explore data
 
@@ -122,3 +140,7 @@
 | `Ctrl+R` | search history (atuin) |
 | `Ctrl+T` | find file (fzf) |
 | `Ctrl+F` | find directory (fzf) |
+
+## Links
+
+- Cheatsheets live in this repo: https://github.com/laublet/dotfiles/tree/master/cheatsheets

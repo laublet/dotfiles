@@ -1,5 +1,7 @@
 # zellij — terminal multiplexer (server)
 
+> **Help:** `?` in TUI · `zellij --help`
+
 > Replaces `tmux`. Persistent sessions, vim navigation, Dracula theme.
 > Prefix: `Ctrl+a` (same as old tmux config).
 

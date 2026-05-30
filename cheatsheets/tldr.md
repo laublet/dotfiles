@@ -1,5 +1,7 @@
 # tldr — community man pages (via tlrc)
 
+> **Help:** `tldr <command>` (this *is* the help) · `tldr --help`
+
 > Fast, example-driven cheatsheets for ~10 000 CLI commands. Use instead of `man` when you want "what's the syntax for the 80% case" rather than the full reference. Binary is `tlrc` (Rust client) but the command stays `tldr`.
 
 ## Everyday usage

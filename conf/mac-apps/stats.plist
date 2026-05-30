@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Battery_state</key>
+	<false/>
+	<key>Bluetooth_state</key>
+	<false/>
+	<key>CPU_mini_color</key>
+	<string>utilization</string>
+	<key>CPU_state</key>
+	<true/>
+	<key>CPU_widget</key>
+	<string>mini</string>
+	<key>Clock_state</key>
+	<false/>
+	<key>Disk_state</key>
+	<false/>
+	<key>GPU_state</key>
+	<false/>
+	<key>LaunchAtLoginNext</key>
+	<true/>
+	<key>Network_state</key>
+	<true/>
+	<key>Network_widget</key>
+	<string>speed</string>
+	<key>RAM_mini_color</key>
+	<string>purple</string>
+	<key>RAM_state</key>
+	<true/>
+	<key>RAM_widget</key>
+	<string>mini,memory</string>
+	<key>Sensors_state</key>
+	<false/>
+	<key>update-interval</key>
+	<string>silent</string>
+</dict>
+</plist>

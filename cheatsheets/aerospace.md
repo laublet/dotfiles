@@ -1,5 +1,7 @@
 # AeroSpace — tiling window manager (macOS)
 
+> **Help:** `aerospace --help` · [AeroSpace guide](https://nikitabobko.github.io/AeroSpace/guide)
+
 Modifier architecture:
 - `Ctrl+Cmd+Alt` (LCAG) → focus, layout, split
 - `Ctrl+Cmd+Alt+Shift` (HYPR) → move, resize
@@ -91,11 +93,18 @@ Enter: `Ctrl+Cmd+Alt+Shift + ;`
 | 1 | Work/Comms | Slack, Chrome, Signal, Thunderbird |
 | 2 | Dev | WezTerm, Cursor, Firefox Dev, Obsidian |
 | 3 | Test/Browse | Firefox, Postman |
-| 4+ | Secondary monitor | Settings, utilities |
+| 4–9 | Secondary monitor (manual) | Spill workspaces — no auto app rules. Prefs (System Settings, SteerMouse, …) open on **focused** workspace. |
 
 ## Tips
 
-- Mouse follows focus when changing monitors
+- **Prefs / utilities** (System Settings, SteerMouse, …) stay on the workspace you’re on — no auto-move to WS 4. Pin with `Cmd+Alt+Shift + N` if needed.
+- Pointer warps to **window center** on focus (`on-focus-changed` → `window-lazy-center`) and to **monitor center** on display change (`monitor-lazy-center`) — Kyria scroll / wheel under cursor.
 - `Cmd+H` disabled (interferes with tiling)
 - Raycast popup is managed natively (no float rule needed)
-- Dev layout auto-applies 30s after startup
+- Default stack: **vertical** accordion (`default-root-container-orientation = 'vertical'`)
+- Dev layout auto-applies 30s after startup (WS 2 = 2 columns; other workspaces stay vertical stack)
+
+## Links
+
+- Repo: https://github.com/nikitabobko/AeroSpace
+- Dotfiles config: [`conf/aerospace/aerospace.toml`](../conf/aerospace/aerospace.toml)

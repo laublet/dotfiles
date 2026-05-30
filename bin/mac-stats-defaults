@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+# mac-stats-defaults — apply menu-bar Stats modules (CPU + RAM + network, compact).
+#
+# Requires: Stats (brew install --cask stats), conf/mac-apps/stats.plist from dotfiles.
+#
+# Usage:
+#   mac-stats-defaults              Apply plist + restart Stats
+#   mac-stats-defaults --dry-run    Print actions only
+#   mac-stats-defaults --no-restart Apply without restarting Stats
+#   mac-stats-defaults --export     Write sanitized plist from current prefs (after GUI tweaks)
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+DOTFILES="${DOTFILES:-$HOME/dev/perso/dotfiles}"
+PLIST="${DOTFILES}/conf/mac-apps/stats.plist"
+DOMAIN="eu.exelban.Stats"
+
+DRY_RUN=0
+NO_RESTART=0
+EXPORT=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1 ;;
+    --no-restart) NO_RESTART=1 ;;
+    --export) EXPORT=1 ;;
+    -h|--help)
+      sed -n '2,12p' "$0"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $arg" >&2
+      exit 1
+      ;;
+  esac
+done
+
+sanitize_plist() {
+  local src="$1" dest="$2"
+  python3 - "$src" "$dest" <<'PY'
+import plistlib
+import sys
+
+skip_prefixes = (
+    "NSStatusItem Preferred Position",
+    "NSWindow Frame",
+    "NSToolbar Configuration",
+)
+skip_keys = {
+    "remote_id",
+    "remote_tokens_migrated_to_keychain",
+    "runAtLoginInitialized",
+    "setupProcess",
+    "support_ts",
+    "updater_check_ts",
+    "version",
+}
+
+with open(sys.argv[1], "rb") as f:
+    data = plistlib.load(f)
+
+out = {}
+for k, v in data.items():
+    if k in skip_keys:
+        continue
+    if any(k.startswith(p) for p in skip_prefixes):
+        continue
+    if k.endswith("_position") and isinstance(v, int):
+        continue
+    out[k] = v
+
+with open(sys.argv[2], "wb") as f:
+    plistlib.dump(out, f, fmt=plistlib.FMT_XML)
+PY
+  plutil -convert xml1 "$dest" 2>/dev/null || true
+}
+
+if (( EXPORT )); then
+  raw="$(mktemp)"
+  trap 'rm -f "$raw"' EXIT
+  defaults export "$DOMAIN" "$raw"
+  sanitize_plist "$raw" "$PLIST"
+  echo "Exported → $PLIST"
+  exit 0
+fi
+
+[[ -f "$PLIST" ]] || {
+  echo "Missing: $PLIST" >&2
+  exit 1
+}
+
+if ! [[ -d /Applications/Stats.app ]]; then
+  echo "Missing: /Applications/Stats.app (brew install --cask stats)" >&2
+  exit 1
+fi
+
+run() {
+  if (( DRY_RUN )); then
+    printf '%s\n' "$*"
+  else
+    "$@"
+  fi
+}
+
+echo "Applying Stats prefs from $PLIST"
+run defaults import "$DOMAIN" "$PLIST"
+
+if (( ! DRY_RUN && ! NO_RESTART )); then
+  if pgrep -xq Stats; then
+    run killall Stats
+    sleep 0.5
+  fi
+  run open -ga Stats
+fi
+
+echo "Done. Menu bar: CPU (mini), RAM (mini+memory), Network (speed). Disk/Battery/GPU/Sensors/Bluetooth/Clock off."
+echo "Ice: keep these icons in the visible zone (see conf/mac-apps/README.md)."

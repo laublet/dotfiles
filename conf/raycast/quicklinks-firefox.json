@@ -1,0 +1,43 @@
+[
+  {
+    "name": "Open URL (Choosy)",
+    "link": "x-choosy://open/{argument}"
+  },
+  {
+    "name": "Kagi",
+    "link": "x-choosy://open/https://kagi.com/search?q={argument}"
+  },
+  {
+    "name": "DeepL FR",
+    "link": "x-choosy://open/https://www.deepl.com/translator#auto/fr/{argument}"
+  },
+  {
+    "name": "GitHub",
+    "link": "x-choosy://open/https://github.com/search?q={argument}"
+  },
+  {
+    "name": "YouTube",
+    "link": "x-choosy://open/https://www.youtube.com/results?search_query={argument}"
+  },
+  {
+    "name": "NPM",
+    "link": "x-choosy://open/https://www.npmjs.com/search?q={argument}"
+  },
+  {
+    "name": "MDN",
+    "link": "x-choosy://open/https://developer.mozilla.org/en-US/search?q={argument}"
+  },
+  {
+    "name": "Google Maps",
+    "link": "x-choosy://open/https://www.google.com/maps/search/{argument}/"
+  },
+  {
+    "name": "Amazon",
+    "link": "x-choosy://open/https://www.amazon.com/s/?field-keywords={argument}"
+  },
+  {
+    "name": "Obsidian Main",
+    "link": "obsidian://open?vault=Main",
+    "openWith": "Obsidian"
+  }
+]

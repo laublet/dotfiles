@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Install hoarder-sync into Obsidian vault Main (Karakeep → Literature/Karakeep).
+set -euo pipefail
+
+DOTFILES="$(cd "$(dirname "$0")/.." && pwd)"
+PLUGIN_ID="hoarder-sync"
+VERSION="2.0.3"
+BASE_URL="https://github.com/jhofker/obsidian-hoarder/releases/download/${VERSION}"
+EXAMPLE="$DOTFILES/conf/obsidian/hoarder-sync.example.json"
+VAULT="${VAULT:-$HOME/dev/perso/vaults/Main}"
+
+if (($# > 0)); then
+  VAULT="$1"
+fi
+
+plugin_dir="$VAULT/.obsidian/plugins/$PLUGIN_ID"
+
+if [[ ! -d "$VAULT/.obsidian" ]]; then
+  echo "error: no .obsidian at $VAULT" >&2
+  exit 1
+fi
+
+mkdir -p "$plugin_dir"
+mkdir -p "$VAULT/Literature/Karakeep/attachments"
+
+for file in main.js manifest.json styles.css; do
+  curl -fsSL "$BASE_URL/$file" -o "$plugin_dir/$file"
+done
+
+if [[ ! -f "$plugin_dir/data.json" ]]; then
+  cp "$EXAMPLE" "$plugin_dir/data.json"
+  echo "Created $plugin_dir/data.json — paste API key in Obsidian (Main vault)."
+else
+  echo "Kept existing $plugin_dir/data.json"
+fi
+
+if [[ ! -f "$VAULT/Literature/Karakeep/README.md" ]]; then
+  cat >"$VAULT/Literature/Karakeep/README.md" <<'EOF'
+# Karakeep sync
+
+Bookmarks synced from [Karakeep](http://karakeep.home.loicaublet.fr) via **Hoarder Sync**.
+
+- Research vault: no sync here (capture via `research-capture`, clippings in `Literature/Clippings/`)
+- Promote to wiki: tag `wiki-candidate` in Karakeep, then ingest from Main
+EOF
+fi
+
+echo "OK: hoarder-sync $VERSION → $VAULT"
+echo "Enable: Obsidian Main → Settings → Community plugins → Karakeep (Hoarder) Sync"

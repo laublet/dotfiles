@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Scaffold Projects/claude-imports/<slug>/ for a Claude.ai project.
+set -euo pipefail
+
+VAULT="${HOME}/dev/perso/vaults/Research"
+IMPORTS="${VAULT}/Projects/claude-imports"
+TEMPLATE="${IMPORTS}/_template"
+
+usage() {
+  echo "Usage: claude-project-init <slug> \"Claude project exact name\" [--force]" >&2
+  echo "Example: claude-project-init blank-back-corporate \"Blank Back Corporate\"" >&2
+  exit 1
+}
+
+FORCE=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force) FORCE=1; shift ;;
+    -h|--help) usage ;;
+    *) break ;;
+  esac
+done
+
+[[ $# -eq 2 ]] || usage
+SLUG="$1"
+NAME="$2"
+DEST="${IMPORTS}/${SLUG}"
+
+if [[ ! "${SLUG}" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+  echo "Invalid slug (use lowercase, digits, hyphens): ${SLUG}" >&2
+  exit 1
+fi
+
+[[ -d "${TEMPLATE}" ]] || { echo "Missing template: ${TEMPLATE}" >&2; exit 1; }
+
+if [[ -e "${DEST}" ]]; then
+  if [[ "${FORCE}" -eq 0 ]]; then
+    echo "Already exists: ${DEST} (use --force to refresh _index from template)" >&2
+    exit 1
+  fi
+  rm -rf "${DEST}"
+fi
+
+cp -R "${TEMPLATE}" "${DEST}"
+TODAY="$(date +%Y-%m-%d)"
+
+sed -i '' \
+  -e "s/REPLACE — exact name in Claude.ai/${NAME}/" \
+  -e "s/replace-slug/${SLUG}/" \
+  -e "s/REPLACE — project title/${NAME}/" \
+  -e "s/2026-05-21/${TODAY}/" \
+  "${DEST}/_index.md"
+
+cat > "${DEST}/context.md" << EOF
+---
+source: claude
+type: project-instructions
+claude_project: "${NAME}"
+slug: ${SLUG}
+---
+
+# Project context (from Claude)
+
+Paste custom instructions from Claude.ai project settings here.
+
+## Desktop instructions
+
+Copy from \`~/dev/perso/vaults/Research/templates/claude-desktop-project-instructions.md\`
+and add project-specific lines below.
+EOF
+
+echo "Created ${DEST}"
+echo "Next:"
+echo "  1. Paste Claude project instructions → ${DEST}/context.md"
+echo "  2. Drop shared artifacts / knowledge → ${DEST}/raw/"
+echo "  3. Check off row in ${IMPORTS}/INVENTORY.md"

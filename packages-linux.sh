@@ -6,7 +6,7 @@
 #   ./packages-linux.sh server      # minimal headless server (Debian/ARM-safe, Pi, VPS…)
 #   ./packages-linux.sh minimal     # alias for server (legacy name)
 #   ./packages-linux.sh homeserver  # server + Docker (+ btop); no dev/IDE stack
-#   ./packages-linux.sh desktop     # + GUI apps, fonts, keyd, Albert
+#   ./packages-linux.sh desktop     # + GUI apps, fonts, Albert
 #   ./packages-linux.sh             # defaults to "desktop"
 
 set -e
@@ -256,19 +256,6 @@ install_desktop() {
     sudo apt install -y albert
   fi
 
-  # keyd (macOS-like modifiers)
-  if ! command -v keyd &>/dev/null; then
-    echo "    → keyd"
-    sudo apt install -y keyd 2>/dev/null || {
-      cd /tmp
-      git clone https://github.com/rvaiya/keyd
-      cd keyd
-      make && sudo make install
-      cd /tmp && rm -rf keyd
-    }
-    sudo systemctl enable keyd
-  fi
-
   # GPaste (GNOME clipboard manager)
   sudo apt install -y gnome-shell-extension-gpaste gpaste-2 2>/dev/null || true
 
@@ -300,7 +287,7 @@ install_desktop() {
   fi
 
   echo "==> [desktop] Done."
-  echo "    Log out and back in for Docker group and keyd to take effect."
+  echo "    Log out and back in for Docker group to take effect."
 }
 
 # ═══════════════════════════════════════════════════════════════════
@@ -314,7 +301,7 @@ case "$PROFILE" in
     echo "Usage: $0 {server|minimal|homeserver|desktop}"
     echo "  server|minimal — headless server (Debian/ARM-safe: tmux, zellij, mosh, starship…)"
     echo "  homeserver     — server + Docker + btop"
-    echo "  desktop        — homeserver + GUI apps, fonts, keyd, Albert"
+    echo "  desktop        — homeserver + GUI apps, fonts, Albert"
     exit 1
     ;;
 esac

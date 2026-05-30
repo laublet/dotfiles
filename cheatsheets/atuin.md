@@ -1,5 +1,7 @@
 # atuin — searchable shell history
 
+> **Help:** `Ctrl+R` then `?` / inspector · `atuin help`
+
 > Replaces fzf `Ctrl+R`. Stores history with context: directory, exit code, duration, timestamp.
 
 ## Everyday usage
@@ -31,7 +33,8 @@ atuin search --before "1w ago"       # older than 1 week
 
 | Key | Action |
 |-----|--------|
-| `Ctrl+R` | open search |
+| `Ctrl+R` | open search (insert mode / emacs keymap) |
+| `/` | open search (vi **normal** mode at the prompt — `Ctrl+R` stays vim redo) |
 | `Enter` | execute selected command |
 | `Tab` | insert into prompt (edit before running) |
 | `Ctrl+D` | delete entry from history |

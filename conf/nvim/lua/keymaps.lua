@@ -70,8 +70,8 @@ if vim.g.vscode then
 else
   require("utils.open_url").setup()
 
-  -- Clear search highlight — not <leader>c (neotest prefix ct/cf/…)
-  map("n", "<leader>nh", ":noh<CR>", { desc = "Clear search highlight" })
+  -- Clear search highlight — <leader>u* (ui tools); not <leader>c (neotest) or <leader>n (notes)
+  map("n", "<leader>uc", ":noh<CR>", { desc = "Clear search highlight" })
 
   local function yank_path(text)
     if text == "" then
@@ -91,6 +91,14 @@ else
   map("n", "<leader>uk", function()
     require("utils.keylog").toggle()
   end, { desc = "Toggle keystroke log (analysis)" })
+
+  -- macOS Cmd+Z / Cmd+Shift+Z in insert (WezTerm → kitty SUPER+z; normal mode: u / Ctrl+r)
+  map("i", "<D-z>", function()
+    vim.cmd.undo()
+  end, { desc = "Undo (Cmd+Z)" })
+  map("i", "<D-S-z>", function()
+    vim.cmd.redo()
+  end, { desc = "Redo (Cmd+Shift+Z)" })
 
   -- Save
   map("n", "<C-s>", ":w<CR>", opts)

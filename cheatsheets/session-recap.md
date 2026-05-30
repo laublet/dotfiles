@@ -1,5 +1,7 @@
 # Session recap — new CLI tools (March 2026)
 
+> **Help:** `cheat` · browse [index.md](index.md)
+
 > Everything installed, configured and documented in one session.
 > Take it tool by tool, don't try to learn everything at once.
 > Run `cheat` to browse individual cheatsheets anytime.
@@ -97,3 +99,7 @@ atuin import auto        import zsh history (do this once)
 - All configs are symlinked — edit in `~/.config/` and it's in the repo
 - `btop`: activate vim_keys in options if not already on (Esc → Options)
 - `atuin import auto` if you haven't imported your old history yet
+
+## Links
+
+- Cheatsheets repo: https://github.com/laublet/dotfiles/tree/master/cheatsheets

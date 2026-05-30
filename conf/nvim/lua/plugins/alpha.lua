@@ -59,7 +59,7 @@ return {
     local vim_tips = {
       "Cycle buffers : `<leader>b` (fzf list + Ctrl-x delete, picker stays open) — or `<C-Tab>` for last-two toggle",
       "Stuck float / picker : `<leader>ux` closes all floats — `<leader>ur` refocuses the top one",
-      "Diffview edit flow : `<leader>gv` → edit the right pane (B), `:w` saves — left pane is read-only git ref",
+      "Diffview edit flow : `<leader>gd` → edit the right pane (B), `:w` saves — left pane is read-only git ref",
       "Close one buffer keeping the split : `<leader>q` (custom) — vim native `:bd` closes the window too",
       "List all buffers with markers : `:ls` (% = current, # = alternate, + = modified)",
       "Close all buffers except current : `:%bd|e#`",
@@ -85,7 +85,7 @@ return {
       "Force quit nvim without saving : `:qa!`",
       "Save all + quit all : `:wqa`",
       "Autosave : on when you leave insert / switch buffer / lose focus (2s debounce) — `:ASToggle` to disable",
-      "Clear the search highlight : `:noh` (or `<leader>nh`)",
+      "Clear the search highlight : `:noh` (or `<leader>uc`)",
       "Toggle the last two files instantly : `<C-^>` (or `<C-6>`)",
       "Show your undo history as a tree : `<leader>U` (Undotree, opens on the right)",
       "Floating terminal : `<leader>t` — bottom split terminal : `<leader>;`",

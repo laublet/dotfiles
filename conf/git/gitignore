@@ -151,3 +151,7 @@ erl_crash.dump
 .secrets
 .envrc
 *.pem
+
+# Local agent context (personal; not for team repos)
+AGENTS.local.md
+CLAUDE.local.md

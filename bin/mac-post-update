@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+# mac-post-update — verify setup after macOS reboot or system update.
+#
+# Usage:
+#   mac-post-update              checks only (fast, after every reboot)
+#   mac-post-update --upgrade    brew update/upgrade/cleanup, then checks
+#   mac-post-update --cargo       also run `cargo install-update -a` (slow)
+#   mac-post-update --upgrade --cargo   full maintenance + checks
+#
+# Typical flow after a macOS *update*:
+#   mac-post-update --upgrade
+# After a simple *reboot*:
+#   mac-post-update
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+DO_UPGRADE=false
+DO_CARGO=false
+for arg in "$@"; do
+  case "$arg" in
+    --upgrade) DO_UPGRADE=true ;;
+    --cargo) DO_CARGO=true ;;
+    -h|--help)
+      sed -n '2,14p' "$0"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $arg (try --help)" >&2
+      exit 1
+      ;;
+  esac
+done
+
+RED='\033[0;31m'
+GRN='\033[0;32m'
+YLW='\033[0;33m'
+RST='\033[0m'
+FAIL=0
+WARN=0
+
+ok()   { printf "${GRN}OK${RST}   %s\n" "$*"; }
+warn() { printf "${YLW}WARN${RST} %s\n" "$*"; WARN=$((WARN + 1)); }
+bad()  { printf "${RED}FAIL${RST} %s\n" "$*"; FAIL=$((FAIL + 1)); }
+
+section() { echo ""; echo "== $* =="; }
+
+# ── Optional upgrades ─────────────────────────────────────────────
+
+if $DO_UPGRADE; then
+  section "Homebrew upgrade"
+  if command -v brew &>/dev/null; then
+    brew update && brew upgrade && brew cleanup
+    ok "brew upgrade done"
+  else
+    bad "brew not found"
+  fi
+fi
+
+if $DO_CARGO; then
+  section "Cargo binaries"
+  if ! command -v cargo &>/dev/null; then
+    warn "cargo not in PATH — skipped (install via mise: mise use rust@stable --global)"
+  elif ! cargo install --list 2>/dev/null | grep -q '^[a-zA-Z]'; then
+    warn "no cargo install bins — skipped"
+  else
+    if ! cargo install-update --help &>/dev/null 2>&1; then
+      if command -v brew &>/dev/null; then
+        brew list cargo-update &>/dev/null || brew install cargo-update
+      else
+        bad "cargo install-update missing and brew unavailable"
+      fi
+    fi
+    if cargo install-update -a; then
+      ok "cargo install-update -a done"
+    else
+      warn "cargo install-update had errors (non-fatal)"
+    fi
+  fi
+fi
+
+# ── Symlinks (agent hub + dotfiles) ───────────────────────────────
+
+section "Agent hub symlinks"
+VAULT="${HOME}/dev/perso/vaults/Research"
+check_link() {
+  local path=$1 expect_substr=$2
+  if [[ -L $path ]]; then
+    local target
+    target=$(readlink "$path")
+    if [[ $target == *"$expect_substr"* ]]; then
+      ok "$path → $target"
+    else
+      bad "$path → $target (expected *${expect_substr}*)"
+    fi
+  elif [[ -e $path ]]; then
+    bad "$path exists but is not a symlink (run: cd ~/dev/perso/dotfiles && just link)"
+  else
+    bad "$path missing (run: just link)"
+  fi
+}
+
+check_link "${HOME}/.cursor/rules/research-hub.mdc" "Research/.cursor/rules/research-hub.mdc"
+check_link "${HOME}/.cursor/mcp.json" "Research/.cursor/mcp.json"
+check_link "${HOME}/.agents/skills" "Research/.agents/skills"
+check_link "${HOME}/.cursor/skills" "Research/.agents/skills"
+check_link "${HOME}/.claude/CLAUDE.md" "Research/templates/CLAUDE-home.md"
+check_link "${HOME}/.codex/AGENTS.md" "Research/templates/AGENTS-home.md"
+
+if [[ -f "${VAULT}/AGENTS-core.md" ]]; then
+  ok "vault AGENTS-core.md present"
+else
+  bad "vault AGENTS-core.md missing at ${VAULT}/AGENTS-core.md"
+fi
+
+# ── Key CLI tools ─────────────────────────────────────────────────
+
+section "CLI tools"
+for cmd in brew mise aerospace wezterm fzf rg fd bat eza zoxide agent research-capture work-agents-stub; do
+  if command -v "$cmd" &>/dev/null; then
+    ok "$cmd ($(command -v "$cmd"))"
+  else
+    bad "$cmd not in PATH"
+  fi
+done
+
+section "mise"
+if command -v mise &>/dev/null; then
+  mise doctor 2>&1 | head -20 || warn "mise doctor reported issues"
+fi
+
+# ── MCP config ────────────────────────────────────────────────────
+
+section "Cursor MCP (global)"
+MCP="${HOME}/.cursor/mcp.json"
+if [[ -f $MCP ]] && grep -q 'research-vault' "$MCP" 2>/dev/null; then
+  ok "research-vault in ~/.cursor/mcp.json"
+else
+  bad "research-vault missing in ~/.cursor/mcp.json"
+fi
+
+# ── AeroSpace ─────────────────────────────────────────────────────
+
+section "AeroSpace"
+AERO="${HOME}/.config/aerospace/aerospace.toml"
+if [[ -f $AERO ]]; then
+  if grep -q "default-root-container-orientation = 'vertical'" "$AERO" 2>/dev/null; then
+    ok "default stack orientation: vertical"
+  else
+    warn "aerospace.toml: vertical default not set (check dotbot link)"
+  fi
+  if aerospace list-modes &>/dev/null; then
+    ok "aerospace running (config loaded)"
+  else
+    warn "aerospace not responding — quit/reopen AeroSpace or: aerospace reload-config"
+  fi
+else
+  bad "missing ${AERO}"
+fi
+
+# ── Claude Desktop MCP ────────────────────────────────────────────
+
+section "Claude Desktop MCP"
+CLAUDE_CFG="${HOME}/Library/Application Support/Claude/claude_desktop_config.json"
+if [[ -f $CLAUDE_CFG ]] && grep -q 'research-vault-mcp-remote' "$CLAUDE_CFG" 2>/dev/null; then
+  ok "Claude Desktop → remote uruk (research-vault-mcp-remote)"
+elif [[ -f $CLAUDE_CFG ]] && grep -q 'research-vault' "$CLAUDE_CFG" 2>/dev/null; then
+  warn "Claude Desktop MCP present but not remote — use research-vault-mcp-remote (vault guide)"
+else
+  warn "Claude Desktop MCP not found — add research-vault (see vault guide)"
+fi
+
+# ── Summary ───────────────────────────────────────────────────────
+
+section "Summary"
+echo "Failures: $FAIL · Warnings: $WARN"
+if [[ $FAIL -gt 0 ]]; then
+  echo ""
+  echo "Fix: cd ~/dev/perso/dotfiles && just link"
+  echo "Then quit and reopen Cursor + Claude Desktop (MCP reload)."
+  exit 1
+fi
+
+if [[ $WARN -gt 0 ]]; then
+  echo ""
+  echo "All critical checks passed with warnings."
+  exit 0
+fi
+
+echo "All checks passed."
+echo ""
+echo "Manual (30s):"
+echo "  1. Quit/reopen Cursor if you have not since reboot"
+echo "  2. Claude Desktop: project « Research vault » → test capture"
+echo "  3. From a work repo: agent --mode ask \"langue par défaut ?\""
+if ! $DO_UPGRADE && ! $DO_CARGO; then
+  echo ""
+  echo "After a macOS *system update*: just post-update  (brew + cargo + checks)"
+fi

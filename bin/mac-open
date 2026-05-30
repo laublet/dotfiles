@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# macOS open(1) wrapper: bare http(s) URLs → Choosy (x-choosy://open/…).
+# Used by zsh `open`, BROWSER, glab/gh OAuth, and WezTerm open-uri.
+# Force a browser: MAC_OPEN_BROWSER='Google Chrome' mac-open https://…
+set -euo pipefail
+
+_sys_open=/usr/bin/open
+
+if [[ -n "${MAC_OPEN_BROWSER:-}" ]]; then
+  exec "$_sys_open" -a "$MAC_OPEN_BROWSER" --args "$@"
+fi
+
+for arg in "$@"; do
+  case "$arg" in
+    -a|-a=*|--args|-R|-t|-e|-f|-F|-W|-g|-j|-b|-p|-u)
+      exec "$_sys_open" "$@"
+      ;;
+  esac
+done
+
+if [[ $# -eq 1 ]] && [[ "$1" =~ ^https?:// ]]; then
+  exec "$_sys_open" "x-choosy://open/$1"
+fi
+
+exec "$_sys_open" "$@"

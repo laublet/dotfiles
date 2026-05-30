@@ -121,7 +121,7 @@
   // =========================================================================
   // GitLens
   // =========================================================================
+  "gitlens.gitkraken.mcp.autoEnabled": false,
   "gitlens.plusFeatures.enabled": false,
-  "workbench.statusBar.visible": false,
   "window.autoDetectColorScheme": false
 }

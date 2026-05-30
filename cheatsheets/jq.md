@@ -1,5 +1,7 @@
 # jq — JSON query CLI
 
+> **Help:** `jq --help` · `man jq`
+
 > Scriptable JSON processor. Use for one-shot queries, pipelines, and CI. Switch to [`fx`](fx.md) when exploring an unknown payload interactively.
 
 ## Everyday usage
@@ -91,5 +93,6 @@ curl -s api/orders \
 
 ## Links
 
+- Repo: https://github.com/jqlang/jq
 - Manual: https://jqlang.org/manual/
 - Cookbook: https://github.com/jqlang/jq/wiki/Cookbook

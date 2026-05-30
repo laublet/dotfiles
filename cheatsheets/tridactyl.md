@@ -1,5 +1,19 @@
 # Tridactyl (Firefox) — task-oriented
 
+## Status (2026-05)
+
+| | |
+|---|---|
+| **Active in Firefox** | **Vimium** (Tridactyl extension disabled) |
+| **Why paused** | YouTube was painful even with `mode ignore` + `UriChange` + selective `bindurl` in tridactylrc |
+| **Dotfiles** | Config kept in [`conf/tridactyl/tridactylrc`](../conf/tridactyl/tridactylrc) (dotbot link unchanged); not re-enabling today |
+
+**Future option (not planned now):** Tridactyl on most sites + Vimium (or [Vimium C](https://github.com/gdh1995/vimium-c)) on “backup” hosts only. Requires **one** vim extension per tab: Tridactyl `superignore` / `blacklistadd` on backup domains, Vimium excluded everywhere else (Vimium C allowlist is easier than stock Vimium blacklist-only). Do not run both fully active on the same page.
+
+---
+
+> **Help:** `:help` in Tridactyl command line · [wiki](https://github.com/tridactyl/tridactyl/wiki)
+
 Config canonique : [`conf/tridactyl/tridactylrc`](../conf/tridactyl/tridactylrc). Résumé tabulaire : [keyboard-navigation.md § Tridactyl](keyboard-navigation.md#tridactyl-firefox).
 
 ## References (official-ish)

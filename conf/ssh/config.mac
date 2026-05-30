@@ -8,3 +8,9 @@ Host github.com
 Host gitlab.com
   PreferredAuthentications publickey
   IdentityFile ~/.ssh/gitlab_pro
+
+Host codeberg.org
+  HostName codeberg.org
+  User git
+  IdentityFile ~/.ssh/codeberg_ed25519
+  IdentitiesOnly yes

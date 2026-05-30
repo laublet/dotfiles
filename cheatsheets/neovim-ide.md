@@ -44,14 +44,14 @@ First install: `:Lazy sync` (needs network; `nvim-lint` is pinned in `lazy-lock.
 | Git hunk next / prev | `<leader>hn` / `<leader>hN` — repeat with `<leader>.` (leader dot) |
 | Git hunk (vim repeat) | `]c` / `[c` then `;` / `,` (gitsigns; diff → vim `]c`) |
 | Repeat last leader action | `<leader>.` after any wrapped map (gitsigns `h*` today) |
-| Diff repo | `<leader>gv` / close `<leader>gx` |
+| Diff repo | `<leader>gd` / close `<leader>gx` |
 | Format | `<leader>lf` or format-on-save |
 | Lint list | `<leader>ud` (workspace) · `<leader>uD` (buffer) |
 | Diagnostics jump | `]d` / `[d` |
 | Tasks (npm / make) | `<leader>or` · list `<leader>ot` · restart `<leader>oR` |
 | AI agent | `<leader>aa` ask · `<leader>at` sidebar · `<leader>ac` CLI split |
 | Inline complete | Tab (Supermaven ghost, then cmp) |
-| Clear search | `<leader>nh` |
+| Clear search | `<leader>uc` |
 | Yank path (abs / rel) | `<leader>yp` / `<leader>yr` |
 | Registers (fzf) | `<leader>vr` — Enter = coller ; Ctrl-x = vider le registre |
 | Marks vim (fzf) | `<leader>vm` — Enter = sauter ; Ctrl-x = effacer |
@@ -205,7 +205,7 @@ Coche mentalement après une vraie journée de travail (pas une démo de 5 min) 
 - [ ] LSP : `gd` / `gr`, diagnostics, `<leader>lf`, eslint sur un fichier `.ts`
 - [ ] Test : `<leader>ct` sur un test qui passe et un qui échoue ; `<leader>co` pour lire l’erreur
 - [ ] Debug : breakpoint + F5 sur un fichier ou test ; step F10/F11
-- [ ] Git : `<leader>gg`, diff `<leader>gv`
+- [ ] Git : `<leader>gg`, diff `<leader>gd`
 - [ ] Tasks : `<leader>or` → `npm run test` ou script du repo
 - [ ] Optionnel : Avante `<leader>aa` sur une petite refacto
 - [ ] WezTerm : Cmd+clic sur une stack trace → bon fichier/ligne

@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Append or create a note in Research vault Inbox (from any AI tool or pipe).
+set -euo pipefail
+
+VAULT="${RESEARCH_VAULT:-$HOME/dev/perso/vaults/Research}"
+SOURCE="${1:-other}"
+TITLE="${2:-capture}"
+SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g' | sed -E 's/^-|-$//g')
+DATE=$(date +%Y-%m-%d)
+TIME=$(date +%H:%M)
+OUTDIR="$VAULT/Inbox/from-$SOURCE"
+FILE="$OUTDIR/${DATE}__${SLUG}.md"
+
+mkdir -p "$OUTDIR"
+
+VALID_SOURCES="claude-desktop claude-web chatgpt cursor codex other"
+if ! echo "$VALID_SOURCES" | tr ' ' '\n' | grep -qx "$SOURCE"; then
+  echo "Usage: research-capture <source> [title]" >&2
+  echo "Sources: $VALID_SOURCES" >&2
+  echo "  Pipe or stdin for body. Example:" >&2
+  echo "  pbpaste | research-capture chatgpt 'notes-api-design'" >&2
+  exit 1
+fi
+
+BODY=""
+if [ ! -t 0 ]; then
+  BODY=$(cat)
+fi
+
+if [ -f "$FILE" ] && [ -n "$BODY" ]; then
+  {
+    echo ""
+    echo "---"
+    echo "## Append $DATE $TIME"
+    echo ""
+    echo "$BODY"
+  } >> "$FILE"
+  echo "Appended to: $FILE"
+  exit 0
+fi
+
+{
+  echo "---"
+  echo "source: ai-capture"
+  echo "tool: $SOURCE"
+  echo "captured: $DATE"
+  echo "title: $TITLE"
+  echo "status: raw"
+  echo "---"
+  echo ""
+  echo "# $TITLE"
+  echo ""
+  if [ -n "$BODY" ]; then
+    echo "$BODY"
+  else
+    echo "(empty — paste content or pipe stdin)"
+  fi
+} > "$FILE"
+
+echo "Created: $FILE"

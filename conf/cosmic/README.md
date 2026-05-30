@@ -5,18 +5,17 @@ Always generate via `scripts/gen-cosmic-shortcuts.sh` (defaults + `aerospace-ove
 
 ## Launcher
 
-- **Cmd+Space** → launcher (`Super+Space` in COSMIC; tap Cmd seul = rien)
-- keyd: `oneshot(dummy)` on Super tap
+- **Super+Space** — COSMIC launcher (physical Cmd key = Super on Linux)
 
 ## WM (AeroSpace fingers)
 
-keyd envoie `Super+Ctrl+Alt` / `Super+Alt` ; raccourcis dans `aerospace-overrides.ron`.
+Native modifiers — no keyd. LCAG = `Super+Ctrl+Alt` ; workspaces = `Super+Alt` + number.  
+Bindings in `aerospace-overrides.ron`.
 
 Regénérer après update COSMIC:
 
 ```bash
 scripts/gen-cosmic-shortcuts.sh && ./install
-sudo cp conf/keyd/default.conf /etc/keyd/ && sudo systemctl restart keyd
 ```
 
 Logout si le dock ou les raccourcis ne se rechargent pas.

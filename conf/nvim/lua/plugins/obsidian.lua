@@ -12,6 +12,7 @@ return {
   opts = {
     workspaces = {
       { name = "main", path = "~/dev/perso/vaults/Main" },
+      { name = "research", path = "~/dev/perso/vaults/Research", notes_subdir = "Notes", new_notes_location = "notes_subdir" },
     },
     daily_notes = {
       folder = "Daily",
@@ -45,6 +46,9 @@ return {
     { "<leader>ns", "<cmd>ObsidianSearch<CR>",       desc = "Obsidian: search text" },
     { "<leader>nt", "<cmd>ObsidianTags<CR>",         desc = "Obsidian: tags" },
     { "<leader>nl", "<cmd>ObsidianLinks<CR>",        desc = "Obsidian: links in note" },
+    { "<leader>nw", "<cmd>ObsidianWorkspace research<CR>", desc = "Obsidian: Research vault" },
+    { "<leader>no", "<cmd>ObsidianWorkspace main<CR>",    desc = "Obsidian: Main vault" },
+
     { "gd",         "<cmd>ObsidianFollowLink<CR>",   desc = "Obsidian: follow link", ft = "markdown" },
   },
 }

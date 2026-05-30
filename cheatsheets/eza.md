@@ -1,5 +1,7 @@
 # eza — modern ls
 
+> **Help:** `eza --help`
+
 > Replaces `ls`. Aliased: `ls` → `eza`, `ll` → `eza -la --git --icons`, `lt` → `eza --tree --level=2 --icons`
 
 ## Everyday usage

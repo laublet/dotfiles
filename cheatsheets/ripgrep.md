@@ -1,5 +1,7 @@
 # ripgrep (rg) — fast grep
 
+> **Help:** `rg --help` · `man rg`
+
 > Replaces `grep`. Respects `.gitignore`, fast recursive search. Aliases in zshrc.
 
 ## Everyday usage

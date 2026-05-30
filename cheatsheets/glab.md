@@ -1,5 +1,7 @@
 # glab — GitLab CLI
 
+> **Help:** `glab help` · `glab <cmd> --help`
+
 > Official GitLab CLI. MR review, CI watch, issues, repo clone — all from the terminal without leaving the keyboard.
 
 ## First-time setup
@@ -12,7 +14,7 @@ glab config set host gitlab.example.com    # for self-hosted (per-host config)
 
 Auth is stored in `~/.config/glab-cli/`. Tokens never end up in this dotfiles repo.
 
-**Browser (macOS):** dotfiles set `browser: open -a "Google Chrome"` in `conf/glab/config.yml` so OAuth / `--web` open in Chrome instead of the system default (Choosy/Firefox). Override: `glab config set -g browser 'open -a "Firefox"'` or `export BROWSER=...` (env wins over config).
+**Browser (macOS):** `mac-open` in PATH (`bin/mac-open` → Choosy for bare `https?://` URLs). Wired via zsh `open`, `BROWSER`, `glab`/`gh` browser config. Force a browser: `open -a "Firefox Developer Edition" …` or `MAC_OPEN_BROWSER='Google Chrome' mac-open …`.
 
 **Duplicate config warning:** old glab versions used `~/Library/Application Support/glab-cli/`. Keep only `~/.config/glab-cli/`. Fix: `rm -rf ~/Library/Application\ Support/glab-cli` (aliases are migrated to XDG on `just link`).
 

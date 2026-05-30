@@ -84,15 +84,10 @@ fi
 echo "==> Fix broken ~/.local/bin/nvim shim"
 rm -f ~/.local/bin/nvim
 
-echo "==> keyd config"
-if command -v keyd &>/dev/null && [[ -f conf/keyd/default.conf ]]; then
-  sudo cp conf/keyd/default.conf conf/keyd/games-classic.conf /etc/keyd/
-  sudo rm -f /etc/keyd/mac-cmd-passthrough.conf
-  sudo systemctl enable keyd
-  sudo systemctl restart keyd
-  if getent group keyd &>/dev/null; then
-    sudo usermod -aG keyd "$USER" 2>/dev/null || true
-  fi
+echo "==> keyd (disable if present — native Linux modifiers)"
+if command -v keyd &>/dev/null; then
+  sudo rm -f /etc/keyd/default.conf /etc/keyd/games-classic.conf /etc/keyd/mac-cmd-passthrough.conf
+  sudo systemctl disable --now keyd 2>/dev/null || true
 fi
 
 echo "==> Dotbot link"

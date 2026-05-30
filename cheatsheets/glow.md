@@ -1,5 +1,7 @@
 # glow — markdown reader for the terminal
 
+> **Help:** `?` in TUI · `glow --help`
+
 > Render markdown with proper styling (Charm). Use it for READMEs, cheatsheets in this repo, GitHub/GitLab issues, and CHANGELOG diffs. TUI mode browses a directory tree of `.md` files with previews.
 
 ## Everyday usage
@@ -43,7 +45,9 @@ glow -s light file.md                 # force light
 glow -s notty file.md                 # plain output (CI / pipes)
 ```
 
-Custom styles live in `~/Library/Application Support/glow/`. Default `dark` is usually fine on this Wezterm setup.
+Custom styles: dotfiles `conf/glow/glow.yml` → `~/Library/Preferences/glow/glow.yml` (mac) or `~/.config/glow/glow.yml` (linux). Style is **`dark`** (not `auto`).
+
+In Neovim, `Space + np` uses a local preview (`utils/glow-preview.lua`) that runs `glow` in a real terminal (`termopen`) so ANSI colors work in the float window.
 
 ## When to use what
 

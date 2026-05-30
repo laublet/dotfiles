@@ -1,5 +1,7 @@
 # gitui — standalone git TUI (Rust)
 
+> **Help:** `?` in TUI · `gitui --help`
+
 > Fast, keyboard-first git TUI. Replaces lazygit as the standalone git client in this setup. Alias: `gu`. In-editor git is handled by neogit ([cheatsheets/neogit.md](neogit.md)).
 
 ## Launch

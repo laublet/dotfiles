@@ -2,6 +2,10 @@
 " Tridactyl config — Loïc
 " Coherent with Kyria / Neovim / WezTerm / Cursor workflow
 "
+" PAUSED 2026-05: Firefox uses Vimium; extension disabled (YouTube pain).
+" Config kept for dotbot + possible re-enable. See cheatsheets/tridactyl.md (Status).
+" Future: Tridactyl default + Vimium/Vimium C on backup sites via superignore — not active.
+"
 " Install native messenger first:  :installnative
 " Then config auto-loads on Firefox start.
 " Manual reload:  :source

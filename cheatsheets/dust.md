@@ -1,5 +1,7 @@
 # dust — intuitive disk usage
 
+> **Help:** `dust --help`
+
 > Replaces `du`. Shows disk usage as a visual tree sorted by size.
 
 ## Everyday usage

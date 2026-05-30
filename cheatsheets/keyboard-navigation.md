@@ -16,8 +16,10 @@ LCAG + Shift      → AeroSpace move / resize (HYPR)
 
 ## System (macOS / Linux)
 
-**perso (Pop!_OS):** Mac-like shortcuts OS-wide via **keyd** — full inventory: [`conf/keyd/MAC-LINUX.md`](../conf/keyd/MAC-LINUX.md) in dotfiles.  
-Cmd → Ctrl (W close, Q quit, Z/X/C/V, etc.). WM/workspaces = composite layers → COSMIC.
+**perso (Pop!_OS):** Native Linux modifiers — **Ctrl** in apps (W close, C copy, …), **Super** for COSMIC WM.  
+LCAG = `Super+Ctrl+Alt` (same fingers as macOS). See [`conf/keyd/README.md`](../conf/keyd/README.md).
+
+> **2026-05-28:** keyd / Cmd→Ctrl OS-wide **removed** — native Linux modifiers only (WezTerm still maps CMD→CTRL in-app).
 
 | Shortcut | Action |
 |---|---|
@@ -59,13 +61,13 @@ Full cheatsheet (panes, tabs, copy mode, workspaces, resurrect, config) : [wezte
 | Cmd + D | Split horizontal |
 | Cmd + Shift + D | Split vertical |
 | Cmd + W | Close pane |
-| Cmd + Shift + Z | Zoom pane (Cmd+Z stays free for undo) |
+| Cmd + Shift + Z | Zoom pane |
 | Cmd + Shift + X | Rotate panes (2 = swap; 3+ = cycle order) |
 | Cmd + Shift + Left/Right | Prev/next tab |
 | Cmd + Shift + Ctrl + Left/Right | **Move** active tab left/right (intercalate between two tabs) |
 | Cmd + Shift + , | Rename current tab (empty input = reset, persisted via resurrect) |
 | Cmd + Up/Down | Scroll to previous/next prompt in scrollback (OSC 133 markers from zsh) |
-| Cmd + Shift + Up | Fast copy of the latest command output (status bar flashes purple to confirm) |
+| Cmd + Shift + C | Fast copy of the latest command output (status bar flashes purple to confirm) |
 | Ctrl + Shift + O | fzf picker on all outputs of this pane (preview with bat, Enter copies, Esc cancels — opens as a split pane, auto-closes) |
 | Cmd + Ctrl + Space | CharSelect — fuzzy Unicode / Nerd Font / emoji picker (matches macOS system shortcut) |
 | Cmd + Shift + ; | Launch menu picker (btop, gitui, glab-pick, lazydocker, nettop, mac-startup-clean) |

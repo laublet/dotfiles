@@ -1,5 +1,7 @@
 # Rofi — launcher & clipboard (Linux)
 
+> **Help:** `man rofi` · `rofi -show drun -help`
+
 Application launcher with greenclip integration for clipboard history.
 
 ## Launch
@@ -56,3 +58,8 @@ configuration {
 On macOS, use **Raycast** for both launcher (`Cmd+Space`) and clipboard (`Cmd+Shift+V`).
 
 See [raycast.md](raycast.md) and [clipboard.md](clipboard.md).
+
+## Links
+
+- Repo: https://github.com/davatorium/rofi
+- greenclip: https://github.com/erebe/greenclip

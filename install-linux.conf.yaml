@@ -24,6 +24,11 @@
       create: true
       path: conf/lazydocker/config.yml
 
+    # glow CLI
+    ~/.config/glow/glow.yml:
+      create: true
+      path: conf/glow/glow.yml
+
     # rofi (launcher + clipboard via greenclip)
     ~/.config/rofi:
       create: true
@@ -47,15 +52,14 @@
       path: conf/autostart/cliphist-wl-daemon.desktop
 
 - shell:
-    # keyd: macOS-like modifiers (requires root)
+    # keyd: disable perso Cmd→Ctrl remap (native Linux modifiers)
     - command: |
-        if command -v keyd &>/dev/null && [ -f conf/keyd/default.conf ]; then
-          echo "Deploying keyd config..."
-          sudo cp conf/keyd/default.conf conf/keyd/games-classic.conf /etc/keyd/
-          sudo rm -f /etc/keyd/mac-cmd-passthrough.conf
-          sudo systemctl restart keyd
+        if command -v keyd &>/dev/null; then
+          echo "Disabling keyd (native Linux modifiers)..."
+          sudo rm -f /etc/keyd/default.conf /etc/keyd/games-classic.conf /etc/keyd/mac-cmd-passthrough.conf
+          sudo systemctl disable --now keyd 2>/dev/null || true
         fi
-      description: Deploying keyd config (macOS-like modifiers)
+      description: Disable keyd macOS-like remapping
       quiet: true
 
     # COSMIC DE keybindings (Pop!_OS 24.04+)
@@ -77,11 +81,3 @@
       description: Deploying COSMIC keybindings and panel/tiling config
       quiet: true
 
-    # Pop Shell + GNOME settings (legacy — Pop!_OS 22.04 with GNOME)
-    - command: |
-        if command -v dconf &>/dev/null && [ -f conf/pop-shell/keybindings.dconf ] && ! [ -d ~/.config/cosmic ]; then
-          echo "Applying Pop Shell + GNOME settings..."
-          dconf load / < conf/pop-shell/keybindings.dconf
-        fi
-      description: Applying Pop Shell + GNOME settings (legacy)
-      quiet: true

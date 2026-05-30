@@ -1,5 +1,7 @@
 # fx — interactive JSON viewer
 
+> **Help:** `?` in TUI · `fx --help`
+
 > TUI for exploring JSON. Vim-style navigation, JS expressions inline, no `jq` syntax. Use when a Lambda/CloudWatch payload is too big for `jq` one-liners.
 
 ## Everyday usage

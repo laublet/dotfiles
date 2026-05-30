@@ -1,5 +1,7 @@
 # bottom (btm) — lightweight system monitor
 
+> **Help:** `?` in TUI · `btm --help`
+
 > Replaces `htop`. Lightweight, customizable, Rust-based. Use for quick monitoring.
 
 ## Launch

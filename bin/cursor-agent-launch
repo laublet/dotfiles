@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# Launch Cursor Agent CLI with a sane TTY for colors (Bubbletea / lipgloss).
+# WezTerm enable_kitty_keyboard + prior Cmd+Z CSI experiments can leave the
+# pane in a state where agent renders with zero ANSI color.
+set -euo pipefail
+
+# cursor-agent disables color when any of these are set (see bundled index.js).
+unset NO_COLOR
+if [[ ${FORCE_COLOR:-} == "0" || ${FORCE_COLOR:-} == "false" ]]; then
+  unset FORCE_COLOR
+fi
+export COLORTERM="${COLORTERM:-truecolor}"
+
+# Theme: TERM_THEME wins over OSC-11 / COLORFGBG when wallpaper skews detection.
+export TERM_THEME="${TERM_THEME:-dark}"
+export COLORFGBG="${COLORFGBG:-15;0}"
+
+# Pop kitty keyboard stack (WezTerm enable_kitty_keyboard) before Ink takes over.
+if [[ -t 1 && -w /dev/tty ]]; then
+  printf '\e[<u' >/dev/tty 2>/dev/null || true
+fi
+
+agent_bin="${CURSOR_AGENT_BIN:-$HOME/.local/bin/agent}"
+if [[ ! -x $agent_bin ]]; then
+  agent_bin="$HOME/.local/bin/cursor-agent"
+fi
+exec "$agent_bin" "$@"

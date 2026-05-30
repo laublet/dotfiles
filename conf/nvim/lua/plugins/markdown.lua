@@ -1,5 +1,6 @@
--- https://github.com/MeanderingProgrammer/render-markdown.nvim
--- https://github.com/ellisonleao/glow.nvim
+-- https://github.com/MeanderingProgrammer/render-markdown.nvim — inline headings/tables (no Mermaid graphics)
+-- utils/glow-preview.lua — terminal preview via termopen (colors; no Mermaid)
+-- https://github.com/selimacerbas/markdown-preview.nvim — browser preview with Mermaid + scroll sync
 
 return {
   {
@@ -45,16 +46,42 @@ return {
   },
 
   {
-    "ellisonleao/glow.nvim",
+    "selimacerbas/markdown-preview.nvim",
     cond = not vim.g.vscode,
-    cmd = "Glow",
-    opts = {
-      width_ratio = 0.85,
-      height_ratio = 0.85,
-      border = "rounded",
-    },
+    dependencies = { "selimacerbas/live-server.nvim" },
+    ft = { "markdown", "mermaid", "mmd" },
+    cmd = { "MarkdownPreview", "MarkdownPreviewStop", "MarkdownPreviewRefresh" },
+    opts = function()
+      return {
+        instance_mode = "takeover",
+        open_browser = true,
+        default_theme = "dark",
+        debounce_ms = 300,
+        scroll_sync = true,
+        mermaid_renderer = "js",
+        hooks = {
+          on_start = function()
+            vim.g.markdown_preview_active = true
+          end,
+          on_stop = function()
+            vim.g.markdown_preview_active = false
+          end,
+        },
+      }
+    end,
     keys = {
-      { "<leader>np", "<cmd>Glow<CR>", desc = "Preview markdown (glow)" },
+      {
+        "<leader>nv",
+        function()
+          if vim.g.markdown_preview_active then
+            vim.cmd.MarkdownPreviewStop()
+          else
+            vim.cmd.MarkdownPreview()
+          end
+        end,
+        desc = "Markdown preview + Mermaid (browser)",
+      },
+      { "<leader>nV", "<cmd>MarkdownPreviewRefresh<CR>", desc = "Refresh markdown browser preview" },
     },
   },
 }

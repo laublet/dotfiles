@@ -1,5 +1,7 @@
 # fzf — fuzzy finder
 
+> **Help:** `fzf --help` · `man fzf`
+
 > Universal fuzzy finder. Integrated with shell (Ctrl+T/R/F) and Neovim (fzf-lua).
 
 ## Shell keybindings (configured in zshrc)

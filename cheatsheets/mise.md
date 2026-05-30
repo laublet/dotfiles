@@ -1,5 +1,7 @@
 # mise — runtime version manager
 
+> **Help:** `mise --help` · `mise help <cmd>`
+
 > Manages tool versions (Node, Python, Go, etc.) and env vars. Can replace `fnm` + `direnv`.
 
 ## Everyday usage

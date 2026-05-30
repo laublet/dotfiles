@@ -1,5 +1,7 @@
 # Clipboard manager
 
+> **Help:** macOS: Raycast Clipboard History · Linux: `greenclip print-history`
+
 Cross-platform clipboard history with keyboard-centric workflow.
 
 ## Hotkey

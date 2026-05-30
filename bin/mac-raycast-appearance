@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# mac-raycast-appearance — free tier: follow macOS dark mode (no custom themes without Pro).
+#
+# Pair with: just mac-appearance (forces system dark + Dracula wallpaper elsewhere).
+#
+# Usage:
+#   mac-raycast-appearance           Follow system appearance + restart Raycast
+#   mac-raycast-appearance --restart Quit and reopen Raycast only
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+RESTART_ONLY=0
+for arg in "$@"; do
+  case "$arg" in
+    --restart) RESTART_ONLY=1 ;;
+    -h|--help)
+      sed -n '2,10p' "$0"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $arg" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if ! [[ -d /Applications/Raycast.app ]]; then
+  echo "Missing: /Applications/Raycast.app" >&2
+  exit 1
+fi
+
+restart_raycast() {
+  killall Raycast 2>/dev/null || true
+  sleep 1
+  open -ga Raycast
+}
+
+if (( RESTART_ONLY )); then
+  restart_raycast
+  echo "Raycast restarted."
+  exit 0
+fi
+
+defaults write com.raycast.macos raycastShouldFollowSystemAppearance -bool true
+
+style="$(defaults read NSGlobalDomain AppleInterfaceStyle 2>/dev/null || echo "")"
+if [[ "$style" != "Dark" ]]; then
+  echo "macOS is not in Dark mode — run: just mac-appearance"
+fi
+
+restart_raycast
+echo "Raycast: following system appearance (dark while macOS is dark)."
+echo "Custom Dracula theme needs Raycast Pro; free tier uses built-in dark only."

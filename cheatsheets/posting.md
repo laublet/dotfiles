@@ -1,5 +1,7 @@
 # posting — TUI HTTP client (Postman replacement candidate)
 
+> **Help:** `?` in TUI · `posting --help`
+
 > Keyboard-driven HTTP client built with Textual. Plain-text collections (`.posting.yaml`), Git-friendly, vim-like keybindings. Trial period: migrate 3-4 collections from Postman; commit or roll back.
 
 ## Launch

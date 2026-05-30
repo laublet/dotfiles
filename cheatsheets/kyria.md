@@ -1,6 +1,14 @@
 # Kyria Halcyon — Loïc's QMK keymap
 
-Cheatsheet for the keymap living in `~/dev/perso/qmk_userspace/keyboards/splitkb/halcyon/kyria/keymaps/loic/`. Source of truth: `keymap.c` + `config.h`. Companion `readme.md` in that folder has per-layer ASCII diagrams. Keep all three (`keymap.c`, the QMK readme, this file) in sync after every change.
+> **Help:** QMK: `docs/features/` in firmware tree · `readme.md` in keymap folder
+
+Cheatsheet for the keymap living in `~/dev/perso/qmk_userspace/keyboards/splitkb/halcyon/kyria/keymaps/loic/`. Source of truth: `keymap.c` + `config.h`. **Physical thumbs (2 arcs × 7 slots per split):** `KYRIA_PHYSICAL.md` in that folder — read before moving Arcane or thumb keys. Companion `readme.md` has per-layer ASCII. Keep in sync after every change.
+
+## Links
+
+- QMK: https://github.com/qmk/qmk_firmware
+- Halcyon board: https://github.com/splitkb/halcyon
+- Next iteration notes: [kyria-next.md](kyria-next.md)
 
 ## Layer map
 
@@ -11,9 +19,9 @@ Cheatsheet for the keymap living in `~/dev/perso/qmk_userspace/keyboards/splitkb
 | 0 | ALPHA | Default |
 | 1 | NAV_L | Hold **left Space** — arrows on left hand (S/D/F/G) |
 | 2 | NAV_R | Hold **right Space** — arrows on right hand (H/J/K/L) |
-| 3 | NUMPAD | Hold **Esc** (left thumb) |
-| 4 | SYM_L | Hold **`:`** (right thumb outer) |
-| 5 | SYM_R | Hold **`.`** (left thumb outer — tap = `.`) |
+| 3 | NUMPAD | Hold **Esc** (left inner palm arc, slot 5) |
+| 4 | SYM_L | Hold **`:`** (right inner palm arc — `SYL_ARC` hold) |
+| 5 | SYM_R | Hold **`.`** (left inner palm arc — `SYR_ARC` hold) |
 | 6 | MOUSE | TT × 2 — right pinky bottom (outer col) |
 | 7 | MEDIA | TT × 2 — left pinky home (outer col) |
 | 8 | GAMING | TT × 2 — left pinky bottom (outer col) |
@@ -80,9 +88,9 @@ D+F / J+K require both keys to be tapped (`COMBO_MUST_TAP_PER_COMBO`) — if eit
 | Tap OSM Shift × 3 | Lock shift (re-tap to unlock) — uses `ONESHOT_TAP_TOGGLE = 3` |
 | `KC_CAPS` on MEDIA layer (position C, left bottom) | OS Caps Lock (sustained ALL CAPS) |
 
-## Arcane keys (`ARCANE_L`, `ARCANE_R`)
+## Arcane keys (`SYR_ARC`, `SYL_ARC`)
 
-Innermost-bottom positions (thumb-adjacent, just inside Tab). Behavior depends on what the **previous** key did:
+**Inner palm arc slot 3** — tap = repeat/magic, hold = SYM layer. See `KYRIA_PHYSICAL.md`.
 
 | Previous key | Behavior on Arcane press |
 |---|---|
@@ -277,7 +285,7 @@ Respects `RGB_MATRIX_TIMEOUT` (2 min) and `RGB_MATRIX_SLEEP` (host sleep blanks 
 | MEDIA | Prev/Next track | Play/Pause | Vol -/+ | Mute |
 | NUMPAD, SYM_R, GAMING, SETTINGS | transparent | transparent | transparent | transparent |
 
-ALPHA "Scroll V" emits `MS_WHLU/MS_WHLD` (mouse wheel). macOS routes wheel events to the window under the cursor, so the encoder always scrolls whatever sits under the pointer — **not** the focused window. The AeroSpace `on-focus-changed = ['move-mouse window-lazy-center']` workaround was tried and reverted (cursor-jump felt worse than the wrong-window-scroll). If you want focus-follows-scroll, the cleanest option is a separate scroll-router (e.g. a Hammerspoon shim) rather than moving the mouse on every focus change.
+ALPHA "Scroll V" emits `MS_WHLU/MS_WHLD` (mouse wheel). macOS routes wheel events to the window **under the cursor**, not keyboard focus. **Setup:** AeroSpace `on-focus-changed` → `move-mouse window-lazy-center` (plus de Hammerspoon). WezTerm **splits** = une fenêtre macOS → centre fenêtre, pas par pane.
 
 ## Debug — `qmk console`
 

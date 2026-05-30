@@ -1,5 +1,7 @@
 # starship — cross-shell prompt
 
+> **Help:** `starship explain` · `starship --help`
+
 > Customizable prompt with git info, vi-mode indicator, language versions, etc.
 
 ## How it works

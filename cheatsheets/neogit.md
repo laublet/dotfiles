@@ -1,5 +1,7 @@
 # neogit — Magit-style git for Neovim
 
+> **Help:** `?` in popup · `g?` in status · `:help neogit` in Neovim
+
 > In-editor git workflow. Paired with `diffview.nvim` for full diff browsing. Replaces the old lazygit float as the primary git interface inside Neovim.
 > Standalone TUI fallback (Cursor, plain shell): `gitui` ([cheatsheets/gitui.md](gitui.md)).
 
@@ -12,8 +14,8 @@
 | `<leader>gl` | log view |
 | `<leader>gp` | push popup |
 | `<leader>gP` | pull popup |
-| `<leader>gv` | DiffviewOpen (HEAD vs working tree) |
-| `<leader>gV` | DiffviewFileHistory (current file) |
+| `<leader>gd` | DiffviewOpen (HEAD vs working tree) |
+| `<leader>gD` | DiffviewFileHistory (current file) |
 | `<leader>gx` | close Diffview |
 
 Or commands: `:Neogit`, `:Neogit commit`, `:Neogit log`, `:DiffviewOpen`, `:DiffviewFileHistory %`.
@@ -72,7 +74,7 @@ For amend / fixup / squash:
 
 ## Diffview
 
-Launched via `<leader>gv` / `<leader>gV`.
+Launched via `<leader>gd` / `<leader>gD`.
 
 | Key | Action |
 |-----|--------|
@@ -83,7 +85,7 @@ Launched via `<leader>gv` / `<leader>gV`.
 | `g?` | help |
 | `:DiffviewClose` or `<leader>gx` | close |
 
-File history (`<leader>gV`):
+File history (`<leader>gD`):
 
 - Shows all commits that touched the current file
 - `<Enter>` on a commit opens the diff for that revision
@@ -107,8 +109,8 @@ Neogit's status buffer handles file-level operations and commit flow. Gitsigns h
 |------|------|
 | Stage a single hunk while editing | gitsigns (`<leader>hs`) |
 | Full staging / commit / rebase flow in nvim | neogit (`<leader>gg`) |
-| Browse diff of a commit range | diffview (`<leader>gv`) |
-| File history | diffview (`<leader>gV`) |
+| Browse diff of a commit range | diffview (`<leader>gd`) |
+| File history | diffview (`<leader>gD`) |
 | Outside nvim (Cursor, plain terminal) | gitui (`gu`) |
 | Browse / search commits with fuzzy | fzf-lua git commands (`<leader>gc`, `<leader>gb`) |
 

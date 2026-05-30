@@ -8,3 +8,7 @@ cd = "mise install --quiet 2>/dev/null || true"
 
 # No global node version — use .nvmrc from each project
 # Install a fallback manually: mise install node@lts
+
+[tools]
+# Slack CLI (macOS) — binary `slk`; needs Node: mise install node@lts
+"npm:slkcli" = "0.1.6"

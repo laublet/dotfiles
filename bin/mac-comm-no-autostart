@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+# mac-comm-no-autostart — keep Slack, Signal, and Todoist off macOS login/startup.
+#
+# Handles:
+#   - Legacy Login Items (System Events list)
+#   - Todoist app preference file (open_on_system_startup)
+#   - Reports modern "Login Items & Extensions" entries (sfltool) if present
+#
+# Does NOT disable macOS session restore (TALLogoutSavesState): if those apps were
+# still open at logout, macOS may reopen them. Quit them before shutdown, or disable
+# "Reopen windows when logging back in" in System Settings → Desktop & Dock.
+#
+# Usage:
+#   mac-comm-no-autostart           Apply
+#   mac-comm-no-autostart --dry-run Show actions only
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+DRY_RUN=0
+[[ "${1:-}" == "--dry-run" || "${1:-}" == "-n" ]] && DRY_RUN=1
+
+# Display names as they appear in legacy Login Items (varies by locale/version).
+LOGIN_ITEM_NAMES=(Slack Signal Todoist "Todoist.app")
+
+remove_login_item() {
+  local name="$1"
+  if (( DRY_RUN )); then
+    echo "  [dry-run] would delete login item: $name"
+    return
+  fi
+  if osascript -e "tell application \"System Events\" to delete login item \"$name\"" 2>/dev/null; then
+    echo "  ✓ removed login item: $name"
+  fi
+}
+
+remove_matching_login_items() {
+  local existing
+  existing=$(osascript -e 'tell application "System Events" to get the name of every login item' 2>/dev/null || true)
+  [[ -z "$existing" ]] && return
+  local item
+  while IFS= read -r item; do
+    item=$(echo "$item" | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+    [[ -z "$item" ]] && continue
+    local lower
+    lower=$(printf '%s' "$item" | tr '[:upper:]' '[:lower:]')
+    if [[ "$lower" == *slack* || "$lower" == *signal* || "$lower" == *todoist* ]]; then
+      remove_login_item "$item"
+    fi
+  done < <(echo "$existing" | tr ',' '\n')
+  for name in "${LOGIN_ITEM_NAMES[@]}"; do
+    if echo "$existing" | grep -qF "$name"; then
+      remove_login_item "$name"
+    fi
+  done
+}
+
+patch_todoist_settings() {
+  local f="$HOME/Library/Application Support/Todoist/settings.json"
+  [[ -f "$f" ]] || return 0
+  if (( DRY_RUN )); then
+    echo "  [dry-run] would set open_on_system_startup=false in $f"
+    return
+  fi
+  python3 - "$f" <<'PY'
+import json, sys
+path = sys.argv[1]
+with open(path, encoding="utf-8") as fh:
+    data = json.load(fh)
+changed = False
+for key in ("open_on_system_startup", "system_startup_minimized"):
+    if data.get(key):
+        data[key] = False
+        changed = True
+if changed:
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, indent="\t")
+        fh.write("\n")
+    print(f"  ✓ updated {path}")
+else:
+    print(f"  · Todoist already off ({path})")
+PY
+}
+
+report_btm_entries() {
+  command -v sfltool >/dev/null 2>&1 || return 0
+  local hits
+  hits=$(sfltool dumpbtm 2>/dev/null | grep -iE 'slack|signal|todoist|tinyspeck|whispersystems' || true)
+  if [[ -n "$hits" ]]; then
+    echo
+    echo "Modern Login Items / background entries still mention comm apps:"
+    echo "$hits" | sed 's/^/    /'
+    echo "  → System Settings → General → Login Items & Extensions → disable Slack / Signal / Todoist."
+  fi
+}
+
+echo "mac-comm-no-autostart"
+echo
+
+echo "Legacy login items:"
+remove_matching_login_items
+if (( ! DRY_RUN )); then
+  remaining=$(osascript -e 'tell application "System Events" to get the name of every login item' 2>/dev/null \
+    | tr ',' '\n' | grep -iE 'slack|signal|todoist' || true)
+  if [[ -z "$remaining" ]]; then
+    echo "  · none matching Slack / Signal / Todoist"
+  fi
+fi
+
+echo
+echo "Todoist preferences:"
+patch_todoist_settings
+
+report_btm_entries
+
+echo
+echo "Manual check (each app): Dock icon → Options → uncheck « Open at Login » if shown."
+echo "If apps still reopen after reboot: they were probably left running at logout (session restore)."

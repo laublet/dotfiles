@@ -1,8 +1,10 @@
 # Kyria — next iteration design (FR / EN / ES, Arcane-heavy)
 
+> **Help:** Design doc — production keymap: [kyria.md](kyria.md)
+
 > Design doc for the next keymap iteration. Current production reference: [kyria.md](kyria.md).
 >
-> Status: **design only**. No firmware change applied yet — the actual swap lives in section 3 ("Implementation sketch") and only ships after a measurement window on the current build.
+> Status: **Option A applied** (2026-05-21) — Arcane on inner palm arc slot 3 (`SYR_ARC` / `SYL_ARC`); `.` / `:` on outer arc. Baseline: `reports/pre-arcane-move.md`.
 
 ## 1. Project goals
 

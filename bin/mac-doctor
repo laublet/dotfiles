@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+# mac-doctor — extra health checks (Finder defaults, AeroSpace warp, tooling).
+# Run after mac-post-update: just doctor
+
+set -euo pipefail
+
+if [[ "$(uname)" != "Darwin" ]]; then
+  echo "macOS only." >&2
+  exit 1
+fi
+
+RED='\033[0;31m'
+GRN='\033[0;32m'
+YLW='\033[0;33m'
+RST='\033[0m'
+FAIL=0
+WARN=0
+
+ok()   { printf "${GRN}OK${RST}   %s\n" "$*"; }
+warn() { printf "${YLW}WARN${RST} %s\n" "$*"; WARN=$((WARN + 1)); }
+bad()  { printf "${RED}FAIL${RST} %s\n" "$*"; FAIL=$((FAIL + 1)); }
+
+section() { echo ""; echo "== $* =="; }
+
+section "Tooling (git / lint / refactor)"
+for cmd in gitui oxlint sg mprocs bw slk slk-tui; do
+  if command -v "$cmd" &>/dev/null; then
+    ok "$cmd ($(command -v "$cmd"))"
+  else
+    case "$cmd" in
+      slk|slk-tui) warn "$cmd not in PATH (just install-slack-terminal)" ;;
+      *) warn "$cmd not in PATH (brew bundle --file=Brewfile)" ;;
+    esac
+  fi
+done
+
+section "Finder defaults (duti)"
+if command -v duti &>/dev/null; then
+  md_app=$(duti -x md 2>/dev/null | sed -n '1p' || true)
+  ts_app=$(duti -x ts 2>/dev/null | sed -n '1p' || true)
+  if [[ "$md_app" == *"eovim"* || "$md_app" == *"Neovim"* ]]; then
+    ok ".md → $md_app"
+  else
+    warn ".md → ${md_app:-?} (expected Neovim — just mac-neovim-defaults)"
+  fi
+  if [[ "$ts_app" == *"IINA"* ]]; then
+    ok ".ts (video) → $ts_app"
+  else
+    warn ".ts → ${ts_app:-?} (expected IINA for MPEG — just mac-video-defaults)"
+  fi
+else
+  warn "duti not installed"
+fi
+
+section "Dracula appearance (mac-appearance)"
+ENV="${HOME}/dev/perso/dotfiles/conf/theme/dracula.env"
+if [[ -f "$ENV" ]]; then
+  # shellcheck source=/dev/null
+  source "$ENV"
+  accent="$(defaults read -globalDomain AppleAccentColor 2>/dev/null || echo "?")"
+  style="$(defaults read NSGlobalDomain AppleInterfaceStyle 2>/dev/null || echo "?")"
+  if [[ "$accent" == "5" ]]; then
+    ok "AppleAccentColor = 5 (purple)"
+  else
+    warn "AppleAccentColor = ${accent} (expected 5 — just mac-appearance)"
+  fi
+  if [[ "$style" == "Dark" ]]; then
+    ok "AppleInterfaceStyle = Dark"
+  else
+    warn "AppleInterfaceStyle = ${style:-light} (just mac-appearance)"
+  fi
+  if [[ -f "${WALLPAPER:-}" ]]; then
+    ok "wallpaper file exists (${WALLPAPER})"
+  else
+    warn "WALLPAPER missing: ${WALLPAPER:-unset}"
+  fi
+else
+  warn "missing $ENV"
+fi
+
+section "Window borders (borders)"
+if command -v borders &>/dev/null; then
+  if pgrep -xq borders; then
+    ok "borders process running (if colors wrong: just mac-borders)"
+  else
+    warn "borders not running — just mac-borders"
+  fi
+  if brew services list 2>/dev/null | rg -q 'borders.*started'; then
+    warn "brew services borders is started — stops Dracula colors; run: brew services stop borders && just mac-borders"
+  fi
+else
+  warn "borders not installed (brew tap felixkratz/formulae && brew install borders)"
+fi
+
+section "AeroSpace pointer warp (Kyria)"
+AERO="${HOME}/.config/aerospace/aerospace.toml"
+if [[ -f $AERO ]]; then
+  if grep -q "on-focus-changed" "$AERO" && grep -q "window-lazy-center" "$AERO"; then
+    ok "on-focus-changed → window-lazy-center"
+  else
+    bad "missing on-focus-changed window-lazy-center in aerospace.toml"
+  fi
+else
+  bad "missing ${AERO}"
+fi
+
+section "Hammerspoon (archived)"
+if [[ -L "${HOME}/.hammerspoon" ]] || [[ -d "${HOME}/.hammerspoon" ]]; then
+  warn "~/.hammerspoon still present — remove symlink and quit Hammerspoon (replaced by AeroSpace)"
+else
+  ok "no ~/.hammerspoon"
+fi
+if pgrep -x Hammerspoon &>/dev/null; then
+  warn "Hammerspoon process still running"
+fi
+
+section "Summary (mac-doctor)"
+echo "Failures: $FAIL · Warnings: $WARN"
+[[ $FAIL -eq 0 ]] || exit 1
+exit 0

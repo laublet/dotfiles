@@ -1,5 +1,7 @@
 # delta — git diff viewer
 
+> **Help:** `delta --help` · `man git-diff`
+
 > Syntax-highlighted git pager. Configured: side-by-side, line numbers, Dracula theme.
 
 ## Automatic usage (via gitconfig)

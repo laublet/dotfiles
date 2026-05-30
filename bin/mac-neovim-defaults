@@ -35,13 +35,15 @@ chmod +x "$NVIM_BIN" 2>/dev/null || true
 # Extensions: plain text, config, data, and languages Neovim/treesitter handle well.
 EXTENSIONS=(
   # data / config
-  json jsonc json5 csv tsv yaml yml toml xml svg
+  json jsonc json5 csv tsv yaml yml toml xml
+  # svg → preview in browser (Chrome); see mac-video-defaults for .ts (video)
   ini cfg conf config properties env editorconfig
   # markup / docs
   md markdown mdx txt text log rst org tex bib
   # web
   html htm css scss less sass vue svelte astro
-  js mjs cjs ts tsx jsx graphql gql
+  js mjs cjs tsx jsx graphql gql
+  # Note: omit bare "ts" — on macOS it is often MPEG transport (IINA), not TypeScript.
   # shells / tooling
   sh bash zsh fish ps1 dockerfile dockerignore
   gitignore gitattributes gitmodules
@@ -66,8 +68,10 @@ UTIS=(
 run_duti() {
   if (( DRY_RUN )); then
     printf 'duti -s %s %s all\n' "$BUNDLE_ID" "$2"
-  else
-    duti "$@"
+    return 0
+  fi
+  if ! duti "$@"; then
+    echo "  ! skipped: duti $* (see man duti; some UTIs are system-reserved)" >&2
   fi
 }
 
@@ -83,6 +87,10 @@ done
 
 if (( DRY_RUN )); then
   echo "(dry-run — no changes applied)"
+  VIDEO_HELPER="${HOME}/.local/bin/mac-video-defaults"
+  [[ -x "$VIDEO_HELPER" ]] && "$VIDEO_HELPER" --dry-run
 else
   echo "Done. Double-click a .json or .csv to test; override per file via Finder → Open With."
+  VIDEO_HELPER="${HOME}/.local/bin/mac-video-defaults"
+  [[ -x "$VIDEO_HELPER" ]] && "$VIDEO_HELPER"
 fi

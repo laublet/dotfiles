@@ -1,5 +1,7 @@
 # tokei — code line counter
 
+> **Help:** `tokei --help`
+
 > Replaces `cloc`. Counts lines of code by language, extremely fast.
 
 ## Everyday usage

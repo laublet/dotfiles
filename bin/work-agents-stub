@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Install gitignored AGENTS.local.md + CLAUDE.local.md in a work repo (personal).
+set -euo pipefail
+
+VAULT="${HOME}/dev/perso/vaults/Research"
+TEMPLATE_AGENTS="${VAULT}/templates/AGENTS-work.local.md"
+TEMPLATE_CLAUDE="${VAULT}/templates/CLAUDE-work.local.md"
+FORCE=0
+WRITE_AGENTS=1
+WRITE_CLAUDE=1
+
+usage() {
+  echo "Usage: work-agents-stub [--force] [--agents-only|--claude-only] /path/to/repo" >&2
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --force) FORCE=1; shift ;;
+    --agents-only) WRITE_CLAUDE=0; shift ;;
+    --claude-only) WRITE_AGENTS=0; shift ;;
+    -h|--help) usage ;;
+    *) break ;;
+  esac
+done
+
+[[ $# -eq 1 ]] || usage
+REPO="$(cd "$1" && pwd)"
+[[ -d "${REPO}/.git" ]] || { echo "Not a git repo: ${REPO}" >&2; exit 1; }
+
+REPO_NAME="$(basename "${REPO}")"
+SLUG="${REPO_NAME}"
+STACK="see README"
+DOCS="README.md"
+PKG="see README"
+
+if [[ -f "${REPO}/README.md" ]]; then
+  if rg -q "Serverless|serverless" "${REPO}/README.md" 2>/dev/null; then
+    STACK="Node.js / TypeScript / AWS Serverless"
+  elif rg -q "Node" "${REPO}/README.md" 2>/dev/null; then
+    STACK="Node.js / TypeScript"
+  fi
+  if [[ -f "${REPO}/package.json" ]]; then
+    PKG="npm/yarn (see package.json)"
+  fi
+  [[ -d "${REPO}/documentation" ]] && DOCS="README.md, documentation/"
+fi
+
+subst() {
+  local tpl="$1" dest="$2"
+  sed -e "s|{{REPO_NAME}}|${REPO_NAME}|g" \
+      -e "s|{{SLUG}}|${SLUG}|g" \
+      -e "s|{{STACK}}|${STACK}|g" \
+      -e "s|{{DOCS}}|${DOCS}|g" \
+      -e "s|{{PKG}}|${PKG}|g" \
+      "${tpl}" > "${dest}"
+}
+
+write_if_needed() {
+  local dest="$1" tpl="$2" label="$3"
+  [[ -f "${tpl}" ]] || { echo "Missing template: ${tpl}" >&2; exit 1; }
+  if [[ -f "${dest}" && "${FORCE}" -eq 0 ]]; then
+    echo "Already exists (use --force): ${dest}"
+    return 1
+  fi
+  subst "${tpl}" "${dest}"
+  echo "Wrote ${dest}"
+  return 0
+}
+
+WROTE=0
+if [[ "${WRITE_AGENTS}" -eq 1 ]]; then
+  write_if_needed "${REPO}/AGENTS.local.md" "${TEMPLATE_AGENTS}" "agents" && WROTE=1 || true
+fi
+if [[ "${WRITE_CLAUDE}" -eq 1 ]]; then
+  write_if_needed "${REPO}/CLAUDE.local.md" "${TEMPLATE_CLAUDE}" "claude" && WROTE=1 || true
+fi
+
+GLOBAL_GI="${HOME}/.gitignore"
+for entry in 'AGENTS\.local\.md' 'CLAUDE\.local\.md'; do
+  if ! rg -qx "${entry}" "${GLOBAL_GI}" 2>/dev/null; then
+    echo "Warning: ${GLOBAL_GI} missing ${entry} — run: just link (dotfiles)" >&2
+  fi
+done
+[[ "${WROTE}" -eq 1 ]] && echo "Ignored via global ~/.gitignore (no per-repo .gitignore change)"

@@ -1,5 +1,7 @@
 # btop — beautiful system monitor
 
+> **Help:** `?` in TUI (Options) · `btop --help`
+
 > Replaces `htop`. Graphical dashboard with CPU, memory, network, disk, processes.
 
 ## Launch

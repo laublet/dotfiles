@@ -1,5 +1,7 @@
 # bat — syntax-highlighted cat
 
+> **Help:** `bat --help` · `man bat`
+
 > Replaces `cat`. Aliased: `cat` → `bat --paging=never`, `catp` → `bat` (with pager)
 
 ## Everyday usage

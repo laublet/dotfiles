@@ -5,5 +5,5 @@
 host: gitlab.com
 git_protocol: ssh
 editor: nvim
-# macOS: open OAuth / --web links in Chrome (not Choosy default)
-browser: open -a "Google Chrome"
+# macOS: OAuth / --web via Choosy (GitLab → Chrome, etc. — conf/mac-apps/choosy-behaviours.plist)
+browser: mac-open

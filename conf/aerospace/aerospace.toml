@@ -11,20 +11,19 @@
 #
 
 # after-login-command was removed in AeroSpace 0.19.0 (SMAppService migration).
-# App launches are now handled via macOS Login Items:
-#   System Settings > General > Login Items
-#   Add: Mouseless, Calendar, Todoist, WezTerm,
-#        Firefox Developer Edition, Obsidian, Cursor
-# The dev layout script runs in after-startup-command with a one-shot guard.
+# App launches: macOS Login Items (System Settings > General > Login Items).
+#   Required at boot: Mouseless (hotkeys), WezTerm, … — AeroSpace uses start-at-login below.
+#   Prefs apps (System Settings, SteerMouse): open on demand; no Login Item needed.
+# Dev layout: after-startup-command runs layout-dev-ws.sh once (~30s after login).
 
 # NOTE: do NOT run `brew services start borders` — that registers a
 # LaunchAgent which spawns `borders` at login WITHOUT arguments (so the
 # defaults apply, no purple gradient). Since `borders` is single-instance,
 # the command below is then ignored and we lose our colors.
-# If borders is no longer purple: `brew services stop borders && pkill borders`,
+# If borders lost colors: `just mac-borders` (or brew services stop borders && pkill borders)
 # then re-login (or run the command below manually).
 after-startup-command = [
-    'exec-and-forget borders style=round active_color="gradient(top_left=0xffbd93f9,bottom_right=0xffff79c6)" inactive_color=0x4444475a width=4.0 hidpi=on',
+    'exec-and-forget borders style=round active_color="gradient(top_left=0xffbd93f9,bottom_right=0xffff79c6)" inactive_color=0xff6272a4 width=6.0 hidpi=on',
     'exec-and-forget sleep 30 && ~/.config/aerospace/layout-dev-ws.sh',
 ]
 
@@ -37,22 +36,26 @@ enable-normalization-opposite-orientation-for-nested-containers = true
 # Empêche cmd-h de cacher des fenêtres hors du tiling
 automatically-unhide-macos-hidden-apps = true
 
-# Mouse suit le focus quand on change de moniteur
+# Kyria encoder scroll: macOS sends wheel events to the window under the cursor.
+# window-lazy-center on focus; monitor fallback when dragging across displays.
+# Replaces Hammerspoon (see archive/hammerspoon). If resize/float edge cases annoy,
+# bind move-mouse only on LCAG focus keys instead of on-focus-changed.
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+on-focus-changed = ['move-mouse window-lazy-center']
 
 accordion-padding = 30
-# Stack windows by workspace (accordion at root level).
+# Stack windows by workspace (vertical accordion at root level).
 default-root-container-layout = 'accordion'
-default-root-container-orientation = 'auto'
+default-root-container-orientation = 'vertical'
 key-mapping.preset = 'qwerty'
 
 [gaps]
-inner.horizontal = 20
-inner.vertical =   20
-outer.left =       10
-outer.bottom =     10
-outer.top =        10
-outer.right =      10
+inner.horizontal = 26
+inner.vertical =   26
+outer.left =       14
+outer.bottom =     14
+outer.top =        14
+outer.right =      14
 
 [exec]
 inherit-env-vars = true
@@ -196,7 +199,8 @@ l = ['exec-and-forget ~/.config/aerospace/layout-dev-ws.sh', 'mode main']
 # WS 1 — Work / Comms
 # WS 2 — Dev (main workspace)
 # WS 3 — Test / Browse
-# WS 4 — Settings (secondary monitor / Mac screen)
+# WS 4–9 — Spill workspaces on secondary monitor (cmd-alt-4…9). No auto-rules for prefs/utilities.
+# System Settings, SteerMouse, etc. open on whichever workspace is focused when launched.
 
 # --- WS 0: Dashboard / Planning ---
 [[on-window-detected]]
@@ -277,16 +281,8 @@ if.app-id = 'com.postmanlabs.mac'
 check-further-callbacks = true
 run = ['move-node-to-workspace 3']
 
-# --- WS 4: Settings (Mac screen) ---
-[[on-window-detected]]
-if.app-id = 'jp.plentycom.app.SteerMouse'
-check-further-callbacks = true
-run = ['move-node-to-workspace 4']
-
-[[on-window-detected]]
-if.app-id = 'com.apple.systempreferences'
-check-further-callbacks = true
-run = ['move-node-to-workspace 4']
+# --- Prefs / utilities (no workspace rule) ---
+# com.apple.systempreferences, com.apple.SystemSettings, jp.plentycom.app.SteerMouse: stay on focused workspace.
 
 # --- Always floating (popups, utilities) ---
 # (Raycast manages its own popup natively; no AeroSpace rule needed.)

@@ -1,120 +1,128 @@
-## Raycast — launcher + clipboard (macOS)
+# Raycast — launcher + clipboard (macOS)
 
-Remplace Albert + Maccy en un seul binaire. Free tier suffit pour le clipboard (rétention 3 mois), Pro ($8/mo) ajoute AI + sync illimité. Install : `brew install --cask raycast`.
+> **Help:** Raycast: select a command → shortcut hints · [docs](https://manual.raycast.com)
 
-## First-run setup (5 min, à faire une fois après install)
+Remplace Albert + Maccy. Free tier OK for clipboard (3 months). Install : `brew install --cask raycast`.
 
-À l'ouverture de Raycast, suivre l'onboarding puis configurer **Settings** (`Cmd+,` depuis Raycast) :
+Versioned in dotfiles: [`conf/raycast/`](../conf/raycast/) (Quicklinks JSON + Script Commands). App settings stay in Raycast cloud / Keychain.
 
-### 1. Hotkeys
+Alternatives / décision 2026 (rester sur Raycast free) : [`conf/raycast/ALTERNATIVES.md`](../conf/raycast/ALTERNATIVES.md).
 
-| Action | Raycast Hotkey | Pane |
-|---|---|---|
-| Open Raycast (launcher) | `Cmd+Space` | General → Raycast Hotkey |
-| Clipboard History | `Cmd+Shift+V` | Extensions → Clipboard History → Hotkey |
-| Window Management → menu | (optionnel) | Extensions → Window Management |
+## Your side (after dotfiles update)
 
-**Important** : pour libérer `Cmd+Space`, désactiver Spotlight (System Settings → Keyboard → Keyboard Shortcuts → Spotlight → décocher *Show Spotlight search*). Spotlight reste accessible via menu bar si besoin.
+1. `just raycast-quicklinks` → Raycast **Import Quicklinks** → set aliases (`k`, `dl`, `gh`, …).
+2. `just raycast-quicklinks work` → import work bundle → aliases `jira`, `gl`.
+3. **Manage Script Commands** → add directory `~/dev/perso/dotfiles/conf/raycast/scripts` → aliases `jfmt`, `jmin`.
+4. Install extensions: [`conf/raycast/extensions.md`](../conf/raycast/extensions.md) (waves 1–3).
 
-### 2. Login item
+`just raycast-quicklinks` only reveals JSON in Finder — it does not configure Raycast by itself.
 
-General → **Launch Raycast at login** : ON.
+## First-run setup
 
-### 3. Privacy
+Settings (`Cmd+,` from Raycast) :
 
-Advanced → **Send Analytics** : OFF (préférence perso, opt-out).
+### Hotkeys
 
-### 4. Clipboard History
+| Action | Hotkey | Pane |
+|--------|--------|------|
+| Open Raycast | `Cmd+Space` | General → Raycast Hotkey |
+| Clipboard History | `Cmd+Shift+V` | Extensions → Clipboard History |
 
-Extensions → **Clipboard History** :
-- Hotkey : `Cmd+Shift+V` (cf table)
-- *Pasteboard polling* : laisser default
-- *Ignore Password Managers* : ON (1Password, Bitwarden, Keychain auto-détectés)
-- Retention : 3 months sur free tier (Pro = illimité)
+Disable Spotlight on `Cmd+Space` (System Settings → Keyboard → Shortcuts → Spotlight).
 
-### 5. Quicklinks (web search — à recréer depuis Albert)
+### Clipboard History
 
-Extensions → **Quicklinks** → `+` pour chacun. Le `{Query}` est le placeholder de Raycast.
+- *Ignore Password Managers* : ON
+- Retention : 3 months (free)
 
-| Trigger (alias) | Name | URL |
-|---|---|---|
-| `k` | Kagi | `https://kagi.com/search?q={Query}` |
-| `tr` | DeepL FR | `https://www.deepl.com/translator#auto/fr/{Query}` |
-| `gh` | GitHub | `https://github.com/search?q={Query}` |
-| `yt` | YouTube | `https://www.youtube.com/results?search_query={Query}` |
-| `npm` | NPM | `https://www.npmjs.com/search?q={Query}` |
-| `mdn` | MDN | `https://developer.mozilla.org/en-US/search?q={Query}` |
-| `maps` | Google Maps | `https://www.google.com/maps/search/{Query}/` |
-| `wa` | Wolfram Alpha | `https://www.wolframalpha.com/input/?i={Query}` |
-| `ama` | Amazon | `https://www.amazon.com/s/?field-keywords={Query}` |
+### Quicklinks (import)
 
-Pour chaque entrée : open Quicklinks → Create Quicklink → Name + Link (avec `{Query}`) + Open With (Firefox / default) → set **Alias** (le trigger court). Une fois fait, tu peux les invoquer en tapant `k mon search` dans Raycast.
+`just raycast-quicklinks` / `work` — see [`conf/raycast/README.md`](../conf/raycast/README.md).
 
-Tip : tu peux aussi exporter cette table en JSON et importer en bulk via *Settings → Extensions → Quicklinks → … menu → Import* — format `[{"name": "Kagi", "link": "https://kagi.com/search?q={Query}"}]`. Voir migration script ci-dessous si besoin.
+| Alias | Name | Browser |
+|-------|------|---------|
+| `ff` | Open URL | Choosy (`x-choosy://open`) |
+| `ffp` / `ffc` | Open clipboard URL | Choosy (script) |
+| `gc` | Open URL | Chrome (work) |
+| `gcp` | Open clipboard URL | Chrome (script) |
+| `k` | Kagi | Choosy |
+| `dl` | DeepL FR | Choosy |
+| `gh` | GitHub | Choosy |
+| `yt` | YouTube | Choosy |
+| `npm` | NPM | Choosy |
+| `mdn` | MDN | Choosy |
+| `maps` | Google Maps | Choosy |
+| `ama` | Amazon | Choosy |
+| `obs` | Obsidian Main | Obsidian |
+| `jira` | Jira search | Chrome |
+| `gl` | GitLab search | Chrome |
 
-### 6. Disable / hide unused commands
+Placeholder : `{argument}`.
 
-Extensions → list complète. Pour réduire le bruit dans la palette, *Disable* tout ce qui ne sert pas (Calendar, Mail, etc.) ou set `⌥ ⌫` sur une commande pour la masquer du fuzzy search.
+### JSON clipboard
+
+| Alias | Command |
+|-------|---------|
+| `json` | Store **Format JSON** → Format Clipboard JSON |
+| `jfmt` | Script: Prettify JSON |
+| `jmin` | Script: Minify JSON |
+
+Copy JSON → run command → paste formatted result.
 
 ## Usage
 
 | Cmd | Action |
-|---|---|
-| `Cmd+Space` | Open Raycast (launcher) |
-| `Cmd+Shift+V` | Clipboard history (fuzzy search, Enter = paste auto) |
-| `k foo` | Search Kagi (any Quicklink alias) |
-| `<app name>` | Launch app |
-| Type `calc` / `42 * 18` | Calculator (inline) |
-| `snip` | Snippets (saved text expansion) |
-| `kill` | Kill process by name |
-| `flush` | Empty Trash, etc. (system commands) |
-| `Cmd+,` from Raycast | Open settings |
-| `Cmd+K` on a result | Action panel (rename, change icon, etc.) |
+|-----|--------|
+| `Cmd+Space` | Launcher |
+| `Cmd+Shift+V` | Clipboard history |
+| `ff https://…` | Open URL via Choosy (rules + FF Dev default) |
+| `ffp` / `ffc` | Open clipboard URL via Choosy |
+| `gc https://…` | Open URL in Chrome |
+| `gcp` | Open clipboard URL in Chrome |
+| `k query` | Kagi (Choosy) |
+| `dl text` | DeepL FR |
+| `jfmt` / `jmin` | JSON prettify / minify clipboard |
+| `Cmd+K` on result | Action panel |
 
-## Recommended extensions (Store, gratuit)
+## Extensions (install checklist)
 
-Install via Raycast : tape **Store** → search :
+See [`conf/raycast/extensions.md`](../conf/raycast/extensions.md).
 
-- **GitHub** — search repos, PRs, issues, gists from launcher
-- **Visit** — open recent URLs in browser history
-- **Color Picker** — pick + copy hex/rgb from anywhere
-- **Kill Process** — fuzzy kill (built-in mais à activer)
-- **Brew** — wrapper `brew search/install/uninstall` sans terminal
-- **Tailscale** — toggle nodes, copy IPs
-- **Apple Notes / Obsidian Search** — fuzzy notes (Obsidian extension officielle)
-- **Window Management** — built-in tilers (move halves/quarters) si tu veux compléter AeroSpace pour des cas one-off
+| Wave | Extensions |
+|------|------------|
+| 1 | Format JSON, Brew, GitHub, Obsidian |
+| 2 | GitLab, Jira, Bitwarden |
+| 3 (test) | Notion, Language Tool, Menubar System Monitor |
 
-Tape simplement le nom dans la Store pour install.
+**Perf:** extensions run on demand; disable unused commands. `glab`/`gp` stay for heavy GitLab work.
 
-## Limitations (free tier)
+## What else
 
-- **Clipboard retention** : 3 mois (Pro = illimité). Suffisant en pratique.
-- **Pas de sync** entre machines sans Pro. Tu as une seule machine macOS donc non-bloquant.
-- **AI chat** : Pro only. Pas grave, tu as Cursor.
+- **Snippets**, **Calculator**, **File search**, **Emoji** — built-in
+- **Firefox (store):** **Mozilla Firefox → New Tab** (`f`) — extension prefs: **Firefox Developer Edition** + profil `dev-edition-default` (`just raycast-firefox-profile`) ; **Firefox Tabs** (`ft`) — add-on dans Dev Edition + bridge + `just raycast-firefox-patch`.
+- **Chrome (work, store):** **Google Chrome → Search Tabs** — pas d’équivalent historique+onglets unifié côté Raycast.
+- **Choosy:** `ff` / `ffp` / perso quicklinks use `x-choosy://open/…` (rules + Firefox Developer Edition fallback). Chrome work quicklinks still bypass Choosy.
+- **Notion web:** Choosy → Chrome (`notion.so` / `www.notion.so`); Raycast Notion extension = API search/capture
+- Skip Raycast Pro AI (use Cursor); AeroSpace for daily window layout
 
-## Versioning / dotfiles
+## Versioning
 
-**Raycast n'a pas de config file plain-text exportable**. Tout vit dans `~/Library/Application Support/com.raycast.macos/` (SQLite + binaires opaques) et `~/Library/Preferences/com.raycast.macos.plist` (avec des binary blobs). Versionner ça serait fragile et tu re-sync les Quicklinks à chaque setup machine via cloud Raycast (compte free suffit).
-
-Stratégie ici :
-- **Pas de symlink dotbot** (rien à versionner).
-- **Cette cheatsheet** est la source de vérité pour recréer la config en 5 min sur une machine neuve.
-- **Compte Raycast** (free) sauve les Quicklinks dans leur cloud → log in sur nouvelle machine = tout revient.
-
-## Migration depuis Albert/Maccy (done)
-
-- Albert : uninstall via brew (`brew uninstall --cask albert`), suppression de `conf/albert/`, des entries dotbot et de la cheatsheet.
-- Maccy : nuclear uninstall (cassé sur macOS Tahoe — auto-paste ne fonctionnait plus malgré perms Accessibility + Input Monitoring + Developer Tools + reinstall complet ; voir [Maccy#1381](https://github.com/p0deje/Maccy/issues)).
-- `conf/aerospace/aerospace.toml` : règle de float pour `org.p0deje.Maccy` supprimée (Raycast gère son popup nativement).
+- No dotbot symlink for Raycast SQLite
+- `conf/raycast/*.json` + `scripts/` = source of truth for Quicklinks / JSON tools
+- Raycast account (free) syncs Quicklinks across machines
 
 ## Troubleshooting
 
-- **`Cmd+Space` ne fait rien** : Spotlight pas désactivé, le binding est swallowed. System Settings → Keyboard → Keyboard Shortcuts → Spotlight → décocher.
-- **Clipboard history vide** : Raycast doit être lancé en background. Vérifier le menu bar icon ; sinon, activer *Launch at login*.
-- **Auto-paste depuis clipboard ne marche pas** : Accessibility permission requise (System Settings → Privacy & Security → Accessibility → Raycast). Re-grant après chaque update.
-- **Une extension ne s'install pas** : `~/Library/Application Support/com.raycast.macos/extensions` peut être corrompue. Force reinstall depuis la Store.
+- **Mozilla Firefox / New Tab — historique vide** — Extension prefs: app **Firefox Developer Edition**, suffix **`dev-edition-default`** (not Firefox + `default-release`). Run `just raycast-firefox-profile`.
+- **`just raycast-quicklinks` exit 1** — missing JSON; pull dotfiles / check `conf/raycast/`
+- **`Cmd+Space` dead** — disable Spotlight shortcut
+- **Clipboard empty** — Raycast running + Launch at login
+- **Auto-paste fails** — Accessibility → Raycast
+- **Menubar monitor not visible** — open the Raycast command once, then command settings → **Pin to Menu Bar**
+- **Still no reliable monitor in menu bar** — use `Stats` in the **visible** Ice zone (not hidden); see [`conf/mac-apps/README.md`](../conf/mac-apps/README.md) § Ice
 
 ## Related
 
-- [keyboard-navigation.md](keyboard-navigation.md) — Raycast hotkeys dans le contexte global
-- [clipboard.md](clipboard.md) — clipboard cross-platform (Linux = Greenclip + Rofi)
+- [clipboard.md](clipboard.md)
+- [keyboard-navigation.md](keyboard-navigation.md)
+- [glab.md](glab.md) · [bitwarden-cli.md](bitwarden-cli.md)

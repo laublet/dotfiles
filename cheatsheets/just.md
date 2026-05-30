@@ -1,5 +1,7 @@
 # just — command runner
 
+> **Help:** `just --help` · `just --list`
+
 > Replaces `make` for task running. Clean syntax, no tab issues, great error messages.
 
 ## How it works

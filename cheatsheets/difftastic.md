@@ -1,5 +1,7 @@
 # difftastic — structural diff
 
+> **Help:** `difft --help` · `git dft --help`
+
 > AST-aware diff that understands syntax (JS/TS, JSON, YAML, Rust, Python, Go…). Complements `delta` (which prettifies line-based diffs). Use when refactors move blocks around and line-based diffs become noise.
 
 ## Standalone usage

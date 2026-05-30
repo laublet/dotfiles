@@ -7,4 +7,4 @@ alwaysApply: true
 
 All preferences, interaction style, and CLI tools are defined in the shared agent config.
 
-Read **`AGENTS.md` at the workspace root** for the full reference — single source of truth; keep it up to date when preferences or tools change.
+Read **`~/dev/perso/vaults/Research/AGENTS-core.md`** for preferences and skills (`AGENTS.md` is the index). This dotfiles repo only adds `.cursor/rules/` constraints (no-secrets, neovim).

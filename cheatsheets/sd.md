@@ -1,5 +1,7 @@
 # sd — intuitive find & replace
 
+> **Help:** `sd --help`
+
 > Replaces `sed` for find & replace. No arcane escaping rules.
 
 ## Everyday usage

@@ -1,5 +1,7 @@
 # Go — toolchain
 
+> **Help:** `go help` · `go help <cmd>`
+
 > Installed via dotfiles: `brew install go` (macOS) or `apt install golang-go` (Linux desktop profile).
 > Neovim: `gopls` + `gofumpt` via Mason — see [neovim-ide.md](neovim-ide.md#go).
 
@@ -29,3 +31,8 @@ go env GOROOT
 1. `go mod init …`
 2. Open folder in nvim → `:MasonInstall gopls gofumpt` if needed
 3. `<leader>lf` to format · `gd` / `gr` for LSP navigation
+
+## Links
+
+- Repo: https://github.com/golang/go
+- Docs: https://go.dev/doc/

@@ -1,5 +1,7 @@
 # lazydocker — TUI Docker client
 
+> **Help:** `?` in TUI · `lazydocker --help`
+
 > Docker dashboard in the terminal. Alias: `lzd`.
 
 ## Launch

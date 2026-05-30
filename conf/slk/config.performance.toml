@@ -1,0 +1,12 @@
+# Merge these blocks into ~/.config/slk/config.toml (keep your [workspaces.*] sections).
+
+[appearance]
+image_protocol = "off"
+
+[animations]
+enabled = false
+smooth_scrolling = false
+typing_indicators = false
+
+[notifications]
+enabled = false

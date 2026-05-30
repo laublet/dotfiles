@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Open URL in Chrome",
+    "link": "{argument}",
+    "openWith": "Google Chrome"
+  },
+  {
+    "name": "Jira search",
+    "link": "https://neok.atlassian.net/issues/?jql=text~%22{argument}%22",
+    "openWith": "Google Chrome"
+  },
+  {
+    "name": "GitLab search",
+    "link": "https://gitlab.com/search?search={argument}",
+    "openWith": "Google Chrome"
+  },
+  {
+    "name": "GitLab neo-k",
+    "link": "https://gitlab.com/neo-k",
+    "openWith": "Google Chrome"
+  }
+]

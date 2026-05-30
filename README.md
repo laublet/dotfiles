@@ -34,7 +34,7 @@ Headless server       Home server (packages)   Pop!_OS Desktop
   zellij, tmux, mosh   as server)              + Obsidian
   bat, eza, fd                                   + Raycast (macOS) / Albert (Linux)
   fzf, ripgrep                                   + Raycast clipboard (mac) / Greenclip (Linux)
-  zoxide                                         + keyd, fonts, apps…
+  zoxide                                         + fonts, apps…
 ```
 
 `packages-homeserver` layers on `packages-server` (Docker + btop). Optional
@@ -49,64 +49,52 @@ for manual Dotbot if needed on a dev machine.
 |-------|-------|-----------------|
 | Launcher | Raycast | Rofi |
 | Clipboard | Raycast (built-in) | Greenclip + Rofi |
-| Window manager | AeroSpace | Pop Shell (GNOME) |
+| Window manager | AeroSpace | COSMIC (tiling) |
 | Terminal | WezTerm | WezTerm |
-| Editor (IDE) | Cursor (vscode-neovim) | Cursor (vscode-neovim) |
-| Editor (standalone) | Neovim | Neovim |
+| Editor (primary) | Neovim | Neovim |
+| Editor (fallback / agent) | Cursor (vscode-neovim) | Cursor (vscode-neovim) |
+| Editor (large projects, future) | Zed | Zed |
 | Editor (server) | Vim (minimal) | Vim (minimal) |
 | Multiplexer (server) | Zellij | Zellij |
 | Email | Thunderbird (tbkeys-lite) | Thunderbird (tbkeys-lite) |
 | Notes | Obsidian (vim mode) | Obsidian (vim mode) |
 | Shell | zsh + Prezto + Starship | zsh + Prezto + Starship |
 | Theme | Dracula everywhere | Dracula everywhere |
+| macOS RICE | `just mac-appearance` · [`DRACULA-RICE.md`](conf/mac-apps/DRACULA-RICE.md) | — |
 | Font | FiraCode Nerd Font | FiraCode Nerd Font |
 
 ### Modifier keys
 
-On Linux, **keyd** makes the three modifiers behave like macOS:
+**macOS:** Cmd for apps, Ctrl+Cmd+Alt (LCAG) for AeroSpace.  
+**Linux:** Ctrl for apps, Super for COSMIC WM — no OS-wide Cmd→Ctrl remap.
 
 ```
-Super + key     → Ctrl+key  (Cmd: copy, save, undo, tab switch…)
-Super + arrows  → Home/End  (Cmd+arrows: beginning/end of line)
-Super + Tab     → Alt+Tab   (Cmd+Tab: app switching)
-Super + Space   → real Super (Cmd+Space: GNOME launcher)
-Alt + arrows    → word nav  (Option+arrows: handled per-app)
-Ctrl            → Ctrl      (split navigation, unchanged)
+macOS                         Linux (Pop!_OS / COSMIC)
+────────────────────────────────────────────────────────────
+Cmd + key (apps)              Ctrl + key
+Cmd + Space (launcher)        Super + Space
+LCAG + arrows (WM focus)      Super + Ctrl + Alt + arrows
+Cmd + Alt + N (workspace)     Super + Alt + N
+Alt + arrows (word nav)       Alt + arrows (per-app: Cursor, zsh)
 ```
 
-Alt+arrows word navigation is handled per-app (not in keyd) to
-avoid conflicts with Ctrl+arrows split navigation:
-Cursor (keybindings.json `isLinux`), zsh (bindkey), WezTerm.
+WezTerm maps `CMD` bindings to `CTRL` on Linux in `.wezterm.lua` only (not system-wide).
 
 ### Keybinding layers
 
-All apps share the same navigation model. Physical keys are identical
-on both platforms — keyd handles the translation on Linux.
+Same Kyria layout; platform-specific modifier semantics in each app/WM config.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ GLOBAL (window manager)                                     │
-│                                                             │
-│   macOS                       Linux                          │
-│   Ctrl+Cmd+Alt + arrows       Ctrl+Alt + arrows    → focus   │
-│   Ctrl+Cmd+Alt+Shift + arr.   Ctrl+Alt+Shift + arr.→ move    │
-│   Cmd+Alt + number             Ctrl+Alt + number   → workspace│
-│   Cmd+Alt+Shift + number       Ctrl+Alt+Shift+num  → move ws │
+│   macOS: LCAG / Cmd+Alt          Linux: Super+Ctrl+Alt / Super+Alt │
 ├─────────────────────────────────────────────────────────────┤
 │ IN-APP (WezTerm / Neovim / Cursor)                          │
-│                                                             │
-│   Ctrl + arrows           → navigate between splits/panes   │
-│   Ctrl+Alt + arrows       → resize / move editor groups     │
-│   Cmd+d / Cmd+Shift+d     → create split (horiz / vert)      │
-│   Cmd+Shift + ←/→         → prev / next tab                 │
-│   Cmd+Alt + Space         → copy mode (WezTerm)             │
-│   Space + key             → leader layer (files, LSP, etc.) │
+│   macOS: Cmd splits/tabs         Linux: Ctrl splits/tabs    │
+│   Both: Ctrl + arrows → pane nav                            │
 ├─────────────────────────────────────────────────────────────┤
-│ TEXT EDITING (preserved on both platforms)                   │
-│                                                             │
-│   Option + ←/→            → jump word                       │
-│   Option + Shift + ←/→    → select word                     │
-│   Cmd + ←/→               → beginning / end of line         │
+│ TEXT EDITING                                                │
+│   Option/Alt + arrows → word nav (both, per-app on Linux)   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -142,6 +130,8 @@ on both platforms — keyd handles the translation on Linux.
 | hyperfine | time | Statistical command-line benchmarking |
 | fx | jq | Interactive JSON viewer (TUI, JS expressions) |
 | posting | Postman | TUI HTTP client (trial — see [posting.md](cheatsheets/posting.md)) |
+| slk (slkcli) | — | Slack CLI for macOS (`slk read`, agents) — [slkcli.md](cheatsheets/slkcli.md) |
+| slk-tui | Slack | Slack TUI (gammons/slk) — [slk-tui.md](cheatsheets/slk-tui.md) |
 | arttime | — | ASCII art clock / pomodoro (cosmetic) |
 
 ### Documentation
@@ -263,7 +253,7 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 ├── packages-linux.sh        # Linux packages (accepts: minimal|homeserver|desktop)
 ├── install.conf.yaml        # Shared symlinks
 ├── install-mac.conf.yaml    # macOS (AeroSpace, Cursor, Neovim.app, duti helpers, WezTerm scripts)
-├── install-linux.conf.yaml  # Linux symlinks (Cursor, Albert, Pop Shell, keyd)
+├── install-linux.conf.yaml  # Linux symlinks (Cursor, Albert, COSMIC)
 ├── cheatsheets/             # Per-tool markdown docs (Space H / cheat)
 ├── server/
 │   ├── install.conf.yaml    # Minimal server symlinks
@@ -276,8 +266,9 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
     ├── ssh/               # SSH config (NO keys — keys are secrets)
     ├── nvim/              # Neovim (lazy.nvim, shared with Cursor)
     ├── obsidian/          # Obsidian vim bindings
-    ├── keyd/              # macOS-like modifier remapping (Linux)
-    ├── pop-shell/         # Pop Shell keybindings (Linux)
+    ├── keyd/              # README only (keyd removed)
+    ├── archive/pop-shell/ # Pop Shell (legacy, pre-COSMIC)
+    ├── archive/hammerspoon/ # Replaced by AeroSpace on-focus-changed
     ├── starship/          # Prompt config
     ├── vim/               # Minimal vimrc (server / git)
     ├── wezterm/           # Terminal config

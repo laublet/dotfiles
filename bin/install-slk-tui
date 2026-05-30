@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# install-slk-tui — install gammons/slk (Slack TUI) as ~/.local/bin/slk-tui
+#
+# Avoids clashing with slkcli (npm), which owns the `slk` command.
+#
+# Usage:
+#   install-slk-tui
+#   SLK_VERSION=0.7.9 install-slk-tui
+
+set -euo pipefail
+
+INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
+dest="${INSTALL_DIR%/}/slk-tui"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+export INSTALL_DIR="$tmp"
+if [[ -n "${SLK_VERSION:-}" ]]; then
+  export SLK_VERSION
+fi
+
+curl -fsSL https://getslk.sh/install.sh | sh
+
+mkdir -p "$INSTALL_DIR"
+install -m 755 "$tmp/slk" "$dest"
+
+echo "Installed slk-tui → $dest"
+echo "Next: slk-tui --add-workspace   (browser xoxc + d cookie — see cheatsheet slk-tui)"

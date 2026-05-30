@@ -1,5 +1,7 @@
 # yazi — terminal file manager
 
+> **Help:** `~` in TUI · `yazi --help`
+
 > Fast file manager with vim keybindings. Alias: `y` (cd to last dir on exit).
 
 ## Launch

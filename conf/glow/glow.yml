@@ -1,0 +1,7 @@
+# Charm glow — synced via dotbot (mac: Library/Preferences/glow, linux: ~/.config/glow)
+# Use explicit style: "auto" often drops ANSI in nested Neovim terminals.
+style: "dark"
+mouse: false
+pager: false
+width: 80
+all: false

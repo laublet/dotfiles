@@ -64,6 +64,7 @@ return {
         root_markers = { "go.work", "go.mod", ".git" },
       })
 
+      -- ESLint LSP: project rules + fixes. Fast lint on save: oxlint via nvim-lint (lint.lua).
       vim.lsp.config("eslint", {
         cmd = { mason_bin("vscode-eslint-language-server"), "--stdio" },
         filetypes = {

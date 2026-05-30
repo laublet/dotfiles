@@ -274,6 +274,27 @@ bookmarks-triage TRIAGE_DIR="$HOME/dev/perso/vaults/Research/Inbox/karakeep-book
 bookmarks-triage-update TRIAGE_DIR="$HOME/dev/perso/vaults/Research/Inbox/karakeep-bookmarks-export/triage":
     python3 scripts/bookmarks_triage_workflow.py --triage-dir "{{TRIAGE_DIR}}" --update-snapshot
 
+[doc("HTTP-check URLs in keepers.csv → keepers-url-status.csv")]
+keepers-url-check INPUT="$HOME/dev/perso/vaults/Research/Inbox/karakeep-bookmarks-export/triage/keepers.csv":
+    python3 scripts/check_keepers_urls.py --input "{{INPUT}}"
+
+[doc("Install hoarder-sync in Main vault only (Literature/Karakeep)")]
+hoarder-sync-setup:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [[ -x "{{justfile_directory()}}/bin/setup-hoarder-sync" ]] || { echo "Run: just link"; exit 1; }
+    "{{justfile_directory()}}/bin/setup-hoarder-sync"
+
+[doc("Clean Firefox Dev Edition bookmarks to Daily folder; disable bookmark sync")]
+firefox-bookmarks-clean:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    osascript -e 'tell application "Firefox Developer Edition" to quit' 2>/dev/null || true
+    sleep 1
+    pkill -9 -f "/Applications/Firefox Developer Edition.app/Contents/MacOS/firefox$" 2>/dev/null || true
+    sleep 1
+    python3 "{{justfile_directory()}}/scripts/firefox_clean_bookmarks.py"
+
 [doc("Install local git hooks for keymap lock (pre-commit + pre-push)")]
 install-git-hooks:
     #!/usr/bin/env bash

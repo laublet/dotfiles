@@ -1,5 +1,7 @@
 # arttime — ASCII art clock & timer
 
+> **Help:** `?` in TUI · `arttime --help`
+
 > Cosmetic clock / timer with ASCII art and quotes. Pure aesthetic, zero work utility. Trial: drop if you don't open it within 2 weeks.
 
 ## Everyday usage

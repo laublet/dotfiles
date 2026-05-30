@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# sg-pick — fzf picker for ast-grep patterns (conf/nvim/lua/ast-grep-patterns.lua)
+#
+# Usage:
+#   sg-pick              # print full sg run command for cwd
+#   sg-pick --copy       # copy command to clipboard (macOS pbcopy)
+#   sg-pick --pattern    # copy pattern only
+#   sg-pick --run        # run sg and pipe through less
+
+set -euo pipefail
+
+for repo in "$HOME/dev/perso/dotfiles" "$HOME/dotfiles"; do
+  if [[ -f "$repo/conf/nvim/lua/ast-grep-patterns.lua" ]]; then
+    DOTFILES="$repo"
+    break
+  fi
+done
+
+if [[ -z "${DOTFILES:-}" ]]; then
+  echo "sg-pick: dotfiles not found" >&2
+  exit 1
+fi
+
+export LUA_PATH="$DOTFILES/conf/nvim/lua/?.lua;$DOTFILES/conf/nvim/lua/?/init.lua;;"
+
+if ! command -v fzf &>/dev/null; then
+  echo "sg-pick: fzf not in PATH" >&2
+  exit 1
+fi
+
+if [[ ! -t 0 ]]; then
+  echo "sg-pick: needs an interactive terminal (fzf)." >&2
+  echo "Use Raycast « ast-grep pattern » (dropdown) or run from WezTerm." >&2
+  exit 1
+fi
+
+mode="cmd"
+case "${1:-}" in
+  --copy) mode="copy" ;;
+  --pattern) mode="pattern" ;;
+  --run) mode="run" ;;
+  -h|--help)
+    sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+esac
+
+pick=$(
+  lua -e '
+local p = require("ast-grep-patterns").patterns
+for i, x in ipairs(p) do
+  print(string.format("%02d\t%s\t%s\t%s\t%s", i, x.name, x.lang or "", x.pattern, x.desc or ""))
+end
+' | fzf --delimiter=$'\t' \
+        --with-nth=2,3,5 \
+        --prompt='ast-grep pattern❯ ' \
+        --header='Enter=select · columns: name · lang · desc'
+)
+
+[[ -z "$pick" ]] && exit 0
+
+pattern=$(printf '%s' "$pick" | cut -f4)
+lang=$(printf '%s' "$pick" | cut -f3)
+cmd=$(printf "sg run --color=never -p %s -l %s ." "$(printf '%q' "$pattern")" "$(printf '%q' "$lang")")
+
+case "$mode" in
+  pattern)
+    if [[ "$OSTYPE" == darwin* ]]; then
+      printf '%s' "$pattern" | pbcopy
+      echo "Pattern copied"
+    else
+      printf '%s\n' "$pattern"
+    fi
+    ;;
+  copy)
+    if [[ "$OSTYPE" == darwin* ]]; then
+      printf '%s' "$cmd" | pbcopy
+      echo "Copied: $cmd"
+    else
+      printf '%s\n' "$cmd"
+    fi
+    ;;
+  run)
+    eval "$cmd" | ${PAGER:-less}
+    ;;
+  *)
+    printf '%s\n' "$cmd"
+    ;;
+esac

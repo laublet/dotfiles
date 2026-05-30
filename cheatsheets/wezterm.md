@@ -1,5 +1,7 @@
 # WezTerm — terminal émulateur (local)
 
+> **Help:** Copy mode: `/` or `?` search · [WezTerm docs](https://wezterm.org/config/keys.html)
+
 > GPU-accelerated terminal, Lua config, native multiplexer (panes / tabs / workspaces).
 > Config : [`conf/wezterm/.wezterm.lua`](../conf/wezterm/.wezterm.lua) (commenté en haut, source de vérité).
 > Hub des raccourcis multi-app : [keyboard-navigation.md](keyboard-navigation.md#wezterm).
@@ -15,7 +17,8 @@
 | `Ctrl + Shift + arrows` | Idem — fallback macOS quand `Ctrl+←/→` est volé par Mission Control |
 | `Ctrl + Alt + arrows` | Resize pane (±3 cells) |
 | `Ctrl + Alt + Shift + arrows` | Swap avec le voisin dans la direction (2 panes = rotate, 3+ = picker) |
-| `Cmd + Shift + Z` | Toggle zoom pane (Cmd+Z reste libre pour undo) |
+| `Cmd + Z` | Undo — agent + shell (`ESC[127;5u`) · Neovim insert (kitty) |
+| `Cmd + Shift + Z` | Zoom pane (partout) — redo agent en vim : `u` / `Ctrl+r` |
 | `Cmd + Shift + X` | Rotate panes (2 = swap positions, 3+ = cycle) |
 
 ## Tabs
@@ -41,9 +44,10 @@ Le titre du tab affiche `<index>: <titre>`. Si un agent CLI (cursor-agent, claud
 | (copy mode) `n` / `Shift+n` | Match suivant / précédent (vim-style) |
 | (copy mode) `Ctrl+n` / `Ctrl+p` | Idem (alternative) |
 | (copy mode) `y` | Copier la sélection |
+| (search mode) `Esc` | ClearPattern + close (annule la recherche) |
 | (copy mode) `Esc` | Si sélection → clear ; sinon ClearPattern + close |
 | (copy mode) `s` | QuickSelect (jump-to-word style easymotion) |
-| `Cmd + Shift + F` | QuickSelect top-level (URLs, paths, hashes, mots 3+) |
+| `Cmd + Shift + F` | QuickSelect — mots 3+, chemins `/…`, `cd /…`, `[\|]…` (atuin). Pas de lookbehind variable (`(?<=\d+…)` casse tout). Recharger config après edit. |
 
 **Pourquoi Esc clear le pattern** : WezTerm relance la recherche à chaque redraw du terminal, donc un pattern laissé en place ramène périodiquement le curseur sur le premier match ([wezterm#5952](https://github.com/wez/wezterm/issues/5952)).
 
@@ -55,7 +59,7 @@ Le shell zsh émet des markers OSC 133 (`\e]133;A` avant chaque prompt, `\e]133;
 |-----------|--------|
 | `Cmd + ↑` | Scroll au prompt précédent dans le scrollback |
 | `Cmd + ↓` | Scroll au prompt suivant |
-| `Cmd + Shift + ↑` | **Fast path** : copie directe du dernier output au clipboard. Flash violet de la status bar pour confirmer. |
+| `Cmd + Shift + C` | **Fast path** : copie directe du dernier output au clipboard. Flash violet de la status bar pour confirmer. |
 | `Ctrl + Shift + O` | **Picker** fzf sur **tous** les outputs du pane. Preview à droite (bat), Enter copie, Esc annule. (Mnémonique : **O**utput.) |
 
 Le picker se comporte comme un widget fzf classique (Ctrl+T, Ctrl+R) : fzf hérite de `FZF_DEFAULT_OPTS='-m --height 40% --border'` et **flotte inline** dans la pane courante (40% en bas, scrollback visible au-dessus). À la sortie (Enter / Esc / Ctrl+C), le prompt zsh est redessiné, zéro impact sur la layout.
@@ -70,7 +74,7 @@ Setup côté shell : `_osc133_precmd` / `_osc133_preexec` dans [`conf/zsh/zshrc`
 
 Script picker : [`bin/wezterm-output-picker`](../bin/wezterm-output-picker) (bash + fzf + bat + pbcopy, self-cleanup via `trap EXIT`).
 
-Usage typique : tu lances `cargo test`, ça échoue, tu copies direct avec `Cmd+Shift+↑`. Si entre-temps tu as enchainé deux trois autres commandes et que l'erreur intéressante est plus loin, `Ctrl+Shift+O` ouvre le picker, tu reconnais `cargo test` dans la liste, preview montre la stack d'erreur complète, Enter → clipboard. Rien n'a touché le clipboard history sauf le `pbcopy` final.
+Usage typique : tu lances `cargo test`, ça échoue, tu copies direct avec `Cmd+Shift+C`. Si entre-temps tu as enchainé deux trois autres commandes et que l'erreur intéressante est plus loin, `Ctrl+Shift+O` ouvre le picker, tu reconnais `cargo test` dans la liste, preview montre la stack d'erreur complète, Enter → clipboard. Rien n'a touché le clipboard history sauf le `pbcopy` final.
 
 ### Sécurité du picker
 
@@ -142,7 +146,7 @@ WezTerm reload aussi automatiquement à chaque sauvegarde du fichier.
 
 ## Status bar
 
-À gauche uniquement : nom du workspace actif + nom de la key table active (copy mode, leader pending, …). Pas de clock / CPU / RAM à droite — l'horloge vit dans la menu bar macOS, les métriques système se consultent à la demande via `btop` / `bandwhich` / `nettop`.
+À gauche uniquement : nom du workspace actif + nom de la key table active (copy mode, leader pending, …). Pas de clock / CPU / RAM à droite — horloge dans la menu bar macOS ; métriques continues via **Stats** (zone visible Ice) ; détail à la demande : `btop` / `nettop` (`Cmd+Shift+;` launch menu).
 
 ## Petits trucs
 

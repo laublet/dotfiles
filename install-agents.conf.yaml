@@ -1,0 +1,32 @@
+# Agent hub symlinks only — run via: just link-agents
+# https://github.com/anishathalye/dotbot
+
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- clean: ['~']
+
+- link:
+    ~/.agents/skills:
+      create: true
+      path: ../vaults/Research/.agents/skills
+    ~/.cursor/skills:
+      create: true
+      path: ../vaults/Research/.agents/skills
+    ~/.cursor/rules/research-hub.mdc:
+      create: true
+      path: ../vaults/Research/.cursor/rules/research-hub.mdc
+    ~/.cursor/mcp.json:
+      create: true
+      force: true
+      path: ../vaults/Research/.cursor/mcp.json
+    ~/.claude/CLAUDE.md:
+      create: true
+      force: true
+      path: ../vaults/Research/templates/CLAUDE-home.md
+    ~/.codex/AGENTS.md:
+      create: true
+      force: true
+      path: ../vaults/Research/templates/AGENTS-home.md

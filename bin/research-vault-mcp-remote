@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Wrapper so Cursor always has RESEARCH_VAULT_MCP_TOKEN (Dock launch may skip zshrc).
+set -euo pipefail
+ENV_FILE="${HOME}/.config/research-vault-mcp.env"
+if [[ -f "${ENV_FILE}" ]]; then
+  # shellcheck source=/dev/null
+  source "${ENV_FILE}"
+fi
+if [[ -z "${RESEARCH_VAULT_MCP_TOKEN:-}" ]]; then
+  echo "research-vault-mcp-remote: RESEARCH_VAULT_MCP_TOKEN unset (see ~/.config/research-vault-mcp.env)" >&2
+  exit 1
+fi
+# Claude Desktop: no args → default remote uruk (token injected here, not via ${env} in JSON).
+if [[ $# -eq 0 ]]; then
+  set -- "https://mcp-research.loicaublet.fr/mcp" "--header" "Authorization: Bearer ${RESEARCH_VAULT_MCP_TOKEN}"
+fi
+exec npx -y mcp-remote@0.1.37 "$@"

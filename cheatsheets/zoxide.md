@@ -1,5 +1,7 @@
 # zoxide — smart cd
 
+> **Help:** `zoxide --help`
+
 > Replaces `cd` with frequency-based directory jumping. Learns as you navigate.
 
 ## Everyday usage

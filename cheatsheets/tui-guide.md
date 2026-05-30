@@ -1,5 +1,7 @@
 # TUI guide — what to launch when
 
+> **Help:** `tui` (launcher) · then `?` inside the chosen TUI
+
 > One-page decision matrix for every interactive terminal app in this setup. Each row links to a dedicated cheatsheet for keybindings.
 > Launcher: type `tui` in any shell to fuzzy-pick a tool with live preview (see [`tui` function in zshrc](../conf/zsh/zshrc)).
 
@@ -11,12 +13,20 @@
 |--------------|------|-----|
 | Stage hunks while editing a file | [gitsigns](../conf/nvim/lua/plugins/gitsigns.lua) | nvim, `<leader>hs` |
 | Full staging / commit / rebase in nvim | [neogit](neogit.md) | nvim, `<leader>gg` |
-| Browse commit range or file history | diffview (via neogit) | nvim, `<leader>gv` / `<leader>gV` |
+| Browse commit range or file history | diffview (via neogit) | nvim, `<leader>gd` / `<leader>gD` |
 | Git ops outside nvim (Cursor, plain shell) | [gitui](gitui.md) | shell, `gu` |
 | Read a colored diff in `git diff` / `log` | [delta](delta.md) | automatic (configured pager) |
 | AST-aware diff (refactor that moves blocks) | [difftastic](difftastic.md) | shell, `git dft HEAD~1` |
 | Fuzzy-search commits / branches / files | fzf-lua git pickers | nvim, `<leader>gc/gb/gf` |
 | Manage GitLab MRs / CI / issues | [glab](glab.md) | shell, `gp` / WezTerm `Cmd+Shift+;` → glab-pick |
+| Run API + web + worker together | [mprocs](mprocs.md) | shell, `mp` / `mprocs` |
+
+### Code search & refactor (CLI)
+
+| I want to... | Tool | How |
+|--------------|------|-----|
+| Find text in repo | [ripgrep](ripgrep.md) | `rg pattern` |
+| Find/refactor by syntax tree | [ast-grep](ast-grep.md) | `sg run -p '...' -l ts` |
 
 ### System & process inspection
 
@@ -41,6 +51,13 @@
 | Search text in files | [ripgrep](ripgrep.md) | shell, `rg pattern` |
 | Jump to a recent directory | [zoxide](zoxide.md) | shell, `z partial-name` |
 | View file with syntax | [bat](bat.md) | shell, `cat file` (aliased) |
+
+### Comms (Slack)
+
+| I want to... | Tool | How |
+|--------------|------|-----|
+| Chat in Slack from the terminal (Vim keys, multi-workspace) | [slk-tui](slk-tui.md) | shell, `slk-tui` or `tui` |
+| Quick unread / read / send (scripts, agents) | [slkcli](slkcli.md) | shell, `slk unread` / `slk read` (macOS; uses Slack.app session) |
 
 ### Shell history & launch
 
@@ -108,9 +125,11 @@ flowchart LR
     atuin[atuin]
     fx[fx]
     arttime[arttime]
+    slk_tui[slk-tui]
   end
 
   subgraph adhoc [Ad-hoc CLI - shell]
+    slk_cli[slk - slkcli]
     hyperfine[hyperfine]
     difft[difftastic - git dft]
     glab[glab]
@@ -133,3 +152,7 @@ flowchart LR
 - [index.md](index.md) — full "I want to..." mapping (broader, includes non-TUI tools)
 - [keyboard-navigation.md](keyboard-navigation.md) — terminal/Neovim keybinds
 - [keymaps-hub.md](keymaps-hub.md) — cross-app key binding overview
+
+## Links
+
+- Cheatsheets repo: https://github.com/laublet/dotfiles/tree/master/cheatsheets

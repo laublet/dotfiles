@@ -67,6 +67,9 @@
     ~/.config/wezterm/wezterm.lua:
       create: true
       path: conf/wezterm/.wezterm.lua
+    ~/.config/wezterm/platform.lua:
+      create: true
+      path: conf/wezterm/platform.lua
 
     # zed (XDG on macOS + Linux)
     ~/.config/zed/settings.json:

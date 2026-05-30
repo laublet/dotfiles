@@ -18,7 +18,7 @@ btop                                 # full dashboard
 | `Enter` | select / expand |
 | `Esc` | back / cancel |
 | `q` | quit |
-| `Cmd+C` / `Ctrl+C` | quit in WezTerm (mapped to `q` — btop ignores SIGINT with kitty keyboard) |
+| Cmd+C / Ctrl+C | quit in WezTerm (`tui_quit_or` sends `q` — btop ignores SIGINT with kitty keyboard) |
 
 ## Process management
 

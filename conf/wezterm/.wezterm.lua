@@ -50,6 +50,7 @@
 -- =============================================================================
 
 local wezterm = require("wezterm")
+local platform = require("platform")
 
 -- macOS pointer hide was disabled (broken on this Mac). AeroSpace handles focus warp.
 local function hide_cursor_until_move() end
@@ -57,20 +58,9 @@ local act = wezterm.action
 local mux = wezterm.mux
 local config = wezterm.config_builder()
 
--- macOS: CMD chords. Linux: native CTRL (no OS-wide Super→Ctrl remap).
-local is_linux = wezterm.target_triple:find("linux") ~= nil
-local function app_mod(chord)
-	if not is_linux then
-		return chord
-	end
-	if chord == "CMD|CTRL" then
-		return "CTRL|ALT" -- CharSelect
-	end
-	if chord == "CMD|SHIFT|CTRL" then
-		return "CTRL|SHIFT|ALT" -- tab move
-	end
-	return chord:gsub("CMD", "CTRL")
-end
+-- macOS: CMD chords. Linux: Kyria Cmd → SUPER (see platform.lua).
+local is_linux = platform.is_linux
+local mac_mods = platform.mac_mods
 
 -- =============================================================================
 -- Plugins
@@ -176,22 +166,11 @@ config.enable_kitty_keyboard = true
 -- for the cursor:// hyperlink handler, …) inherit this minimal PATH and silently
 -- fail to find Homebrew binaries. Pre-populate PATH here so every wezterm child
 -- starts with the right environment.
-config.set_environment_variables = {
-	-- Strip color killers inherited from launchers/CI; agent needs a real TTY palette.
-	NO_COLOR = "",
-	FORCE_COLOR = "",
-	COLORTERM = "truecolor",
-	PATH = table.concat({
-		"/opt/homebrew/bin",
-		"/opt/homebrew/sbin",
-		"/usr/local/bin",
-		(os.getenv("HOME") or "") .. "/.local/bin",
-		"/usr/bin",
-		"/bin",
-		"/usr/sbin",
-		"/sbin",
-	}, ":"),
-}
+local platform_env = platform.environment_variables()
+platform_env.NO_COLOR = ""
+platform_env.FORCE_COLOR = ""
+platform_env.COLORTERM = "truecolor"
+config.set_environment_variables = platform_env
 
 -- Maximize on startup; primary path = resurrect (current_state + workspace JSON)
 wezterm.on("gui-startup", function(cmd)
@@ -220,14 +199,7 @@ end)
 -- =============================================================================
 -- Picker keybinding lives in config.keys (ShowLauncherArgs LAUNCH_MENU_ITEMS|FUZZY).
 -- bandwhich removed: not installed locally. `brew install bandwhich` then re-add.
-config.launch_menu = {
-	{ label = "btop", args = { "btop" } },
-	{ label = "gitui", args = { "gitui" } },
-	{ label = "glab-pick", args = { "glab-pick" } },
-	{ label = "lazydocker", args = { "lazydocker" } },
-	{ label = "nettop", args = { "nettop" } },
-	{ label = "mac-startup-clean", args = { "mac-startup-clean" } },
-}
+config.launch_menu = platform.launch_menu()
 
 -- =============================================================================
 -- Hyperlink rules — make `path/to/file.ext:LINE[:COL]` clickable
@@ -986,32 +958,7 @@ local resurrect_restore_action = wezterm.action_callback(function(win, pane)
 	})
 end)
 
--- Linux: Ctrl+C copy, Ctrl+Shift+C SIGINT (macOS: Cmd+C / Ctrl+C).
-local terminal_copy_bindings = is_linux
-		and {
-			{
-				key = "c",
-				mods = "CTRL",
-				action = tui_quit_or(act.CopyTo("Clipboard")),
-			},
-			{
-				key = "c",
-				mods = "CTRL|SHIFT",
-				action = tui_quit_or(act.SendKey({ key = "c", mods = "CTRL" })),
-			},
-		}
-	or {
-		{
-			key = "c",
-			mods = "CMD",
-			action = tui_quit_or(act.CopyTo("Clipboard")),
-		},
-		{
-			key = "c",
-			mods = "CTRL",
-			action = tui_quit_or(act.SendKey({ key = "c", mods = "CTRL" })),
-		},
-	}
+local terminal_copy_bindings = platform.terminal_copy_bindings(act, tui_quit_or)
 
 config.keys = {
 	-- Smart-splits: pane navigation (Ctrl + arrows)
@@ -1040,45 +987,41 @@ config.keys = {
 	-- Neovim uses Space+| / Space+- (different level: app vs editor)
 	{
 		key = "d",
-		mods = app_mod("CMD"),
+		mods = mac_mods("CMD"),
 		action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }),
 	},
 	{
 		key = "d",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.SplitVertical({ domain = "CurrentPaneDomain" }),
 	},
 
 	-- Close pane
-	{
-		key = "w",
-		mods = app_mod("CMD"),
-		action = act.CloseCurrentPane({ confirm = true }),
-	},
+	platform.close_pane_binding(act),
 
 	-- Zoom pane
 	{
 		key = "z",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.TogglePaneZoomState,
 	},
 
 	-- Rotate pane order (sizes stay fixed; contents move). Two panes = swap left/right or top/bottom.
 	{
 		key = "x",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.RotatePanes("Clockwise"),
 	},
 
 	-- Tab navigation — Cmd + Shift + left/right
 	{
 		key = "LeftArrow",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.ActivateTabRelative(-1),
 	},
 	{
 		key = "RightArrow",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.ActivateTabRelative(1),
 	},
 
@@ -1086,12 +1029,12 @@ config.keys = {
 	-- Wraps around the tab strip; press repeatedly to intercalate at any position.
 	{
 		key = "LeftArrow",
-		mods = app_mod("CMD|SHIFT|CTRL"),
+		mods = mac_mods("CMD|SHIFT|CTRL"),
 		action = act.MoveTabRelative(-1),
 	},
 	{
 		key = "RightArrow",
-		mods = app_mod("CMD|SHIFT|CTRL"),
+		mods = mac_mods("CMD|SHIFT|CTRL"),
 		action = act.MoveTabRelative(1),
 	},
 
@@ -1099,12 +1042,12 @@ config.keys = {
 	-- Requires OSC 133 markers from the shell (see zshrc `_osc133_precmd`).
 	{
 		key = "UpArrow",
-		mods = app_mod("CMD"),
+		mods = mac_mods("CMD"),
 		action = act.ScrollToPrompt(-1),
 	},
 	{
 		key = "DownArrow",
-		mods = app_mod("CMD"),
+		mods = mac_mods("CMD"),
 		action = act.ScrollToPrompt(1),
 	},
 
@@ -1113,12 +1056,12 @@ config.keys = {
 	-- copy when reaching for Cmd+↑ (scroll to previous prompt).
 	{
 		key = "c",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = copy_last_output_action,
 	},
 	{
 		key = "phys:C",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = copy_last_output_action,
 	},
 
@@ -1138,7 +1081,7 @@ config.keys = {
 	-- it (Cmd+Shift+, would otherwise send Cmd+< on macOS layouts and miss).
 	{
 		key = "phys:Comma",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.PromptInputLine({
 			description = "Rename tab (empty to reset)",
 			action = wezterm.action_callback(function(window, _, line)
@@ -1154,14 +1097,14 @@ config.keys = {
 	-- Cmd+Shift+Space is grabbed by Slack to focus the active huddle window.
 	{
 		key = "Space",
-		mods = app_mod("CMD|ALT"),
+		mods = mac_mods("CMD|ALT"),
 		action = activate_copy_mode_fresh(),
 	},
 
 	-- Quick select (URLs, paths, hashes)
 	{
 		key = "f",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.QuickSelect,
 	},
 
@@ -1172,7 +1115,7 @@ config.keys = {
 	-- picker: Tab cycles to Emoji/UnicodeNames/etc., fuzzy filter live as you type.
 	{
 		key = "Space",
-		mods = app_mod("CMD|CTRL"),
+		mods = mac_mods("CMD|CTRL"),
 		action = act.CharSelect({
 			group = "NerdFonts",
 			copy_on_select = true,
@@ -1184,7 +1127,7 @@ config.keys = {
 	-- (zsh emacs/vi insert: kill line backward; vim insert: delete to start of insert).
 	{
 		key = "Backspace",
-		mods = app_mod("CMD"),
+		mods = mac_mods("CMD"),
 		action = act.SendKey({ key = "u", mods = "CTRL" }),
 	},
 
@@ -1210,17 +1153,17 @@ config.keys = {
 
 	-- Resurrect: save / restore — phys:S/O matches Cmd+Shift on US key positions (layout-independent).
 	-- Also mapped s/S/o/O: macOS may emit different key/mods; see wezterm.org/config/keys.html (phys vs mapped).
-	{ key = "phys:S", mods = app_mod("CMD|SHIFT"), action = resurrect_save_action },
-	{ key = "phys:O", mods = app_mod("CMD|SHIFT"), action = resurrect_restore_action },
-	{ key = "s", mods = app_mod("CMD|SHIFT"), action = resurrect_save_action },
-	{ key = "S", mods = app_mod("CMD|SHIFT"), action = resurrect_save_action },
-	{ key = "o", mods = app_mod("CMD|SHIFT"), action = resurrect_restore_action },
-	{ key = "O", mods = app_mod("CMD|SHIFT"), action = resurrect_restore_action },
+	{ key = "phys:S", mods = mac_mods("CMD|SHIFT"), action = resurrect_save_action },
+	{ key = "phys:O", mods = mac_mods("CMD|SHIFT"), action = resurrect_restore_action },
+	{ key = "s", mods = mac_mods("CMD|SHIFT"), action = resurrect_save_action },
+	{ key = "S", mods = mac_mods("CMD|SHIFT"), action = resurrect_save_action },
+	{ key = "o", mods = mac_mods("CMD|SHIFT"), action = resurrect_restore_action },
+	{ key = "O", mods = mac_mods("CMD|SHIFT"), action = resurrect_restore_action },
 
 	-- Resurrect: delete saved session
 	{
 		key = "d",
-		mods = app_mod("CMD|SHIFT|CTRL"),
+		mods = mac_mods("CMD|SHIFT|CTRL"),
 		action = wezterm.action_callback(function(win, pane)
 			resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id)
 				resurrect.state_manager.delete_state(id)
@@ -1236,7 +1179,7 @@ config.keys = {
 	-- Resurrect: wipe all saved states (type DELETE)
 	{
 		key = "x",
-		mods = app_mod("CMD|SHIFT|CTRL"),
+		mods = mac_mods("CMD|SHIFT|CTRL"),
 		action = act.PromptInputLine({
 			description = "Wipe ALL resurrect states. Type DELETE to confirm (Esc to cancel).",
 			action = wezterm.action_callback(function(_, _, line)
@@ -1258,7 +1201,7 @@ config.keys = {
 	--             and switches the current window to it.
 	{
 		key = "l",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.ShowLauncherArgs({ flags = "FUZZY|WORKSPACES" }),
 	},
 
@@ -1266,12 +1209,12 @@ config.keys = {
 	-- Cmd+Shift+; is free in the existing keymap and sits next to Cmd+Shift+L (other launcher).
 	{
 		key = "phys:Semicolon",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.ShowLauncherArgs({ flags = "FUZZY|LAUNCH_MENU_ITEMS" }),
 	},
 	{
 		key = "n",
-		mods = app_mod("CMD|SHIFT"),
+		mods = mac_mods("CMD|SHIFT"),
 		action = act.PromptInputLine({
 			description = "Workspace name (new or existing)",
 			action = wezterm.action_callback(function(window, pane, line)
@@ -1284,6 +1227,10 @@ config.keys = {
 }
 
 for _, binding in ipairs(terminal_copy_bindings) do
+	table.insert(config.keys, binding)
+end
+
+for _, binding in ipairs(platform.ctrl_w_passthrough_bindings(act)) do
 	table.insert(config.keys, binding)
 end
 

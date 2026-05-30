@@ -107,10 +107,10 @@ move-to-workspace-right=['<Super><Alt><Shift>Right']
 # Fullscreen — LCAG + f (= AeroSpace ctrl-cmd-alt-f)
 toggle-fullscreen=['<Super><Primary><Alt>f']
 
-# Close window (Ctrl+Q → physical Super+Q via keyd)
+# Close window (Ctrl+Q)
 close=['<Primary>q']
 
-# Input source switch — Ctrl+Cmd+Alt+I (physical) → <Super><Primary><Alt>i via keyd
+# Input source switch — LCAG + I (Super+Ctrl+Alt+i)
 switch-input-source=['<Super><Primary><Alt>i']
 switch-input-source-backward=['<Super><Primary><Alt><Shift>i']
 

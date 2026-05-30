@@ -52,14 +52,13 @@
       path: conf/autostart/cliphist-wl-daemon.desktop
 
 - shell:
-    # keyd: disable perso Cmd→Ctrl remap (native Linux modifiers)
+    # Native modifiers: disable keyd (LCAG → COSMIC via shortcuts.ron, no Cmd→Ctrl remap)
     - command: |
-        if command -v keyd &>/dev/null; then
-          echo "Disabling keyd (native Linux modifiers)..."
-          sudo rm -f /etc/keyd/default.conf /etc/keyd/games-classic.conf /etc/keyd/mac-cmd-passthrough.conf
-          sudo systemctl disable --now keyd 2>/dev/null || true
+        if [[ -x scripts/disable-keyd.sh ]]; then
+          scripts/disable-keyd.sh
         fi
-      description: Disable keyd macOS-like remapping
+        sudo rm -f /etc/keyd/default.conf /etc/keyd/games-classic.conf /etc/keyd/mac-cmd-passthrough.conf 2>/dev/null || true
+      description: Disabling keyd (native Super/Ctrl/Alt)
       quiet: true
 
     # COSMIC DE keybindings (Pop!_OS 24.04+)

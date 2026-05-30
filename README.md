@@ -78,7 +78,7 @@ Cmd + Alt + N (workspace)     Super + Alt + N
 Alt + arrows (word nav)       Alt + arrows (per-app: Cursor, zsh)
 ```
 
-WezTerm maps `CMD` bindings to `CTRL` on Linux in `.wezterm.lua` only (not system-wide).
+WezTerm maps authored `CMD` chords → `SUPER` on Linux via `conf/wezterm/platform.lua` (not system-wide).
 
 ### Keybinding layers
 

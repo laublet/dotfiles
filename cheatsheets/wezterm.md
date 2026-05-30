@@ -93,7 +93,9 @@ Usage typique : tu lances `cargo test`, ça échoue, tu copies direct avec `Cmd+
 |-----------|--------|
 | `Cmd + Shift + P` | Command palette WezTerm (toutes les actions / key bindings, défaut) |
 | `Cmd + Ctrl + Space` | **CharSelect** — ouvre direct sur le groupe **NerdFonts** (fuzzy filter live). `Tab` cycle vers Emoji / UnicodeNames / etc. Copie au clipboard (et Primary). |
-| `Cmd + Shift + ;` | **Launch menu** — pré-rempli avec `btop`, `gitui`, `glab-pick`, `lazydocker`, `nettop`, `mac-startup-clean`. Le sélectionné se lance dans le pane courant. |
+| `Cmd + Shift + ;` | **Launch menu** — `btop`, `gitui`, `glab-pick`, `lazydocker` (macOS : + `nettop`, `mac-startup-clean`) |
+| Clic droit sur `+` (tab bar) | Launch menu natif WezTerm |
+| `Ctrl + Shift + P` | Command palette (toutes actions + launch menu) |
 | `Cmd + Shift + L` | Workspace switcher (voir section Workspaces) |
 
 Pour ajouter une entrée au launch menu : éditer `config.launch_menu` dans `.wezterm.lua` (`{ label = "...", args = { ... } }`).
@@ -148,6 +150,10 @@ WezTerm reload aussi automatiquement à chaque sauvegarde du fichier.
 
 À gauche uniquement : nom du workspace actif + nom de la key table active (copy mode, leader pending, …). Pas de clock / CPU / RAM à droite — horloge dans la menu bar macOS ; métriques continues via **Stats** (zone visible Ice) ; détail à la demande : `btop` / `nettop` (`Cmd+Shift+;` launch menu).
 
+## Linux
+
+Cmd = `Super` dans WezTerm (`platform.lua`). **Cmd+C** copie, **Ctrl+C** = SIGINT (comme sur macOS). Pas de menu bar système : launch menu (`Cmd+Shift+;`), clic droit sur `+`, ou `Ctrl+Shift+P`.
+
 ## Petits trucs
 
 - `Cmd + Backspace` → envoie `Ctrl+U` (kill line backward en zsh / vim insert). Réflexe macOS qui passerait sinon dans le vide.
@@ -157,7 +163,7 @@ WezTerm reload aussi automatiquement à chaque sauvegarde du fichier.
 
 ## Config
 
-- Fichier : `~/.wezterm.lua` (lien symbolique → [`conf/wezterm/.wezterm.lua`](../conf/wezterm/.wezterm.lua))
+- Fichiers : `conf/wezterm/.wezterm.lua` + `platform.lua` (Linux : `~/.config/wezterm/` via dotbot ; macOS : souvent `~/.wezterm.lua` → même dossier repo)
 - Plugins (cloned par WezTerm) : `~/Library/Application Support/wezterm/plugins/`
 - Voir tous les plugins installés : dans le debug overlay (`Ctrl+Shift+L` natif WezTerm), `wezterm.plugin.list()`
 

@@ -1,0 +1,4 @@
+# Headless server overrides (install-server links ~/.zshrc-server).
+export EDITOR=vim
+export VISUAL=vim
+export SUDO_EDITOR=vim

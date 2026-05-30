@@ -1,0 +1,145 @@
+" Usable Vim for headless servers (Pi, VPS). No plugins, fast startup.
+set nocompatible
+
+" ── Editing ──────────────────────────────────────────────────────
+set encoding=utf-8
+set fileencoding=utf-8
+set expandtab
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+set autoindent
+set smartindent
+set backspace=indent,eol,start
+set textwidth=0
+set formatoptions-=t
+
+" ── Display ─────────────────────────────────────────────────────
+set number relativenumber
+set wrap
+set linebreak
+set showcmd
+set laststatus=2
+set ruler
+set showmode
+set signcolumn=yes
+set scrolloff=8
+set sidescrolloff=8
+set cursorline
+set colorcolumn=100
+set list
+set listchars=tab:▸\ ,trail:·,extends:>,precedes:<
+
+" Block cursor in normal/visual; bar in insert (when supported)
+if exists('+guicursor')
+  set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+endif
+
+" ── Search ──────────────────────────────────────────────────────
+set hlsearch
+set incsearch
+set ignorecase
+set smartcase
+
+" ── Files ─────────────────────────────────────────────────────────
+set hidden
+set confirm
+set undofile
+set undodir=~/.vim/undodir
+set swapfile
+set backup
+set backupdir=~/.vim/backup
+set directory=~/.vim/swap
+set autoread
+
+" Create undo/backup dirs on first use
+if !isdirectory(&undodir) | call mkdir(&undodir, 'p', 0700) | endif
+if !isdirectory(&backupdir) | call mkdir(&backupdir, 'p', 0700) | endif
+if !isdirectory(&directory) | call mkdir(&directory, 'p', 0700) | endif
+
+" ── UX ────────────────────────────────────────────────────────────
+set belloff=all
+set wildmenu
+set wildmode=longest:full,full
+set completeopt=menuone,noselect
+set mouse=a
+set timeoutlen=400
+
+" ── Syntax / filetypes ────────────────────────────────────────────
+syntax enable
+filetype plugin indent on
+
+" Built-in colorscheme (always available)
+colorscheme desert
+highlight ColorColumn ctermbg=236
+
+" ── Leaders ───────────────────────────────────────────────────────
+let mapleader = " "
+let maplocalleader = " "
+
+" ── Normal mode ───────────────────────────────────────────────────
+nnoremap <leader>h :nohlsearch<CR>
+nnoremap <leader>w :write<CR>
+nnoremap <leader>q :quit<CR>
+nnoremap <leader>x :xit<CR>
+nnoremap <leader>e :edit<Space>
+nnoremap <leader>v :vsplit<CR>
+nnoremap <leader>s :split<CR>
+nnoremap <leader>o :only<CR>
+nnoremap <leader>f :find<Space>
+nnoremap <leader>b :buffers<CR>
+nnoremap <leader>d :delete<CR>
+nnoremap <leader>p :put<CR>
+nnoremap Y y$
+nnoremap <C-d> <C-d>zz
+nnoremap <C-u> <C-u>zz
+nnoremap n nzz
+nnoremap N Nzz
+
+" Window navigation
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+" Resize splits
+nnoremap <A-h> <C-w><
+nnoremap <A-l> <C-w>>
+nnoremap <A-j> <C-w>-
+nnoremap <A-k> <C-w>+
+
+" Quick save / quit
+nnoremap <leader><leader> :write<CR>
+
+" ── Insert mode ───────────────────────────────────────────────────
+inoremap jk <Esc>
+inoremap kj <Esc>
+
+" ── Visual mode ───────────────────────────────────────────────────
+vnoremap < <gv
+vnoremap > >gv
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+
+" ── Command line ──────────────────────────────────────────────────
+cnoremap w!! execute 'silent! write !sudo tee % >/dev/null' <bar> edit!
+
+" Yank to clipboard when available (Mac SSH with forwarding, some desktops)
+if has('clipboard')
+  set clipboard=unnamedplus
+endif
+
+" Trim trailing whitespace on save (except markdown, where it can matter)
+function! TrimTrailingWhitespace() abort
+  let l:save = winsaveview()
+  keeppatterns %s/\s\+$//e
+  call winrestview(l:save)
+endfunction
+
+augroup vimrc_server
+  autocmd!
+  autocmd BufWritePre * if &filetype !~# 'markdown' | call TrimTrailingWhitespace() | endif
+  autocmd BufEnter * if line("'"") > 1 && line("'"") <= line("$") | execute "normal! g`"" | endif
+  autocmd FileType yaml,json,sh,python setlocal shiftwidth=2 expandtab
+  autocmd FileType markdown setlocal wrap linebreak spell
+augroup END

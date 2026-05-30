@@ -551,6 +551,9 @@ if [[ "$OSTYPE" == linux* ]]; then
   bindkey '\e^?' backward-kill-word
 fi
 
+# Headless server profile (install-server → ~/.zshrc-server)
+[[ -f ~/.zshrc-server ]] && source ~/.zshrc-server
+
 # ── Starship prompt (must be last) ───────────────────────────────
 eval "$(starship init zsh)"
 [ -f ~/.config/research-vault-mcp.env ] && source ~/.config/research-vault-mcp.env

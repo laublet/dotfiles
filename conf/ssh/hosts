@@ -25,3 +25,17 @@ Host perso popos pop-os
 
 Host perso-ts popos-ts pop-os-ts
   HostName perso.tail6c9b30.ts.net
+
+# Raspberry Pi 5 — k8s lab (pas prod) — LAN + Tailscale
+Host raspberrypi pi5 pi-lab raspberrypi-ts pi5-ts pi-lab-ts
+  User laublet
+  IdentityFile ~/.ssh/pi5
+  IdentitiesOnly yes
+  ServerAliveInterval 60
+  ServerAliveCountMax 3
+
+Host raspberrypi pi5 pi-lab
+  HostName 192.168.1.93
+
+Host raspberrypi-ts pi5-ts pi-lab-ts
+  HostName pi5.tail6c9b30.ts.net

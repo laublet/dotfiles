@@ -1,5 +1,5 @@
 # https://github.com/anishathalye/dotbot
-# Minimal server — shell, editors (nvim default + vim fallback), git, zellij,
+# Minimal server — shell, vim editor, git, zellij,
 # starship, plus the daily goodies (atuin, mise, lazygit). Heavier configs
 # (yazi, lazydocker, btop, bottom) live in install-full.conf.yaml.
 
@@ -19,12 +19,9 @@
       force: true
       path: conf/zsh/prezto/zpreztorc
 
-    # editors
-    ~/.config/nvim:
-      create: true
-      force: true
-      path: conf/nvim
-    ~/.vimrc: conf/vim/vimrc
+    # editor (vim only — no nvim/LazyVim stack on headless hosts)
+    ~/.vimrc: conf/vim/vimrc-server
+    ~/.zshrc-server: conf/zsh/zshrc-server
 
     # git
     ~/.gitconfig:

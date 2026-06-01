@@ -30,10 +30,20 @@ set colorcolumn=100
 set list
 set listchars=tab:▸\ ,trail:·,extends:>,precedes:<
 
-" Block cursor in normal/visual; bar in insert (when supported)
-if exists('+guicursor')
+" Block cursor in normal/visual; bar in insert.
+if has('gui_running') && exists('+guicursor')
   set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+else
+  let &t_SI = "\<Esc>[6 q"
+  let &t_EI = "\<Esc>[2 q"
+  let &t_SR = "\<Esc>[4 q"
+  let &t_E1 = "\<Esc>[2 q"
 endif
+
+augroup vim_terminal_cursor
+  autocmd!
+  autocmd VimLeave * call write(1, "\<Esc>[6 q")
+augroup END
 
 " ── Search ──────────────────────────────────────────────────────
 set hlsearch

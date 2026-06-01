@@ -47,10 +47,22 @@ set cmdheight=2
 set cursorline
 set cursorcolumn
 
-" Block cursor in normal/visual/command; bar in insert (terminal Vim 8.2+ with DECSCUSR)
-if exists('+guicursor')
+" Block cursor in normal/visual/command; bar in insert.
+" Terminal Vim: guicursor alone does not emit DECSCUSR on Homebrew builds — t_SI/t_EI do.
+if has('gui_running') && exists('+guicursor')
   set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+else
+  let &t_SI = "\<Esc>[6 q"   " insert: beam
+  let &t_EI = "\<Esc>[2 q"   " normal: block
+  let &t_SR = "\<Esc>[4 q"   " replace: underline
+  let &t_E1 = "\<Esc>[2 q"
 endif
+
+augroup vim_terminal_cursor
+  autocmd!
+  " Shell prompt (zsh vi) expects beam when vim exits
+  autocmd VimLeave * call write(1, "\<Esc>[6 q")
+augroup END
 
 " Wrap-broken line prefix
 set showbreak=+++

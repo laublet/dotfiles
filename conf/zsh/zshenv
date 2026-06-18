@@ -11,3 +11,4 @@ unset _dotfiles_zsh_dir
 alias assume=". assume"
 . "$HOME/.cargo/env"
 . "$HOME/.local/share/bob/env/env.sh"
+export PATH="$HOME/.local/bin:$HOME/.opencode/bin:$PATH"

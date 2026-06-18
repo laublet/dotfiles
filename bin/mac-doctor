@@ -22,6 +22,15 @@ bad()  { printf "${RED}FAIL${RST} %s\n" "$*"; FAIL=$((FAIL + 1)); }
 
 section() { echo ""; echo "== $* =="; }
 
+section "Dotbot symlinks"
+if [[ -x "${HOME}/.local/bin/dotfiles-doctor" ]]; then
+  "${HOME}/.local/bin/dotfiles-doctor" || FAIL=$((FAIL + 1))
+elif [[ -x "${HOME}/dev/perso/dotfiles/bin/dotfiles-doctor" ]]; then
+  "${HOME}/dev/perso/dotfiles/bin/dotfiles-doctor" || FAIL=$((FAIL + 1))
+else
+  warn "dotfiles-doctor not installed (just link)"
+fi
+
 section "Tooling (git / lint / refactor)"
 for cmd in gitui oxlint sg mprocs bw slk slk-tui; do
   if command -v "$cmd" &>/dev/null; then
@@ -102,6 +111,37 @@ if [[ -f $AERO ]]; then
   fi
 else
   bad "missing ${AERO}"
+fi
+
+section "Neovim / WezTerm processes"
+orphan_nvims=()
+while IFS= read -r pid; do
+  [[ -n "$pid" ]] || continue
+  ppid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ')
+  if [[ "$ppid" == "1" ]]; then
+    orphan_nvims+=("$pid")
+  fi
+done < <(pgrep -f 'nvim.*--embed.*vscode-neovim' 2>/dev/null || true)
+
+if ((${#orphan_nvims[@]})); then
+  warn "orphan vscode-neovim (pids: ${orphan_nvims[*]}) — blocks bob upgrade/restart; run: kill ${orphan_nvims[*]}"
+else
+  ok "no orphan vscode-neovim embed processes"
+fi
+
+if pgrep -xq wezterm-gui; then
+  if wezterm cli list &>/dev/null; then
+    pane_count=$(wezterm cli list 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "${pane_count:-0}" -eq 0 ]]; then
+      warn "wezterm-gui running with no panes — Cmd+Q or killall wezterm-gui (quit_when_all_windows_are_closed should prevent this after config reload)"
+    else
+      ok "wezterm-gui running ($pane_count pane(s))"
+    fi
+  else
+    ok "wezterm-gui running"
+  fi
+else
+  ok "wezterm-gui not running"
 fi
 
 section "Hammerspoon (archived)"

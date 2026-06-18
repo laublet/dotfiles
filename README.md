@@ -56,7 +56,6 @@ for manual Dotbot if needed on a dev machine.
 | Editor (large projects, future) | Zed | Zed |
 | Editor (server) | Vim (minimal) | Vim (minimal) |
 | Multiplexer (server) | Zellij | Zellij |
-| Email | Thunderbird (tbkeys-lite) | Thunderbird (tbkeys-lite) |
 | Notes | Obsidian (vim mode) | Obsidian (vim mode) |
 | Shell | zsh + Prezto + Starship | zsh + Prezto + Starship |
 | Theme | Dracula everywhere | Dracula everywhere |
@@ -159,7 +158,7 @@ For generic reference, `tldr <tool>` shows community-maintained summaries,
 | Create horizontal | `Cmd+d` | `Space -` | `Cmd+d` |
 | Create vertical | `Cmd+Shift+d` | `Space \|` | `Cmd+Shift+d` |
 | Close split | `Cmd+w` | `Space x` | `Cmd+w` |
-| Zoom split | `Cmd+Shift+z` | `Space z` | — |
+| Zoom split / window | `Cmd+Shift+z` (pane) · `HYPR+z` (window) | `Space z` | — |
 
 ### Tabs / Buffers
 

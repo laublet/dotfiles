@@ -1,11 +1,28 @@
 #!/bin/bash
-# Launch bob-managed Neovim (GUI / Finder / duti default handler).
+# Launch bob-managed Neovim inside WezTerm (Finder / duti default handler).
+set -euo pipefail
+
+WEZTERM="/Applications/WezTerm.app/Contents/MacOS/wezterm"
+if [[ ! -x "$WEZTERM" ]]; then
+  WEZTERM="$(command -v wezterm || true)"
+fi
+if [[ -z "$WEZTERM" || ! -x "$WEZTERM" ]]; then
+  osascript -e 'display alert "WezTerm not found" message "Install WezTerm (brew install --cask wezterm)"'
+  exit 1
+fi
+
 NVIM="${HOME}/.local/share/bob/nvim-bin/nvim"
 if [[ ! -x "$NVIM" ]]; then
-  NVIM="$(command -v nvim)"
+  NVIM="$(command -v nvim || true)"
 fi
-if [[ ! -x "$NVIM" ]]; then
+if [[ -z "$NVIM" || ! -x "$NVIM" ]]; then
   osascript -e 'display alert "Neovim not found" message "Install with: bob install stable"'
   exit 1
 fi
-exec "$NVIM" "$@"
+
+if [[ $# -gt 0 && -e "$1" ]]; then
+  cwd="$(cd "$(dirname "$1")" && pwd)"
+  exec "$WEZTERM" start --cwd "$cwd" -- "$NVIM" "$@"
+fi
+
+exec "$WEZTERM" start -- "$NVIM" "$@"

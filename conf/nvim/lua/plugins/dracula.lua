@@ -25,9 +25,20 @@ return {
       }
     end
 
+    -- Vim / Diffview diff buffers: Dracula defaults use bright green fill on DiffAdd
+    -- (unreadable when an entire new file is highlighted).
+    local function diff_hl(colors)
+      return {
+        DiffAdd = { fg = colors.fg, bg = "#2e3a32" },
+        DiffDelete = { fg = colors.fg, bg = "#3a2e2e" },
+        DiffChange = { fg = colors.fg, bg = "NONE" },
+        DiffText = { fg = colors.fg, bg = "#3a3d4a" },
+      }
+    end
+
     dracula.setup({
       overrides = function(colors)
-        return vim.tbl_extend("force", which_key_hl(colors), {
+        return vim.tbl_extend("force", which_key_hl(colors), diff_hl(colors), {
           -- Crosshair: Dracula defaults differ (line = selection, column = black).
           CursorLine = { bg = cross_bg },
           CursorColumn = { bg = cross_bg },
@@ -84,6 +95,9 @@ return {
         for name, hl in pairs(which_key_hl(c)) do
           vim.api.nvim_set_hl(0, name, hl)
         end
+        for name, hl in pairs(diff_hl(c)) do
+          vim.api.nvim_set_hl(0, name, hl)
+        end
       end,
     })
     -- Also apply now (ColorScheme event already fired)
@@ -105,6 +119,9 @@ return {
       vim.api.nvim_set_hl(0, g, link_hl)
     end
     for name, hl in pairs(which_key_hl(c)) do
+      vim.api.nvim_set_hl(0, name, hl)
+    end
+    for name, hl in pairs(diff_hl(c)) do
       vim.api.nvim_set_hl(0, name, hl)
     end
   end,

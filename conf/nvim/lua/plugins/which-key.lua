@@ -45,7 +45,7 @@ return {
       { "<leader>H", desc = "Cheatsheets folder (fzf-lua)" },
       { "<leader>b", desc = "Buffers (fzf-lua, Ctrl-x delete)" },
       { "<leader>a", group = "ai (avante + cursor-agent)", mode = { "n", "v" } },
-      { "<leader>ac", desc = "cursor-agent CLI (vsplit right)" },
+      { "<leader>ac", desc = "opencode CLI (vsplit right)" },
       { "<leader>y", group = "yank path" },
       { "<leader>yp", desc = "Yank absolute file path" },
       { "<leader>yr", desc = "Yank relative file path" },

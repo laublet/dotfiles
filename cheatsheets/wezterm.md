@@ -21,6 +21,8 @@
 | `Cmd + Shift + Z` | Zoom pane (partout) — redo agent en vim : `u` / `Ctrl+r` |
 | `Cmd + Shift + X` | Rotate panes (2 = swap positions, 3+ = cycle) |
 
+**Pane zoomé** (`Cmd+Shift+Z`) : `Ctrl+flèche` ne sort pas du pane à la frontière WezTerm. Dézoom via `Cmd+Shift+Z`, puis navigation normale.
+
 ## Tabs
 
 | Raccourci | Action |
@@ -31,7 +33,7 @@
 | `Cmd + Shift + Ctrl + ←/→` | **Déplacer** le tab actif à gauche / droite (intercaler entre deux tabs) |
 | `Cmd + Shift + ,` | Renommer le tab courant (input vide = reset, persisté via resurrect) |
 
-Le titre du tab affiche `<index>: <titre>`. Si un agent CLI (cursor-agent, claude, aider, codex) tourne dans le pane actif, son glyph de status (`⏳`, `✅`, `🧭`, `🔐`, `🔄`, spinner braille) est préfixé automatiquement et disparaît dès que l'agent quitte.
+Le titre du tab affiche `<index>: <titre>`. Si un agent CLI (cursor-agent, opencode, claude, aider, codex) tourne dans le pane actif, son glyph de status (`⏳`, `✅`, `🧭`, `🔐`, `🔄`, spinner braille) est préfixé automatiquement et disparaît dès que l'agent quitte.
 
 ## Copy mode & scrollback search
 
@@ -146,6 +148,18 @@ Au démarrage, WezTerm restaure automatiquement le dernier workspace actif. Fall
 
 WezTerm reload aussi automatiquement à chaque sauvegarde du fichier.
 
+## macOS — quitter / restart
+
+Config : `quit_when_all_windows_are_closed = true` + `window_close_confirmation = "NeverPrompt"`.
+
+| Action | Comportement |
+|--------|--------------|
+| Fermer la dernière fenêtre (croix rouge) | WezTerm quitte (plus de `wezterm-gui` fantôme dans le Dock) |
+| **Cmd+Q** | Quit immédiat |
+| Restart / logout macOS | Pas de popup « Terminate WezTerm? » qui bloque |
+
+Double-clic fichier texte (duti → `Neovim.app`) : `wezterm start -- nvim <file>` — pas de nvim GUI standalone.
+
 ## Status bar
 
 À gauche uniquement : nom du workspace actif + nom de la key table active (copy mode, leader pending, …). Pas de clock / CPU / RAM à droite — horloge dans la menu bar macOS ; métriques continues via **Stats** (zone visible Ice) ; détail à la demande : `btop` / `nettop` (`Cmd+Shift+;` launch menu).
@@ -163,7 +177,8 @@ Cmd = `Super` dans WezTerm (`platform.lua`). **Cmd+C** copie, **Ctrl+C** = SIGIN
 
 ## Config
 
-- Fichiers : `conf/wezterm/.wezterm.lua` + `platform.lua` (Linux : `~/.config/wezterm/` via dotbot ; macOS : souvent `~/.wezterm.lua` → même dossier repo)
+- Fichiers : `conf/wezterm/.wezterm.lua` + `platform.lua` (les deux sous `~/.config/wezterm/` via dotbot — manquer `platform.lua` casse le chargement)
+- Santé symlinks : `just dotfiles-doctor` (ou `just doctor` sur macOS)
 - Plugins (cloned par WezTerm) : `~/Library/Application Support/wezterm/plugins/`
 - Voir tous les plugins installés : dans le debug overlay (`Ctrl+Shift+L` natif WezTerm), `wezterm.plugin.list()`
 

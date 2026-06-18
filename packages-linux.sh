@@ -52,10 +52,12 @@ install_server() {
     mosh \
     neovim \
     ripgrep \
+    shellcheck \
     tmux \
     unzip \
     vim \
     wget \
+    yamllint \
     zsh
 
   # bat/fd are installed as batcat/fdfind on Debian/Ubuntu
@@ -284,7 +286,6 @@ install_desktop() {
       org.signal.Signal \
       com.todoist.Todoist \
       com.getpostman.Postman \
-      org.mozilla.Thunderbird \
       org.jellyfin.JellyfinDesktop \
       com.discordapp.Discord \
       2>/dev/null || true

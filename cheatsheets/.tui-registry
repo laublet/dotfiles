@@ -16,7 +16,8 @@ yazi|fs|File manager with previews
 lazydocker|docker|Docker containers / compose TUI
 atuin|shell|Shell history TUI (also Ctrl+R)
 fx|json|Interactive JSON viewer
-glow|markdown|Markdown reader
+glow|markdown|Markdown reader (browse / quick render)
+glum|markdown|Focus markdown reader (centered column)
 arttime|misc|ASCII art clock / pomodoro
 nvim:neogit|git|Open Neovim and launch :Neogit
 hyperfine|bench|Statistical command benchmarking (interactive prompt)

@@ -155,3 +155,4 @@ erl_crash.dump
 # Local agent context (personal; not for team repos)
 AGENTS.local.md
 CLAUDE.local.md
+**/.claude/settings.local.json

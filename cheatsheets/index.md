@@ -6,7 +6,8 @@
 > Run `cheat <tool>` for the full cheatsheet of any tool listed here, or `tui` to fuzzy-launch a TUI directly.
 > For TUI-by-task overview with launch contexts: [tui-guide.md](tui-guide.md).
 > Terminal local (panes / tabs / workspaces / resurrect) : [wezterm.md](wezterm.md).
-> Keyboard shortcuts across apps: [keymaps-hub.md](keymaps-hub.md) → [keyboard-navigation.md](keyboard-navigation.md). Firefox: **Vimium** (active); Tridactyl paused — config + future hybrid notes: [tridactyl.md](tridactyl.md). Kyria QMK keymap — current → [kyria.md](kyria.md) ; next iteration design (FR/EN/ES, Arcane on thumbs) → [kyria-next.md](kyria-next.md).
+> Lab parallèle (Ghostty + Zellij) : [ghostty-lab.md](ghostty-lab.md).
+> Keyboard shortcuts across apps: [keyboard-navigation.md](keyboard-navigation.md). Firefox: **Vimium** (active); Tridactyl paused — config + future hybrid notes: [tridactyl.md](tridactyl.md). Kyria QMK keymap — current → [kyria.md](kyria.md) ; next iteration design (FR/EN/ES, Arcane on thumbs) → [kyria-next.md](kyria-next.md).
 
 ## Launcher & clipboard
 
@@ -41,6 +42,9 @@
 | Browse files visually | `y` | yazi |
 | Find previous command | `Ctrl+R` | atuin |
 | Browse cheatsheets | `cheat` | cheatsheets/ |
+| Read markdown (pick tool) | `cheat markdown-reading` | [markdown-reading](markdown-reading.md) |
+| Focus-read `.md` (terminal) | `readmd file.md` | [glum](glum.md) |
+| Focus-read folder (browser) | `readweb [dir]` · `readvault` | [mdfocus](mdfocus.md) |
 | Launch any installed TUI | `tui` | [tui-guide](tui-guide.md) |
 
 ## View & inspect
@@ -118,10 +122,10 @@
 
 | I want to... | Command | Tool |
 |--------------|---------|------|
-| Persistent terminal session | `zellij attach -c work` | zellij |
-| Detach from session | `Ctrl+a d` | zellij |
-| Split panes (remote) | `Ctrl+a v` (right) / `Ctrl+a b` (down) | zellij |
-| Navigate panes (remote) | `Ctrl+a h/j/k/l` | zellij |
+| Persistent terminal session | `zellij attach -c work` | [zellij](zellij.md) |
+| Detach from session | `Ctrl+a d` | [zellij](zellij.md) |
+| Split panes (Zellij) | `Cmd+D` (right) / `Cmd+Shift+D` (down) | [zellij](zellij.md) |
+| Navigate panes (Zellij) | `Ctrl+arrows` | [zellij](zellij.md) |
 
 ## Everyday shortcuts
 

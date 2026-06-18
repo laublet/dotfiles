@@ -3,7 +3,7 @@
 #
 # Modifier architecture:
 #   ctrl-cmd-alt (LCAG)       → AeroSpace focus / layout / split
-#   ctrl-cmd-alt-shift (HYPR) → AeroSpace move / resize
+#   ctrl-cmd-alt-shift (HYPR) → AeroSpace move / resize / zoom window (z)
 #   cmd-alt                   → AeroSpace workspaces
 #   cmd-alt-shift             → AeroSpace move-node-to-workspace / monitor
 #   cmd + ctrl                → In-app resize (WezTerm/Neovim/Cursor)
@@ -70,8 +70,9 @@ PATH = '/opt/homebrew/bin:/opt/homebrew/sbin:${PATH}'
 # Disable macOS hide app (interfère avec le tiling)
 cmd-h = []
 
-# --- Terminal (LCAG + enter = new window, LCAG + backtick = focus existing) ---
+# --- Terminal (LCAG + enter = new WezTerm, HYPR + enter = Ghostty+Zellij lab) ---
 ctrl-cmd-alt-enter = 'exec-and-forget open -n -a WezTerm'
+ctrl-cmd-alt-shift-enter = 'exec-and-forget ghostty-lab'
 ctrl-cmd-alt-backtick = '''exec-and-forget osascript -e 'tell application "WezTerm" to activate' '''
 
 # --- Focus window (LCAG + arrows, wrap-around) — Mouseless overlay captures keys while visible, so no fight with LCAG+←/→ ---
@@ -105,8 +106,9 @@ ctrl-cmd-alt-d = 'join-with down'
 # --- Balance sizes (LCAG + equal) ---
 ctrl-cmd-alt-equal = 'balance-sizes'
 
-# --- Fullscreen ---
-ctrl-cmd-alt-f = 'fullscreen'
+# --- Zoom window (HYPR + z — same Z mnemonic as WezTerm Cmd+Shift+Z, Neovim Space+z) ---
+# LCAG+z is Mouseless free mode; Cmd+Shift+Z stays in-app (WezTerm pane zoom).
+ctrl-cmd-alt-shift-z = 'fullscreen'
 ctrl-cmd-alt-shift-f = 'macos-native-fullscreen'
 
 # --- Workspaces (cmd-alt) ---
@@ -236,11 +238,6 @@ run = ['move-node-to-workspace 1']
 
 [[on-window-detected]]
 if.app-id = 'org.whispersystems.signal-desktop'
-check-further-callbacks = true
-run = ['move-node-to-workspace 1']
-
-[[on-window-detected]]
-if.app-id = 'org.mozilla.Thunderbird'
 check-further-callbacks = true
 run = ['move-node-to-workspace 1']
 

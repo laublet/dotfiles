@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Back-compat wrapper — prefer readweb (see cheatsheets/markdown-reading.md).
+exec "$(dirname "$0")/readweb" "$@"

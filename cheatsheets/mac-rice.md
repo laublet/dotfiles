@@ -10,7 +10,8 @@ just mac-appearance        # dark, accent, dock, Ship wallpaper
 just mac-stats-defaults    # menu bar modules
 just mac-borders           # fenêtres: contour violet/rose (JankyBorders)
 just mac-raycast-appearance
-just mac-doctor            # verify
+just dotfiles-doctor       # dotbot symlinks + WezTerm load
+just doctor                # dotfiles-doctor + mac-post-update + mac-doctor
 ```
 
 Config: [`conf/theme/dracula.env`](../conf/theme/dracula.env) · checklist + status: [`conf/mac-apps/DRACULA-RICE.md`](../conf/mac-apps/DRACULA-RICE.md)

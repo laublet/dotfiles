@@ -1,0 +1,13 @@
+# https://www.zsh.org — loaded for every zsh (interactive and -c).
+# Early env fixes must live here so Cursor agent shells see them before Node runs.
+
+_dotfiles_zsh_dir="${${(%):-%x}:A:h}"
+if [[ -r "${_dotfiles_zsh_dir}/color-env.sh" ]]; then
+  . "${_dotfiles_zsh_dir}/color-env.sh"
+  color_env_harmonize
+fi
+unset _dotfiles_zsh_dir
+
+alias assume=". assume"
+. "$HOME/.cargo/env"
+. "$HOME/.local/share/bob/env/env.sh"

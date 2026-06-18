@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Launch OpenCode CLI with a sane TTY for colors (Bubbletea / lipgloss).
+# WezTerm enable_kitty_keyboard + prior Cmd+Z CSI experiments can leave the
+# pane in a state where the TUI renders with zero ANSI color.
+set -euo pipefail
+
+_dotfiles_zsh="${HOME}/dev/perso/dotfiles/conf/zsh"
+[[ -r "${_dotfiles_zsh}/color-env.sh" ]] && . "${_dotfiles_zsh}/color-env.sh" && color_env_harmonize
+unset _dotfiles_zsh
+
+unset NO_COLOR
+export COLORTERM="${COLORTERM:-truecolor}"
+
+export TERM_THEME="${TERM_THEME:-dark}"
+export COLORFGBG="${COLORFGBG:-15;0}"
+
+if [[ -t 1 && -w /dev/tty ]]; then
+  printf '\e[<u' >/dev/tty 2>/dev/null || true
+fi
+
+opencode_bin="${OPENCODE_BIN:-opencode}"
+if ! command -v "$opencode_bin" &>/dev/null; then
+  echo "opencode-launch: ${opencode_bin} not found (brew install anomalyco/tap/opencode)" >&2
+  exit 1
+fi
+exec "$opencode_bin" "$@"

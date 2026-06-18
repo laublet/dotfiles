@@ -17,6 +17,15 @@ return {
     local luasnip = require("luasnip")
     require("luasnip.loaders.from_vscode").lazy_load()
 
+    ---@return avante.Suggestion|nil
+    local function avante_suggestion()
+      local ok, api = pcall(require, "avante.api")
+      if not ok then
+        return nil
+      end
+      return api.get_suggestion()
+    end
+
     cmp.setup({
       snippet = {
         expand = function(args) luasnip.lsp_expand(args.body) end,
@@ -29,9 +38,14 @@ return {
         ["<C-Space>"] = cmp.mapping.complete(),
         ["<CR>"] = cmp.mapping.confirm({ select = true }),
         ["<Tab>"] = cmp.mapping(function(fallback)
-          local ok, suggestion = pcall(require, "supermaven-nvim.completion_preview")
-          if ok and suggestion.has_suggestion() then
-            suggestion.on_accept_suggestion()
+          local sg = avante_suggestion()
+          if sg and sg:is_visible() then
+            sg:accept()
+            return
+          end
+          local ok, sm = pcall(require, "supermaven-nvim.completion_preview")
+          if ok and sm.has_suggestion() then
+            sm.on_accept_suggestion()
           elseif cmp.visible() then
             cmp.select_next_item()
           elseif luasnip.expand_or_jumpable() then
@@ -41,6 +55,11 @@ return {
           end
         end, { "i", "s" }),
         ["<S-Tab>"] = cmp.mapping(function(fallback)
+          local sg = avante_suggestion()
+          if sg and sg:is_visible() then
+            sg:prev()
+            return
+          end
           if cmp.visible() then
             cmp.select_prev_item()
           elseif luasnip.jumpable(-1) then

@@ -1,5 +1,11 @@
 # https://www.zsh.org
 # https://github.com/sorin-ionescu/prezto
+
+# NO_COLOR / FORCE_COLOR (Cursor and others may set both — Node warns).
+_dotfiles_zsh_dir="${${(%):-%x}:A:h}"
+[[ -r "${_dotfiles_zsh_dir}/color-env.sh" ]] && . "${_dotfiles_zsh_dir}/color-env.sh" && color_env_harmonize
+unset _dotfiles_zsh_dir
+
 # ── Prezto ───────────────────────────────────────────────────────
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -268,6 +274,13 @@ oq() {
 
 # oe — open vault in Neovim
 alias oe='nvim "$OBSIDIAN_VAULT"'
+
+# Markdown reading — cheat markdown-reading (`readmd` terminal · `readweb` browser)
+readvault() {
+  local dir="${1:-${OBSIDIAN_VAULT:-$HOME/dev/perso/vaults/Research}}"
+  command -v readweb >/dev/null 2>&1 || { echo "readvault: readweb not found — run: just link" >&2; return 127; }
+  OPEN="${OPEN:-1}" readweb "$dir"
+}
 
 # Slack terminal — cheat slkcli / slk-tui (`just install-slack-terminal`)
 # slk = slkcli (mise). slk-tui = gammons TUI (~/.local/bin).

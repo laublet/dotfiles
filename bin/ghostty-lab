@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Ghostty + Zellij lab — parallel track to WezTerm (session name: lab).
+# Uses unified ~/.config/zellij (conf/zellij via dotbot).
+set -euo pipefail
+
+ghostty_bin() {
+  if command -v ghostty &>/dev/null; then
+    command -v ghostty
+    return 0
+  fi
+  local app="/Applications/Ghostty.app/Contents/MacOS/ghostty"
+  if [[ -x "$app" ]]; then
+    echo "$app"
+    return 0
+  fi
+  return 1
+}
+
+GHOSTTY="$(ghostty_bin || true)"
+if [[ -z "$GHOSTTY" ]]; then
+  echo "ghostty-lab: ghostty not found — brew install --cask ghostty" >&2
+  exit 127
+fi
+if ! command -v zellij &>/dev/null; then
+  echo "ghostty-lab: zellij not found — brew install zellij" >&2
+  exit 127
+fi
+
+export COLORTERM=truecolor
+
+exec "$GHOSTTY" --initial-command="zellij attach -c lab"

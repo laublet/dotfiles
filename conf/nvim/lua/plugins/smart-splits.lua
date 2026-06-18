@@ -1,16 +1,13 @@
 -- https://github.com/mrjones2014/smart-splits.nvim
 -- =============================================================================
--- smart-splits.nvim — seamless Neovim ↔ WezTerm split navigation
+-- smart-splits.nvim — seamless Neovim ↔ terminal multiplexer splits
 -- =============================================================================
--- Ctrl+arrows       = move between splits (Neovim ↔ WezTerm)
+-- Ctrl+arrows       = move between splits (Neovim ↔ WezTerm or Zellij)
 -- Ctrl+Alt+arrows   = resize splits (adjacent modifiers on Kyria)
 --
--- Integration strategy: multiplexer_integration = "wezterm" for IS_NVIM user var,
--- but we override mux functions to use OSC escape sequences instead of CLI calls.
--- This eliminates the ~100ms latency from `wezterm cli` subprocess spawning.
---
--- Navigation: at_edge callback sends SMART_SPLITS_MOVE OSC → WezTerm does ActivatePaneDirection
--- Resize: overridden resize_pane sends SMART_SPLITS_RESIZE OSC → WezTerm does AdjustPaneSize
+-- WezTerm: OSC user vars (zero-latency, no wezterm cli subprocess).
+-- Zellij: vim-zellij-navigator WASM in conf/zellij/config.kdl.
+-- multiplexer_integration omitted → plugin auto-detects (ZELLIJ env, TERM_PROGRAM, …).
 -- =============================================================================
 
 return {
@@ -37,8 +34,11 @@ return {
       ignored_filetypes = { "nofile", "quickfix", "prompt" },
       ignored_buftypes = { "NvimTree" },
       default_amount = 3,
-      multiplexer_integration = "wezterm",
       at_edge = function(ctx)
+        local mux = require("smart-splits.mux").get()
+        if not mux or mux.type ~= "wezterm" then
+          return
+        end
         local label = wezterm_dir[ctx.direction]
         if label then
           write_osc("SMART_SPLITS_MOVE", label)
@@ -47,7 +47,7 @@ return {
     })
 
     local mux = require("smart-splits.mux").get()
-    if mux then
+    if mux and mux.type == "wezterm" then
       -- Override to skip CLI call — always return true to trigger at_edge callback
       mux.current_pane_at_edge = function()
         return true

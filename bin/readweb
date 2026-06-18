@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# readweb — focus markdown reading in the browser (mdfocus)
+#
+# Pair with readmd (terminal). Serves a folder on localhost with live reload + Mermaid.
+#
+# Usage:
+#   readweb                           # current dir → http://localhost:4242
+#   readweb ~/dev/perso/vaults/Research
+#   OPEN=1 readweb cheatsheets/       # also open browser (macOS: open)
+
+set -euo pipefail
+
+ROOT="${1:-.}"
+PORT="${PORT:-4242}"
+URL="http://localhost:${PORT}"
+
+if [[ ! -d "$ROOT" ]]; then
+  echo "readweb: not a directory: $ROOT" >&2
+  exit 1
+fi
+
+ROOT="$(cd "$ROOT" && pwd)"
+
+if ! command -v npx >/dev/null 2>&1; then
+  echo "readweb: npx not found (install Node.js)" >&2
+  exit 1
+fi
+
+echo "readweb → $URL"
+echo "  root: $ROOT"
+echo "  Ctrl+C to stop"
+
+if [[ "${OPEN:-}" == 1 ]] && command -v open >/dev/null 2>&1; then
+  (sleep 1 && open "$URL") &
+elif [[ "${OPEN:-}" == 1 ]] && command -v xdg-open >/dev/null 2>&1; then
+  (sleep 1 && xdg-open "$URL") &
+fi
+
+exec npx --yes mdfocus@latest "$ROOT" -p "$PORT"

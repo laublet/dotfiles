@@ -68,6 +68,12 @@
     ~/.local/bin/cursor-agent-launch:
       create: true
       path: bin/cursor-agent-launch
+    ~/.local/bin/opencode-launch:
+      create: true
+      path: bin/opencode-launch
+    ~/.local/bin/agent-compare:
+      create: true
+      path: bin/agent-compare
     ~/.local/bin/mac-borders:
       create: true
       path: bin/mac-borders
@@ -80,7 +86,16 @@
     ~/.local/bin/research-vault-mcp-remote:
       create: true
       path: bin/research-vault-mcp-remote
-    # Neovim.app wrapper (bob nvim) for Finder / duti default handlers
+    ~/.local/bin/ghostty-lab:
+      create: true
+      path: bin/ghostty-lab
+
+    # ghostty lab (parallel track to WezTerm)
+    ~/.config/ghostty:
+      create: true
+      path: conf/ghostty
+
+    # Neovim.app wrapper (WezTerm + bob nvim) for Finder / duti default handlers
     ~/Applications/Neovim.app:
       create: true
       path: conf/mac-apps/Neovim-bob.app
@@ -98,7 +113,7 @@
         MOUSELESS_DIR=~/Library/Containers/net.sonuscape.mouseless/Data/.mouseless/configs
         [ -f conf/mac-apps/mouseless.yaml ] && mkdir -p "$MOUSELESS_DIR" && command cp -f conf/mac-apps/mouseless.yaml "$MOUSELESS_DIR/config.yaml" || true
         chmod +x ~/.local/bin/mac-startup-clean ~/.local/bin/mac-post-update \
-          ~/.local/bin/mac-doctor \
+          ~/.local/bin/mac-doctor ~/.local/bin/dotfiles-doctor \
                  ~/.local/bin/wezterm-output-picker \
           ~/.local/bin/mac-neovim-defaults ~/.local/bin/mac-open ~/.local/bin/mac-video-defaults \
           ~/.local/bin/mac-stats-defaults \
@@ -107,8 +122,10 @@
           ~/.local/bin/mac-raycast-appearance \
           ~/.local/bin/mac-raycast-dracula \
           ~/.local/bin/mac-comm-no-autostart \
-          ~/.local/bin/install-slk-tui \
-          ~/.local/bin/yazi-pick ~/.local/bin/glab-pick ~/.local/bin/sg-pick 2>/dev/null || true
+          ~/.local/bin/install-slk-tui ~/.local/bin/install-glum \
+          ~/.local/bin/readmd ~/.local/bin/readweb ~/.local/bin/mdfocus-launch \
+          ~/.local/bin/yazi-pick ~/.local/bin/glab-pick ~/.local/bin/sg-pick \
+          ~/.local/bin/ghostty-lab 2>/dev/null || true
         chmod +x ~/Applications/Neovim.app/Contents/MacOS/nvim 2>/dev/null || true
         # glab: local config only (never symlink — auth writes tokens into config.yml)
         # Remove legacy macOS path (duplicate config warning)

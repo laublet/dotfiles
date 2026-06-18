@@ -227,4 +227,4 @@ dash-max-icon-size=36
 show-trash=false
 show-mounts=false
 hot-keys=false
-favorite-apps=['com.github.wez.wezterm.desktop', 'cursor.desktop', 'firefox-developer-edition.desktop', 'obsidian.desktop', 'org.mozilla.Thunderbird.desktop', 'com.slack.Slack.desktop', 'org.signal.Signal.desktop', 'org.gnome.Nautilus.desktop', 'gnome-system-monitor.desktop']
+favorite-apps=['com.github.wez.wezterm.desktop', 'cursor.desktop', 'firefox-developer-edition.desktop', 'obsidian.desktop', 'com.slack.Slack.desktop', 'org.signal.Signal.desktop', 'org.gnome.Nautilus.desktop', 'gnome-system-monitor.desktop']

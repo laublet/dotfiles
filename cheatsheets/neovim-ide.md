@@ -50,7 +50,7 @@ First install: `:Lazy sync` (needs network; `nvim-lint` is pinned in `lazy-lock.
 | Diagnostics jump | `]d` / `[d` |
 | Tasks (npm / make) | `<leader>or` · list `<leader>ot` · restart `<leader>oR` |
 | AI agent | `<leader>aa` ask · `<leader>at` sidebar · `<leader>ac` CLI split |
-| Inline complete | Tab (Supermaven ghost, then cmp) |
+| Inline complete (Cursor Tab) | Tab — Avante multi-edit ghost, puis Supermaven, puis menu cmp · Alt+l = accepter Avante · `<leader>as` = toggle |
 | Clear search | `<leader>uc` |
 | Yank path (abs / rel) | `<leader>yp` / `<leader>yr` |
 | Registers (fzf) | `<leader>vr` — Enter = coller ; Ctrl-x = vider le registre |
@@ -176,6 +176,22 @@ Auto folds on functions/blocks (like VS Code). File opens **unfolded** (`foldlev
 
 Requires treesitter parser for the filetype (`:TSInstall` if missing).
 
+## Treesitter text objects
+
+Semantic motions and operators that work on AST nodes (fonctions, classes, paramètres).
+
+| Key | Mode | Action |
+|-----|------|--------|
+| `af` / `if` | o/v | around / inner **function** |
+| `ac` / `ic` | o/v | around / inner **class** |
+| `aa` / `ia` | o/v | around / inner **argument/parameter** |
+| `]m` / `[m` | n | next / prev function **start** |
+| `]M` / `[M` | n | next / prev function **end** |
+| `]c` / `[c` | n | next / prev class **start** |
+
+Exemples : `daf` supprime la fonction entière · `vif` sélectionne le corps · `]m` saute à la prochaine fonction.
+`lookahead = true` : si le curseur n'est pas dans un nœud, le prochain nœud en avant est utilisé.
+
 ## WezTerm integration
 
 **Cmd+click** on `src/foo.ts:42:10` in scrollback → `nvim +42` on that file (pane cwd). See [wezterm.md](wezterm.md#hyperliens-cliquables--filelinecol).
@@ -184,11 +200,13 @@ Requires treesitter parser for the filetype (`:TSInstall` if missing).
 
 | Tool | Role |
 |------|------|
-| Avante (`<leader>a*`) | Agent / chat sidebar (cursor-agent ACP) |
-| Supermaven | Inline ghost in **code** buffers only |
+| Avante (`<leader>a*`) | Agent / chat sidebar (cursor-agent ACP by default) |
+| Avante auto-suggestions | **Cursor Tab** in insert: ghost multi-emplacements · provider **claude** (API key) — agent reste sur cursor ACP |
+| OpenCode (backup) | `:AvanteSwitchProvider opencode` + optional `<leader>ao` — vault runbook `Wiki/OpenCode — plan secours agent.md` |
+| Supermaven | Inline ghost single-cursor (fallback si pas de suggestion Avante) |
 | nvim-cmp | Completion menu + snippets |
 
-Supermaven is off for markdown, Avante buffers, neo-tree, oil.
+Supermaven is off for markdown, Avante buffers, neo-tree, oil. Avante suggestions: `<leader>as` ou `:AvanteToggleSuggestion`.
 
 ## Floats stuck?
 

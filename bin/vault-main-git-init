@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# One-time: git + Codeberg remote for Main vault (backup only — LiveSync is transport).
+set -euo pipefail
+
+VAULT="${VAULT:-$HOME/dev/perso/vaults/Main}"
+DOTFILES="$(cd "$(dirname "$0")/.." && pwd)"
+GITIGNORE_SRC="$DOTFILES/conf/obsidian/vault-main.gitignore"
+CODEBERG_REMOTE="${CODEBERG_REMOTE:-git@codeberg.org:HanP77/vault-main.git}"
+
+if [[ ! -d "$VAULT" ]]; then
+  echo "error: vault not found: $VAULT" >&2
+  exit 1
+fi
+
+if [[ ! -f "$GITIGNORE_SRC" ]]; then
+  echo "error: missing $GITIGNORE_SRC — run: just link" >&2
+  exit 1
+fi
+
+cd "$VAULT"
+
+if [[ ! -d .git ]]; then
+  git init -b main
+fi
+
+if [[ -L .gitignore ]]; then
+  :
+elif [[ ! -f .gitignore ]]; then
+  ln -sf "$GITIGNORE_SRC" .gitignore
+elif ! cmp -s .gitignore "$GITIGNORE_SRC" 2>/dev/null; then
+  echo "warn: .gitignore exists and differs from dotfiles — review manually" >&2
+fi
+
+if git remote get-url origin &>/dev/null; then
+  echo "origin: $(git remote get-url origin)"
+else
+  git remote add origin "$CODEBERG_REMOTE"
+  echo "added origin → $CODEBERG_REMOTE"
+fi
+
+echo ""
+echo "Next steps:"
+echo "  1. Create private empty repo on Codeberg: HanP77/vault-main"
+echo "  2. just vault-main-backup"
+echo "  3. Schedule backup (optional): cron or launchd — not real-time sync"

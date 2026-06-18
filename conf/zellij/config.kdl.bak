@@ -1,0 +1,193 @@
+// Zellij — unified config (Ghostty lab on macOS + server SSH)
+// Navigation: Ctrl+arrows via vim-zellij-navigator + smart-splits.nvim (auto)
+// Panes/tabs: Super (= Cmd on macOS) — mirrors WezTerm mental model
+// SSH fallback: Ctrl+a d (detach only)
+
+theme "dracula"
+
+default_shell "zsh"
+default_layout "default"
+
+on_force_close "detach"
+session_serialization true
+pane_frames false
+mouse_mode true
+simplified_ui true
+default_mode "normal"
+
+copy_on_select true
+scrollback_editor "nvim"
+
+// macOS clipboard when available (harmless if pbcopy missing on minimal Linux)
+copy_command "pbcopy"
+
+keybinds clear-defaults=true {
+    normal {
+        // Minimal Ctrl+a prefix — SSH detach only
+        bind "Ctrl a" { SwitchToMode "tmux"; }
+
+        // Panes (Super = Cmd on macOS)
+        bind "Super d" { NewPane "Right"; }
+        bind "Super Shift d" { NewPane "Down"; }
+        bind "Super w" { CloseFocus; }
+        bind "Super Shift z" { ToggleFocusFullscreen; }
+
+        // Tabs
+        bind "Super t" { NewTab; }
+        bind "Super Shift Left" { GoToPreviousTab; }
+        bind "Super Shift Right" { GoToNextTab; }
+        bind "Super 1" { GoToTab 1; }
+        bind "Super 2" { GoToTab 2; }
+        bind "Super 3" { GoToTab 3; }
+        bind "Super 4" { GoToTab 4; }
+        bind "Super 5" { GoToTab 5; }
+        bind "Super 6" { GoToTab 6; }
+        bind "Super 7" { GoToTab 7; }
+        bind "Super 8" { GoToTab 8; }
+        bind "Super 9" { GoToTab 9; }
+        bind "Super Shift ," { SwitchToMode "RenameTab"; TabNameInput 0; }
+
+        // Scroll / copy mode (WezTerm: Cmd+Alt+Space)
+        bind "Super Alt Space" { SwitchToMode "Scroll"; }
+    }
+
+    tmux {
+        bind "d" { Detach; }
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Ctrl a" { SwitchToMode "Normal"; }
+    }
+
+    scroll {
+        bind "Down" { ScrollDown; }
+        bind "Up" { ScrollUp; }
+        bind "PageDown" { HalfPageScrollDown; }
+        bind "PageUp" { HalfPageScrollUp; }
+        bind "Home" { ScrollToTop; }
+        bind "End" { ScrollToBottom; }
+        bind "Ctrl c" { ScrollToBottom; SwitchToMode "Normal"; }
+        bind "/" { SwitchToMode "EnterSearch"; SearchInput 0; }
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "q" { SwitchToMode "Normal"; }
+    }
+
+    entersearch {
+        bind "Enter" { SwitchToMode "Search"; }
+        bind "Ctrl c" "Esc" { SwitchToMode "Scroll"; }
+    }
+
+    search {
+        bind "Down" { Search "down"; }
+        bind "Up" { Search "up"; }
+        bind "PageDown" { ScrollDown; }
+        bind "PageUp" { ScrollUp; }
+        bind "Ctrl c" { ScrollToBottom; SwitchToMode "Normal"; }
+        bind "Esc" { SwitchToMode "Normal"; }
+        bind "q" { SwitchToMode "Normal"; }
+    }
+
+    renametab {
+        bind "Enter" { SwitchToMode "Normal"; }
+        bind "Ctrl c" { SwitchToMode "Normal"; }
+        bind "Esc" { UndoRenameTab; SwitchToMode "Normal"; }
+    }
+
+    session {
+        bind "d" { Detach; }
+        bind "Esc" { SwitchToMode "Normal"; }
+    }
+
+    shared_except "locked" "renametab" "renamepane" {
+        // Ctrl+c intentionally NOT bound here — must reach the shell in normal mode (SIGINT / cancel line).
+        bind "Ctrl Left" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "left"
+            }
+        }
+        bind "Ctrl Down" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "down"
+            }
+        }
+        bind "Ctrl Up" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "up"
+            }
+        }
+        bind "Ctrl Right" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "right"
+            }
+        }
+        // macOS fallback when Mission Control steals Ctrl+←/→
+        bind "Ctrl Shift Left" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "left"
+            }
+        }
+        bind "Ctrl Shift Down" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "down"
+            }
+        }
+        bind "Ctrl Shift Up" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "up"
+            }
+        }
+        bind "Ctrl Shift Right" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "move_focus"
+                payload "right"
+            }
+        }
+
+        // Resize (Ctrl+Alt+arrows — matches WezTerm / smart-splits)
+        bind "Ctrl Alt Left" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "resize"
+                payload "left"
+            }
+        }
+        bind "Ctrl Alt Down" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "resize"
+                payload "down"
+            }
+        }
+        bind "Ctrl Alt Up" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "resize"
+                payload "up"
+            }
+        }
+        bind "Ctrl Alt Right" {
+            MessagePlugin "file:~/.config/zellij/plugins/vim-zellij-navigator.wasm" {
+                name "resize"
+                payload "right"
+            }
+        }
+    }
+}
+
+themes {
+    dracula {
+        fg "#f8f8f2"
+        bg "#282a36"
+        black "#21222c"
+        red "#ff5555"
+        green "#50fa7b"
+        yellow "#f1fa8c"
+        blue "#bd93f9"
+        magenta "#ff79c6"
+        cyan "#8be9fd"
+        white "#f8f8f2"
+        orange "#ffb86c"
+    }
+}

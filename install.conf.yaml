@@ -57,6 +57,9 @@
     ~/dev/perso/vaults/Main/.obsidian/plugins/notebook-navigator/data.json:
       force: true
       path: conf/obsidian/notebook-navigator.json
+    ~/dev/perso/vaults/Main/.gitignore:
+      force: true
+      path: conf/obsidian/vault-main.gitignore
 
     # tridactyl (Firefox)
     ~/.config/tridactyl/tridactylrc:
@@ -122,15 +125,33 @@
     ~/.local/bin/nvim-keylog-analyze:
       create: true
       path: bin/nvim-keylog-analyze
+    ~/.local/bin/dotfiles-doctor:
+      create: true
+      path: bin/dotfiles-doctor
     ~/.local/bin/install-slk-tui:
       create: true
       path: bin/install-slk-tui
+    ~/.local/bin/install-glum:
+      create: true
+      path: bin/install-glum
+    ~/.local/bin/readmd:
+      create: true
+      path: bin/readmd
+    ~/.local/bin/readweb:
+      create: true
+      path: bin/readweb
+    ~/.local/bin/mdfocus-launch:
+      create: true
+      path: bin/mdfocus-launch
     # macOS Choosy URL opener (harmless on Linux; zsh only wraps open on darwin)
     ~/.local/bin/mac-open:
       create: true
       path: bin/mac-open
 
     # zsh
+    ~/.zshenv:
+      force: true
+      path: conf/zsh/zshenv
     ~/.zshrc:
       force: true
       path: conf/zsh/zshrc

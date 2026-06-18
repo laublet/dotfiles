@@ -5,7 +5,8 @@
 -- =============================================================================
 -- Architecture keybindings :
 --   Ctrl + arrows            → navigate panes (smart-splits, Neovim ↔ WezTerm)
---   Ctrl + Shift + arrows    → same (use on macOS if Ctrl+arrows do nothing — OS steals Ctrl+←/→ for spaces)
+--   Ctrl + Shift + arrows    → same (macOS fallback when Ctrl+←/→ is stolen by Mission Control)
+--   Zoomed pane (Cmd+Shift+Z): Ctrl+arrows cannot leave or unzoom — use Cmd+Shift+Z first
 --   Ctrl + Alt + arrows      → resize panes (smart-splits)
 --   Ctrl + Alt + Shift + arrows → swap active pane with neighbor in that direction
 --        (2 panes: rotate; 3+: PaneSelect fallback until Lua exposes swap_active_with_index)
@@ -82,6 +83,11 @@ config.window_padding = { left = 8, right = 8, top = 8, bottom = 8 }
 config.window_background_opacity = 1.0
 config.macos_window_background_blur = 0
 
+-- Quit when the last window closes; don't block macOS logout/restart/shutdown.
+-- (Default mac menubar behavior keeps wezterm-gui alive with no windows.)
+config.quit_when_all_windows_are_closed = true
+config.window_close_confirmation = "NeverPrompt"
+
 -- Tab bar
 config.use_fancy_tab_bar = false
 config.tab_bar_at_bottom = true
@@ -143,6 +149,9 @@ config.hide_mouse_cursor_when_typing = true
 -- Scrollback
 config.scrollback_lines = 50000
 
+-- Zoomed pane: ActivatePaneDirection is a no-op until Cmd+Shift+Z unzooms (no accidental unzoom on Ctrl+arrows).
+config.unzoom_on_switch_pane = false
+
 -- Bell — silence audible beep, keep a subtle cursor flash, raise a macOS toast.
 -- Use with `printf '\a'` (or any TUI bell) to be notified when long commands finish:
 --   make build && printf '\a'
@@ -167,8 +176,8 @@ config.enable_kitty_keyboard = true
 -- fail to find Homebrew binaries. Pre-populate PATH here so every wezterm child
 -- starts with the right environment.
 local platform_env = platform.environment_variables()
-platform_env.NO_COLOR = ""
-platform_env.FORCE_COLOR = ""
+-- Do not set NO_COLOR or FORCE_COLOR here (even to ""): Node warns when both
+-- are present, and empty FORCE_COLOR still counts as "force color".
 platform_env.COLORTERM = "truecolor"
 config.set_environment_variables = platform_env
 
@@ -302,8 +311,15 @@ end)
 -- Cross-boundary move from nvim: Neovim emits OSC SetUserVar=SMART_SPLITS_MOVE (stderr);
 -- user-var-changed runs ActivatePaneDirection (no `wezterm cli` for that navigation step).
 
+-- Primary: IS_NVIM user var set by smart-splits mux.wezterm.on_init (zero-latency OSC path).
+-- Fallback: check foreground process name for cases where the var was never set
+-- (fresh pane attach, nested shell, Neovim opened without smart-splits loaded).
 local function is_nvim(pane)
-	return pane:get_user_vars().IS_NVIM == "true"
+	if pane:get_user_vars().IS_NVIM == "true" then
+		return true
+	end
+	local proc = pane:get_foreground_process_name() or ""
+	return proc:match("[/\\]n?vim$") ~= nil
 end
 
 local direction_keys = {
@@ -540,6 +556,7 @@ end)
 local STATUS_PROCESSES = {
 	"cursor%-agent",
 	"^agent$", -- cursor-agent CLI runtime binary name
+	"opencode",
 	"claude",
 	"aider",
 	"codex",

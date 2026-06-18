@@ -1,0 +1,22 @@
+# CouchDB backend for Obsidian Self-hosted LiveSync (vault Main only).
+# Deploy on uruk: ~/homelab/obsidian-main/
+# Public HTTPS: host nginx → 127.0.0.1:5984 (see nginx/obsidian-main.loicaublet.fr.conf.snippet)
+
+services:
+  couchdb:
+    image: couchdb:3.4.2
+    container_name: obsidian-main-couchdb
+    restart: unless-stopped
+    ports:
+      # LAN only — public HTTPS via nginx proxy (not :5984 on 0.0.0.0)
+      - "192.168.1.104:5984:5984"
+    environment:
+      COUCHDB_USER: ${COUCHDB_USER}
+      COUCHDB_PASSWORD: ${COUCHDB_PASSWORD}
+    volumes:
+      - ./data:/opt/couchdb/data
+      - ./conf/local.ini:/opt/couchdb/etc/local.ini
+    mem_limit: 512m
+    pids_limit: 100
+    security_opt:
+      - no-new-privileges:true

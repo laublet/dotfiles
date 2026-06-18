@@ -8,5 +8,6 @@
   "todoist-sync-plugin",
   "heatmap-tracker",
   "obsidian-advanced-uri",
-  "hoarder-sync"
+  "hoarder-sync",
+  "obsidian-livesync"
 ]

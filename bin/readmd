@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# readmd — focus markdown reading via glum (centered column)
+#
+# Default theme: plain — inherits WezTerm Dracula (#282a36) instead of glum's near-black "dark".
+# Override: READMD_THEME=night readmd file.md
+#
+# Usage:
+#   readmd file.md
+#   readmd --theme night --measure 68 note.md
+#   cat draft.md | readmd -
+
+set -euo pipefail
+
+glum_bin="${GLUM:-glum}"
+if ! command -v "$glum_bin" >/dev/null 2>&1; then
+  echo "readmd: glum not found — run: just install-glum" >&2
+  exit 1
+fi
+
+if [[ $# -eq 0 ]]; then
+  echo "Usage: readmd [glum options] <file.md>" >&2
+  exit 1
+fi
+
+# Pass through explicit glum flags; default to focus-reading layout otherwise.
+case "${1:-}" in
+  -|--*|[0-9]*)
+    exec "$glum_bin" "$@"
+    ;;
+  *)
+    theme="${READMD_THEME:-plain}"
+    exec "$glum_bin" --theme "$theme" --measure 72 --align center "$@"
+    ;;
+esac

@@ -1,0 +1,145 @@
+#!/usr/bin/env bash
+# dotfiles-doctor — verify dotbot symlinks and loadable compound configs (WezTerm, …).
+# Usage: dotfiles-doctor   or   just dotfiles-doctor
+
+set -euo pipefail
+
+DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+HOME="${HOME:-$(eval echo ~)}"
+
+RED='\033[0;31m'
+GRN='\033[0;32m'
+YLW='\033[0;33m'
+RST='\033[0m'
+FAIL=0
+WARN=0
+
+ok()   { printf "${GRN}OK${RST}   %s\n" "$*"; }
+warn() { printf "${YLW}WARN${RST} %s\n" "$*"; WARN=$((WARN + 1)); }
+bad()  { printf "${RED}FAIL${RST} %s\n" "$*"; FAIL=$((FAIL + 1)); }
+
+section() { echo ""; echo "== $* =="; }
+
+canonical_path() {
+  python3 - "$1" <<'PY'
+import os, sys
+print(os.path.realpath(sys.argv[1]))
+PY
+}
+
+# Emit "target<TAB>repo_rel_path" from dotbot link YAML (target line then path: line).
+collect_links() {
+  local yaml="$1"
+  [[ -f "$yaml" ]] || return 0
+  local target="" line rel
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ "$line" =~ ^[[:space:]]*# ]] && continue
+    if [[ "$line" =~ ^[[:space:]]+(~[^:[:space:]]+): ]]; then
+      target="${BASH_REMATCH[1]}"
+      target="${target/#\~/$HOME}"
+      continue
+    fi
+    if [[ -n "$target" && "$line" =~ ^[[:space:]]+path:[[:space:]]+(.+)[[:space:]]*$ ]]; then
+      rel="${BASH_REMATCH[1]}"
+      printf '%s\t%s\n' "$target" "$rel"
+      target=""
+    fi
+  done <"$yaml"
+}
+
+check_dotbot_link() {
+  local severity="$1" target="$2" rel="$3"
+  local expected="${DOTFILES}/${rel}"
+  local label="${target#"$HOME"/}"
+
+  if [[ ! -e "$target" && ! -L "$target" ]]; then
+    if [[ "$severity" == fail ]]; then
+      bad "missing ~/${label} → ${rel} (run: just link)"
+    else
+      warn "missing ~/${label} → ${rel} (run: just link)"
+    fi
+    return
+  fi
+
+  if [[ ! -L "$target" ]]; then
+    if [[ "$severity" == fail ]]; then
+      bad "~/${label} exists but is not a symlink (run: just link)"
+    else
+      warn "~/${label} exists but is not a symlink (run: just link)"
+    fi
+    return
+  fi
+
+  local actual expected_canon
+  actual="$(canonical_path "$target")"
+  expected_canon="$(canonical_path "$expected")"
+  if [[ "$actual" == "$expected_canon" ]]; then
+    ok "~/${label} → ${rel}"
+  elif [[ "$severity" == fail ]]; then
+    bad "~/${label} → ${actual} (expected ${expected_canon})"
+  else
+    warn "~/${label} → ${actual} (expected ${expected_canon})"
+  fi
+}
+
+run_link_checks() {
+  local severity="$1" yaml="$2" title="$3"
+  section "$title"
+  mapfile -t links < <(collect_links "$yaml" | sort -u)
+  if [[ ${#links[@]} -eq 0 ]]; then
+    warn "no links parsed from $(basename "$yaml")"
+    return
+  fi
+  while IFS=$'\t' read -r target rel; do
+    [[ -n "$target" && -n "$rel" ]] || continue
+    check_dotbot_link "$severity" "$target" "$rel"
+  done < <(printf '%s\n' "${links[@]}")
+}
+
+run_link_checks fail "${DOTFILES}/install.conf.yaml" "Dotbot symlinks (shared)"
+case "$(uname -s)" in
+  Darwin)
+    run_link_checks warn "${DOTFILES}/install-mac.conf.yaml" "Dotbot symlinks (macOS)"
+    ;;
+  Linux)
+    run_link_checks warn "${DOTFILES}/install-linux.conf.yaml" "Dotbot symlinks (Linux)"
+    ;;
+esac
+
+section "Compound configs"
+# Same-directory XDG bundles: all dotbot files must be present (catches partial manual symlinks).
+check_config_dir() {
+  local name="$1" dir="$2"
+  shift 2
+  local missing=0
+  local f
+  for f in "$@"; do
+    if [[ ! -e "${dir}/${f}" ]]; then
+      missing=$((missing + 1))
+    fi
+  done
+  if [[ $missing -eq 0 ]]; then
+    ok "${name} (${dir#$HOME/})"
+  else
+    bad "${name}: ${missing} missing under ${dir#$HOME/} (run: just link)"
+  fi
+}
+
+check_config_dir "WezTerm" "${HOME}/.config/wezterm" wezterm.lua platform.lua
+
+section "WezTerm config load"
+if command -v wezterm &>/dev/null; then
+  err="$(wezterm -n -e true 2>&1 || true)"
+  if printf '%s' "$err" | rg -q "runtime error|module 'platform' not found|Error parsing"; then
+    bad "wezterm -n failed: $(printf '%s' "$err" | head -3 | tr '\n' ' ')"
+  else
+    ok "wezterm -n -e true"
+  fi
+else
+  warn "wezterm not in PATH"
+fi
+
+section "Summary (dotfiles-doctor)"
+echo "Failures: $FAIL · Warnings: $WARN"
+[[ $FAIL -eq 0 ]] || exit 1
+exit 0

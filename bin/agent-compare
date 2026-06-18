@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+# Compare Cursor Pro vs OpenCode Go usage with controlled-cost guardrails.
+set -euo pipefail
+
+URUK_HOST="${AGENT_COMPARE_HOST:-uruk}"
+URUK_USAGE="${AGENT_COMPARE_USAGE:-$HOME/.local/share/cursor-gateway/usage.jsonl}"
+DAYS="${AGENT_COMPARE_DAYS:-7}"
+
+usage() {
+  cat <<'EOF'
+agent-compare — suivi coûts Cursor vs OpenCode
+
+Usage:
+  agent-compare              # résumé 7 jours (Mac + uruk si ssh OK)
+  agent-compare --days 14    # fenêtre personnalisée
+  agent-compare --local      # Mac seulement (opencode stats)
+  agent-compare --protocol     # rappel protocole A/B
+
+Env:
+  AGENT_COMPARE_HOST   ssh host (défaut: uruk)
+  AGENT_COMPARE_DAYS   fenêtre en jours (défaut: 7)
+
+Coûts maîtrisés:
+  - Un seul provider actif à la fois (gateway.yaml agent_provider)
+  - Cursor: désactiver on-demand / spending cap dashboard
+  - OpenCode Go: pas de top-up tant que la comparaison n'est pas finie
+EOF
+}
+
+print_protocol() {
+  cat <<'EOF'
+Protocole A/B (coûts maîtrisés)
+
+Semaine A — Cursor Pro
+  1. gateway.yaml → agent_provider: cursor
+  2. systemctl --user restart cursor-gateway   (sur uruk)
+  3. Mac/Neovim: provider cursor (défaut)
+  4. Pas d'on-demand Cursor
+
+Semaine B — OpenCode Go
+  1. Abo Go + /connect sur uruk et Mac
+  2. systemctl --user enable --now opencode-serve
+  3. cp gateway.opencode.yaml → gateway.yaml ; restart cursor-gateway
+  4. Mac: :AvanteSwitchProvider opencode
+  5. Pas de top-up OpenCode
+
+Mesure (fin de chaque semaine)
+  agent-compare --days 7
+  Cursor: https://cursor.com/dashboard/spending
+  OpenCode: opencode stats --days 7
+  Telegram: ~/.local/share/cursor-gateway/usage.jsonl (résumé ci-dessous)
+
+Décision
+  - Coût réel + temps perdu sur tâches dures
+  - Garder un seul abo agent après comparaison
+EOF
+}
+
+summarize_usage_jsonl() {
+  local file="$1"
+  local days="$2"
+  python3 - "$file" "$days" <<'PY'
+import json, sys
+from datetime import datetime, timedelta, timezone
+from collections import defaultdict
+
+path, days = sys.argv[1], int(sys.argv[2])
+since = datetime.now(timezone.utc) - timedelta(days=days)
+agg = defaultdict(lambda: {"runs": 0, "ask": 0, "do": 0, "ok": 0, "ms": 0})
+
+try:
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            ev = json.loads(line)
+            at = datetime.fromisoformat(ev["at"].replace("Z", "+00:00"))
+            if at < since:
+                continue
+            p = ev.get("provider") or "unknown"
+            agg[p]["runs"] += 1
+            if ev.get("mode") == "ask":
+                agg[p]["ask"] += 1
+            if ev.get("mode") == "do":
+                agg[p]["do"] += 1
+            if ev.get("ok"):
+                agg[p]["ok"] += 1
+            agg[p]["ms"] += int(ev.get("duration_ms") or 0)
+except FileNotFoundError:
+    print("(fichier usage absent)")
+    sys.exit(0)
+
+if not agg:
+    print("(aucun run sur la période)")
+    sys.exit(0)
+
+for provider in sorted(agg):
+    s = agg[provider]
+    mins = round(s["ms"] / 60000, 1)
+    print(f"  {provider}: runs={s['runs']} ask={s['ask']} do={s['do']} ok={s['ok']} temps={mins}min")
+PY
+}
+
+print_local_opencode() {
+  if ! command -v opencode >/dev/null 2>&1; then
+    echo "OpenCode: non installé (brew install anomalyco/tap/opencode)"
+    return
+  fi
+  echo "=== OpenCode (Mac) — opencode stats ==="
+  opencode stats --days "$DAYS" --models 5 2>/dev/null || echo "(pas de stats — connecter Go avec /connect)"
+}
+
+print_remote_usage() {
+  if [[ "${1:-}" == "--local" ]]; then
+    return
+  fi
+  if ! command -v ssh >/dev/null 2>&1; then
+    return
+  fi
+  echo "=== Telegram gateway (uruk) — usage.jsonl (${DAYS}j) ==="
+  if ssh -o ConnectTimeout=5 "$URUK_HOST" "test -f $URUK_USAGE" 2>/dev/null; then
+    ssh "$URUK_HOST" "cat $URUK_USAGE" | summarize_usage_jsonl /dev/stdin "$DAYS"
+  else
+    echo "(usage.jsonl absent sur uruk — redéployer gateway après comparaison)"
+  fi
+}
+
+main() {
+  local mode="all"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help) usage; exit 0 ;;
+      --protocol) print_protocol; exit 0 ;;
+      --days) DAYS="$2"; shift 2 ;;
+      --local) mode="local"; shift ;;
+      *) echo "Option inconnue: $1" >&2; usage; exit 1 ;;
+    esac
+  done
+
+  echo "=== Agent compare (${DAYS} jours) ==="
+  echo ""
+  echo "Cursor dashboard: https://cursor.com/dashboard/spending"
+  echo "OpenCode auth:    https://opencode.ai/auth"
+  echo ""
+  print_local_opencode
+  echo ""
+  if [[ "$mode" == "all" ]]; then
+    print_remote_usage
+  else
+    if [[ -f "$URUK_USAGE" ]]; then
+      echo "=== usage.jsonl local ==="
+      summarize_usage_jsonl "$URUK_USAGE" "$DAYS"
+    fi
+  fi
+  echo ""
+  echo "Protocole complet: agent-compare --protocol"
+}
+
+main "$@"

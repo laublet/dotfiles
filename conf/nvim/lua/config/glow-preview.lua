@@ -8,7 +8,7 @@ function M.setup()
 
   local glow = require("utils.glow-preview")
   glow.setup({
-    style = "dark",
+    style = "dracula",
     width_ratio = 0.85,
     height_ratio = 0.85,
     border = "rounded",

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Snapshot Main vault to Codeberg (disaster recovery — LiveSync remains transport).
+set -euo pipefail
+
+VAULT="${VAULT:-$HOME/dev/perso/vaults/Main}"
+MSG="${1:-backup: $(date +%Y-%m-%d)}"
+
+if [[ ! -d "$VAULT/.git" ]]; then
+  echo "error: no git repo — run: just vault-main-git-init" >&2
+  exit 1
+fi
+
+cd "$VAULT"
+
+if ! git remote get-url origin &>/dev/null; then
+  echo "error: no origin remote — run: just vault-main-git-init" >&2
+  exit 1
+fi
+
+git add -A
+
+if git diff --cached --quiet; then
+  echo "vault-main: no changes"
+  exit 0
+fi
+
+git commit -m "$MSG"
+git push origin HEAD
+
+echo "vault-main: pushed to $(git remote get-url origin)"

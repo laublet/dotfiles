@@ -1,11 +1,9 @@
 -- https://github.com/yetone/avante.nvim
--- Provider = "cursor" via ACP (Agent Client Protocol) — connects to the
--- locally installed cursor-agent CLI for agentic edits, codebase indexing,
--- and Cursor's composer models. Run `cursor-agent login` once in a shell to
--- authenticate before first use. Switch provider live with <leader>am.
--- Claude is kept configured as a fallback (select via <leader>a?).
--- Doc: https://cursor.com/docs/cli/acp#neovim-avantenvim
--- Default prefix is <leader>a (e.g. <leader>at toggle). LSP code actions use <leader>la instead.
+-- Primary: provider = "opencode" via ACP → `opencode acp` (OpenCode Go).
+-- Backup: acp_providers.cursor → cursor-agent if Cursor is available again.
+--   Switch live: :AvanteSwitchProvider cursor — runbook: vault Wiki/OpenCode — plan secours agent.md
+-- Claude: direct API fallback (select via <leader>a?).
+-- Default prefix <leader>a (e.g. <leader>at toggle). LSP code actions: <leader>la.
 
 return {
   "yetone/avante.nvim",
@@ -20,13 +18,39 @@ return {
     "nvim-treesitter/nvim-treesitter",
   },
   opts = {
-    provider = "cursor",
+    provider = "opencode",
+    -- Cursor Tab (multi-location ghost): uses Llm.stream + providers.*, not ACP.
+    -- Agent/chat stays on cursor ACP; inline Tab needs a classic provider (claude here).
+    -- Requires AVANTE_ANTHROPIC_API_KEY or ANTHROPIC_API_KEY — else :AvanteToggleSuggestion / Supermaven.
+    auto_suggestions_provider = "claude",
     mode = "agentic",
+    behaviour = {
+      auto_suggestions = true,
+    },
+    suggestion = {
+      debounce = 600,
+      throttle = 800,
+    },
+    mappings = {
+      suggestion = {
+        -- Tab is wired in cmp.lua (Avante > Supermaven > cmp); keep Alt+l as fallback.
+        accept = "<M-l>",
+        dismiss = "<C-]>",
+      },
+    },
     acp_providers = {
       cursor = {
         command = os.getenv("HOME") .. "/.local/bin/cursor-agent",
         args = { "acp" },
         auth_method = "cursor_login",
+        env = {
+          HOME = os.getenv("HOME"),
+          PATH = os.getenv("PATH"),
+        },
+      },
+      opencode = {
+        command = "opencode",
+        args = { "acp" },
         env = {
           HOME = os.getenv("HOME"),
           PATH = os.getenv("PATH"),
@@ -40,7 +64,8 @@ return {
       claude = {
         model = "claude-sonnet-4-20250514",
         extra_request_body = {
-          max_tokens = 8192,
+          max_tokens = 4096,
+          temperature = 0.2,
         },
       },
     },

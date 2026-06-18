@@ -24,6 +24,9 @@ HELP: dict[str, str] = {
     "gitui.md": "`?` in TUI · `gitui --help`",
     "glab.md": "`glab help` · `glab <cmd> --help`",
     "glow.md": "`?` in TUI · `glow --help`",
+    "glum.md": "`?` in viewer · `glum --help`",
+    "markdown-reading.md": "`readmd file.md` · `readweb [dir]` · `cheat markdown-reading`",
+    "mdfocus.md": "`readweb --help` via script · `npx mdfocus --help`",
     "go.md": "`go help` · `go help <cmd>`",
     "hyperfine.md": "`hyperfine --help`",
     "index.md": "`cheat` (fzf all sheets) · `cheat <name>`",
@@ -58,6 +61,7 @@ HELP: dict[str, str] = {
     "yazi.md": "`?` in TUI · `yazi --help`",
     "zed.md": "`Space` pause → which-key · `Cmd+Shift+P` command palette",
     "zellij.md": "`?` in TUI · `zellij --help`",
+    "ghostty-lab.md": "`ghostty-lab` · [Ghostty docs](https://ghostty.org/docs)",
     "zoxide.md": "`zoxide --help`",
 }
 

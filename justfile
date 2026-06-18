@@ -60,6 +60,12 @@ install-slack-terminal:
     mise which slk >/dev/null && echo "slk (slkcli): $(mise which slk)"
     command -v slk-tui >/dev/null && echo "slk-tui: $(command -v slk-tui)"
 
+[doc("Install glum focus markdown reader (~/.local/bin/glum)")]
+install-glum:
+    test -x bin/install-glum || (echo "Run: just link" >&2; exit 1)
+    bin/install-glum
+    command -v glum >/dev/null && glum --version
+
 [doc("Set Neovim as default app for text-like files (requires duti + Neovim.app)")]
 [macos]
 mac-neovim-defaults:
@@ -192,6 +198,19 @@ post-update:
     [[ -x "$HOME/.local/bin/mac-post-update" ]] || { echo "Run: just link"; exit 1; }
     "$HOME/.local/bin/mac-post-update" --upgrade --cargo
 
+[doc("Verify dotbot symlinks and compound configs (WezTerm, …)")]
+dotfiles-doctor:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ -x "$HOME/.local/bin/dotfiles-doctor" ]]; then
+      exec "$HOME/.local/bin/dotfiles-doctor"
+    fi
+    if [[ -x "{{justfile_directory()}}/bin/dotfiles-doctor" ]]; then
+      exec "{{justfile_directory()}}/bin/dotfiles-doctor"
+    fi
+    echo "Run: just link" >&2
+    exit 1
+
 [doc("Health check: agent hub, MCP, duti, AeroSpace warp, tooling (no brew upgrade)")]
 [macos]
 doctor:
@@ -232,11 +251,45 @@ nvim:
 wezterm:
     $EDITOR conf/wezterm/
 
+[doc("Launch Ghostty + Zellij lab session")]
+ghostty-lab:
+    ghostty-lab
+
+[doc("Edit ghostty config")]
+ghostty:
+    $EDITOR conf/ghostty/config
+
+[doc("Edit zellij config")]
+zellij:
+    $EDITOR conf/zellij/
+
 [doc("Edit starship config")]
 starship:
     $EDITOR conf/starship/starship.toml
 
 # ── Cheatsheets ───────────────────────────────────────────────────
+
+[doc("Focus-read a markdown file (glum, centered column)")]
+read-md FILE:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [[ -x "$HOME/.local/bin/readmd" ]] || [[ -x bin/readmd ]] || { echo "Run: just link && just install-glum"; exit 1; }
+    script="$HOME/.local/bin/readmd"
+    [[ -x "$script" ]] || script="bin/readmd"
+    "$script" "{{FILE}}"
+
+[doc("Serve folder as focus markdown reader in browser (readweb)")]
+read-web DIR='.':
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [[ -x "$HOME/.local/bin/readweb" ]] || [[ -x bin/readweb ]] || { echo "Run: just link"; exit 1; }
+    script="$HOME/.local/bin/readweb"
+    [[ -x "$script" ]] || script="bin/readweb"
+    "$script" "{{DIR}}"
+
+[doc("Alias of read-web (back-compat)")]
+mdfocus DIR='.':
+    just read-web "{{DIR}}"
 
 [doc("Browse cheatsheets with fzf")]
 cheat:
@@ -258,6 +311,23 @@ stats:
 size:
     dust -d 2 -X dotbot -X .git
 
+[doc("Lint shell scripts (shellcheck) + YAML/TOML config files (yamllint)")]
+lint:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ROOT="{{justfile_directory()}}"
+    echo "── shellcheck ──────────────────────────"
+    # Exclude non-script files (binaries, Python) via file -b check
+    find "$ROOT/bin" -maxdepth 1 -type f | while read -r f; do
+        mime=$(file -b --mime-type "$f")
+        if [[ "$mime" == "text/x-shellscript" || "$mime" == "text/plain" ]]; then
+            head -1 "$f" | grep -qE '^#!.*(bash|sh|zsh)' && shellcheck "$f" && echo "  ok $f"
+        fi
+    done
+    echo "── yamllint ────────────────────────────"
+    yamllint -d relaxed install.conf.yaml install-mac.conf.yaml install-agents.conf.yaml 2>/dev/null || true
+    echo "── done ────────────────────────────────"
+
 [doc("Check cross-tool keymap lock (Nvim/WezTerm refs)")]
 keymap-lock-check:
     python3 scripts/check-keymap-lock.py
@@ -277,6 +347,24 @@ bookmarks-triage-update TRIAGE_DIR="$HOME/dev/perso/vaults/Research/Inbox/karake
 [doc("HTTP-check URLs in keepers.csv → keepers-url-status.csv")]
 keepers-url-check INPUT="$HOME/dev/perso/vaults/Research/Inbox/karakeep-bookmarks-export/triage/keepers.csv":
     python3 scripts/check_keepers_urls.py --input "{{INPUT}}"
+
+[doc("Init git + Codeberg remote for Main vault (backup; LiveSync = transport)")]
+vault-main-git-init:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [[ -x "{{justfile_directory()}}/bin/vault-main-git-init" ]] || { echo "Run: just link"; exit 1; }
+    "{{justfile_directory()}}/bin/vault-main-git-init"
+
+[doc("Commit and push Main vault snapshot to Codeberg")]
+vault-main-backup *MSG:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    [[ -x "{{justfile_directory()}}/bin/vault-main-backup" ]] || { echo "Run: just link"; exit 1; }
+    if [[ -n "{{MSG}}" ]]; then
+        "{{justfile_directory()}}/bin/vault-main-backup" "{{MSG}}"
+    else
+        "{{justfile_directory()}}/bin/vault-main-backup"
+    fi
 
 [doc("Install hoarder-sync in Main vault only (Literature/Karakeep)")]
 hoarder-sync-setup:

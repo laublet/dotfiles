@@ -1,9 +1,9 @@
-# zellij — terminal multiplexer (server)
+# zellij — terminal multiplexer
 
 > **Help:** `?` in TUI · `zellij --help`
 
-> Replaces `tmux`. Persistent sessions, vim navigation, Dracula theme.
-> Prefix: `Ctrl+a` (same as old tmux config).
+> Config unifiée : macOS (Ghostty lab) + serveur SSH.
+> Ghostty lab : [ghostty-lab.md](ghostty-lab.md) · WezTerm main : [wezterm.md](wezterm.md).
 
 ## Session management
 
@@ -11,73 +11,80 @@
 zellij                               # new session (or attach if one exists)
 zellij -s myproject                  # named session
 zellij attach myproject              # reattach to named session
+zellij attach -c lab                 # Ghostty lab session (create if missing)
 zellij list-sessions                 # list all sessions (ls alias)
 zellij kill-session myproject        # kill a session
 zellij kill-all-sessions             # kill all sessions
-zellij attach -c myproject           # attach or create if doesn't exist
 ```
 
-## Prefix key: Ctrl+a
+Ghostty lab launcher : `ghostty-lab` (= `zellij attach -c lab` inside Ghostty).
 
-All actions below require pressing `Ctrl+a` first, then the key.
+## Navigation (primary — all platforms)
 
-### Panes
+Works with **smart-splits.nvim** + `vim-zellij-navigator` WASM (`conf/zellij/plugins/`).
 
-| Key | Action |
-|-----|--------|
-| `v` | split right (vertical) |
-| `b` | split down (horizontal) |
-| `h` `j` `k` `l` | navigate panes |
-| `H` `J` `K` `L` | resize panes (hold for continuous) |
-| `x` | close current pane |
-| `z` | toggle fullscreen (zoom) |
-| `f` | toggle floating pane |
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl + arrows` | Navigate panes (crosses into Neovim) |
+| `Ctrl + Shift + arrows` | Same — macOS fallback when `Ctrl+←/→` stolen by Mission Control |
+| `Ctrl + Alt + arrows` | Resize panes |
 
-### Tabs
+## Panes & tabs (Super = Cmd on macOS)
 
-| Key | Action |
-|-----|--------|
-| `c` | new tab |
-| `n` / `p` | next / previous tab |
-| `1`-`5` | go to tab by number |
-| `,` | rename current tab |
+| Shortcut | Action |
+|----------|--------|
+| `Cmd + D` | Split right |
+| `Cmd + Shift + D` | Split down |
+| `Cmd + W` | Close pane |
+| `Cmd + Shift + Z` | Zoom pane (fullscreen) |
+| `Cmd + T` | New tab |
+| `Cmd + Shift + ←/→` | Prev / next tab |
+| `Cmd + 1`..`9` | Go to tab |
+| `Cmd + Shift + ,` | Rename tab |
 
-### Session
+## Scroll / copy mode
 
-| Key | Action |
-|-----|--------|
-| `d` | detach (session keeps running) |
-| `w` | session manager |
-
-### Scroll / copy mode
+Enter : `Cmd + Alt + Space` (macOS).
 
 | Key | Action |
 |-----|--------|
-| `[` | enter scroll mode |
-| `j` / `k` | scroll line by line |
-| `Ctrl+d` / `Ctrl+u` | half page |
-| `Ctrl+f` / `Ctrl+b` | full page |
-| `g` / `G` | top / bottom |
-| `/` | search |
-| `n` / `N` | next / previous match |
-| `q` or `Esc` | exit scroll mode |
+| `↑` / `↓` | Scroll line by line |
+| `Page Up` / `Page Down` | Half page |
+| `Home` / `End` | Top / bottom |
+| `/` | Search |
+| In search : `↑` / `↓` | Previous / next match |
+| In search : `Page Up` / `Page Down` | Scroll line by line |
+| `Esc` or `q` | Exit scroll mode |
+| `Ctrl+C` | Exit scroll/search → shell (SIGINT in normal mode) |
+
+## SSH fallback (minimal Ctrl+a)
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+a` `d` | Detach (session keeps running) |
+
+On headless server without Cmd key : use `zellij action` for splits, or SSH from a Mac terminal.
 
 ## Workflow: SSH server
 
 ```bash
-# Connect and start/attach session
 ssh myserver
 zellij attach -c work
 
 # Detach: Ctrl+a d
-# Disconnect SSH, session survives
-# Reconnect later:
+# Reconnect:
 ssh myserver
 zellij attach work
 ```
 
+## Config
+
+- File : [`conf/zellij/config.kdl`](../conf/zellij/config.kdl)
+- Plugin : [`conf/zellij/plugins/vim-zellij-navigator.wasm`](../conf/zellij/plugins/vim-zellij-navigator.wasm)
+- Theme : Dracula (matches WezTerm / Neovim)
+
 ## Links
 
-- Repo: https://github.com/zellij-org/zellij
-- Docs: https://zellij.dev/documentation
-- Config: `~/.config/zellij/config.kdl`
+- Repo : https://github.com/zellij-org/zellij
+- Docs : https://zellij.dev/documentation
+- vim-zellij-navigator : https://github.com/hiasr/vim-zellij-navigator

@@ -89,7 +89,10 @@
 | I want to... | Tool | How |
 |--------------|------|-----|
 | Take a note in vault | obsidian.nvim | nvim, `<leader>nd` (daily) / `<leader>nf` (find) / `<leader>nn` (new) |
-| Markdown preview | [glow](glow.md) | shell, `glow file.md` |
+| Which markdown reader? | `cheat markdown-reading` | [markdown-reading](markdown-reading.md) |
+| Quick markdown render / browse | [glow](glow.md) | shell, `glow file.md` |
+| Focus reading (terminal, centered) | [glum](glum.md) | shell, **`readmd file.md`** |
+| Focus reading (browser, Mermaid) | [mdfocus](mdfocus.md) | shell, **`readweb [dir]`** |
 | Pomodoro / ASCII clock | [arttime](arttime.md) | shell, `arttime -t 25m` |
 
 ### Editing

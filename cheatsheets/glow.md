@@ -2,7 +2,7 @@
 
 > **Help:** `?` in TUI · `glow --help`
 
-> Render markdown with proper styling (Charm). Use it for READMEs, cheatsheets in this repo, GitHub/GitLab issues, and CHANGELOG diffs. TUI mode browses a directory tree of `.md` files with previews.
+> Render markdown with proper styling (Charm). Quick render and folder browse — for **comfort reading** use [markdown-reading](markdown-reading.md) (`readmd` / `readweb`).
 
 ## Everyday usage
 
@@ -45,7 +45,7 @@ glow -s light file.md                 # force light
 glow -s notty file.md                 # plain output (CI / pipes)
 ```
 
-Custom styles: dotfiles `conf/glow/glow.yml` → `~/Library/Preferences/glow/glow.yml` (mac) or `~/.config/glow/glow.yml` (linux). Style is **`dark`** (not `auto`).
+Custom styles: dotfiles `conf/glow/glow.yml` → `~/Library/Preferences/glow/glow.yml` (mac) or `~/.config/glow/glow.yml` (linux). Style is **`dracula`** (matches WezTerm / nvim rice).
 
 In Neovim, `Space + np` uses a local preview (`utils/glow-preview.lua`) that runs `glow` in a real terminal (`termopen`) so ANSI colors work in the float window.
 
@@ -53,11 +53,14 @@ In Neovim, `Space + np` uses a local preview (`utils/glow-preview.lua`) that run
 
 | Need | Tool |
 |------|------|
+| **Pick the right reader** | [markdown-reading](markdown-reading.md) |
 | Read a `.md` file with style | `glow file.md` |
-| Browse the `cheatsheets/` folder visually | `glow cheatsheets/` (or `cheat` for fzf) |
-| Render a remote README without cloning | `glow github.com/user/repo` |
-| Render markdown in a pipe (CI / scripts) | `glow -s notty` |
-| Edit markdown | `nvim` (glow is read-only) |
+| **Centered focus reading** (terminal) | **`readmd file.md`** → [glum](glum.md) |
+| **Focus reading** (browser, Mermaid) | **`readweb [dir]`** → [mdfocus](mdfocus.md) |
+| Browse cheatsheets folder | `glow cheatsheets/` (or `cheat` for fzf) |
+| Remote README without cloning | `glow github.com/user/repo` |
+| CI / pipes | `glow -s notty` |
+| Edit | nvim |
 
 ## Links
 

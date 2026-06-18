@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-# mac-neovim-defaults — set Neovim (bob) as default app for text-like files (macOS + duti).
+# mac-neovim-defaults — set Neovim (WezTerm) as default app for text-like files (macOS + duti).
 #
 # Requires: duti (brew install duti), Neovim.app linked from dotfiles (see install-mac.conf.yaml).
 #
 # Usage:
-#   mac-neovim-defaults          Apply defaults (extensions + UTIs)
-#   mac-neovim-defaults --dry-run   Print duti commands without running
+#   mac-neovim-defaults              Apply defaults (extensions + UTIs)
+#   mac-neovim-defaults --dry-run    Print duti commands without running
+#   mac-neovim-defaults --force      Re-apply even when Neovim is already default
 
 set -euo pipefail
 
@@ -15,7 +16,14 @@ if [[ "$(uname)" != "Darwin" ]]; then
 fi
 
 DRY_RUN=0
-[[ "${1:-}" == "--dry-run" ]] && DRY_RUN=1
+FORCE=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1 ;;
+    --force) FORCE=1 ;;
+    *) echo "Unknown option: $arg" >&2; exit 1 ;;
+  esac
+done
 
 command -v duti >/dev/null 2>&1 || {
   echo "Missing: duti (brew install duti)" >&2
@@ -65,32 +73,111 @@ UTIS=(
   public.unix-executable
 )
 
+current_ext_handler() {
+  duti -x "$1" 2>/dev/null | sed -n '3p' || true
+}
+
+current_uti_handler() {
+  duti -d "$1" 2>/dev/null || true
+}
+
+# Probe UTIs + common extensions; empty extension handlers inherit from UTIs.
+PROBE_UTIS=(
+  public.plain-text
+  public.source-code
+  public.json
+  public.yaml
+)
+PROBE_EXTENSIONS=(json md csv yaml)
+
+defaults_already_set() {
+  local ext uti current
+
+  for uti in "${PROBE_UTIS[@]}"; do
+    [[ "$(current_uti_handler "$uti")" == "$BUNDLE_ID" ]] || return 1
+  done
+  for ext in "${PROBE_EXTENSIONS[@]}"; do
+    current=$(current_ext_handler "$ext")
+    [[ -z "$current" || "$current" == "$BUNDLE_ID" ]] || return 1
+  done
+  return 0
+}
+
+# Explicit Finder overrides to preserve (not Neovim, not "stolen" defaults).
+PRESERVE_BUNDLE_IDS=(
+  com.choosyosx.Choosy
+  com.github.wez.wezterm
+  com.apple.Console
+  com.colliderli.iina
+)
+
+preserve_bundle() {
+  local id=$1 skip
+  for skip in "${PRESERVE_BUNDLE_IDS[@]}"; do
+    [[ "$id" == "$skip" ]] && return 0
+  done
+  return 1
+}
+
 run_duti() {
+  local target=$1
+
   if (( DRY_RUN )); then
-    printf 'duti -s %s %s all\n' "$BUNDLE_ID" "$2"
+    printf 'duti -s %s %s all\n' "$BUNDLE_ID" "$target"
     return 0
   fi
-  if ! duti "$@"; then
-    echo "  ! skipped: duti $* (see man duti; some UTIs are system-reserved)" >&2
+  if ! duti -s "$BUNDLE_ID" "$target" all; then
+    echo "  ! skipped: duti -s $BUNDLE_ID $target all (see man duti; some UTIs are system-reserved)" >&2
+    return 0
   fi
+  (( APPLIED++ )) || true
 }
+
+APPLIED=0
+SKIPPED=0
 
 echo "Bundle: $BUNDLE_ID ($APP)"
 
+if (( ! FORCE && ! DRY_RUN )) && defaults_already_set; then
+  echo "Already set (Neovim). Skipping duti — use --force to re-apply (macOS may prompt per type)."
+  VIDEO_HELPER="${HOME}/.local/bin/mac-video-defaults"
+  [[ -x "$VIDEO_HELPER" ]] && "$VIDEO_HELPER"
+  exit 0
+fi
+
 for ext in "${EXTENSIONS[@]}"; do
-  run_duti -s "$BUNDLE_ID" "$ext" all
+  current=$(current_ext_handler "$ext")
+  if (( ! FORCE )); then
+    if [[ -z "$current" || "$current" == "$BUNDLE_ID" ]]; then
+      (( SKIPPED++ )) || true
+      continue
+    fi
+    if preserve_bundle "$current"; then
+      (( SKIPPED++ )) || true
+      continue
+    fi
+  fi
+  run_duti "$ext"
 done
 
 for uti in "${UTIS[@]}"; do
-  run_duti -s "$BUNDLE_ID" "$uti" all
+  if (( ! FORCE )) && [[ "$(current_uti_handler "$uti")" == "$BUNDLE_ID" ]]; then
+    (( SKIPPED++ )) || true
+    continue
+  fi
+  run_duti "$uti"
 done
 
 if (( DRY_RUN )); then
   echo "(dry-run — no changes applied)"
   VIDEO_HELPER="${HOME}/.local/bin/mac-video-defaults"
   [[ -x "$VIDEO_HELPER" ]] && "$VIDEO_HELPER" --dry-run
+elif (( APPLIED == 0 )); then
+  echo "Already set ($SKIPPED handlers). Use --force to re-apply (macOS may prompt per type)."
+  VIDEO_HELPER="${HOME}/.local/bin/mac-video-defaults"
+  [[ -x "$VIDEO_HELPER" ]] && "$VIDEO_HELPER"
 else
-  echo "Done. Double-click a .json or .csv to test; override per file via Finder → Open With."
+  echo "Updated $APPLIED handler(s) ($SKIPPED already Neovim). Double-click a .json or .csv to test."
   VIDEO_HELPER="${HOME}/.local/bin/mac-video-defaults"
   [[ -x "$VIDEO_HELPER" ]] && "$VIDEO_HELPER"
 fi

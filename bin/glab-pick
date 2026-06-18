@@ -144,8 +144,6 @@ pick_repo() {
     echo "glab-pick: no projects (filter=${PATH_FILTER:-none}; try -a or -g '')" >&2
     exit 1
   fi
-  local count
-  count=$(wc -l < <(printf '%s\n' "$lines") | tr -d ' ')
   [[ -n "$PATH_FILTER" ]] && hint=" (path ~ *${PATH_FILTER}*)"
   fzf_pick "project${hint}>" \
     --delimiter=$'\t' \

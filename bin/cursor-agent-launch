@@ -4,11 +4,12 @@
 # pane in a state where agent renders with zero ANSI color.
 set -euo pipefail
 
-# cursor-agent disables color when any of these are set (see bundled index.js).
+_dotfiles_zsh="${HOME}/dev/perso/dotfiles/conf/zsh"
+[[ -r "${_dotfiles_zsh}/color-env.sh" ]] && . "${_dotfiles_zsh}/color-env.sh" && color_env_harmonize
+unset _dotfiles_zsh
+
+# cursor-agent disables color when NO_COLOR is set (see bundled index.js).
 unset NO_COLOR
-if [[ ${FORCE_COLOR:-} == "0" || ${FORCE_COLOR:-} == "false" ]]; then
-  unset FORCE_COLOR
-fi
 export COLORTERM="${COLORTERM:-truecolor}"
 
 # Theme: TERM_THEME wins over OSC-11 / COLORFGBG when wallpaper skews detection.

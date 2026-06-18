@@ -11,9 +11,12 @@ Exported via `defaults export`. To update after changing settings:
 Requires `brew install duti` (in Brewfile). After dotbot:
 
 ```bash
-mac-neovim-defaults          # apply (also run from install-mac if duti is installed)
+mac-neovim-defaults          # apply if needed (also run from install-mac if duti is installed)
 mac-neovim-defaults --dry-run
+mac-neovim-defaults --force  # re-apply all (macOS may prompt per type)
 ```
+
+`just link` calls this automatically but **skips duti** when core UTIs + `.json`/`.md`/`.csv`/`.yaml` already point at Neovim (no Finder confirmation cascade). Explicit overrides are preserved (Choosy, WezTerm, Console, IINA).
 
 Covers extensions (json, csv, yaml, md, …) and UTIs (`public.plain-text`, `public.source-code`, …). Override per file in Finder → Open With if needed (e.g. keep Obsidian for vault `.md` via Obsidian’s own association). Re-apply after Cursor claims types: `just mac-neovim-defaults`. Skips `svg` (preview in Chrome) and bare `ts` (video — see below).
 
@@ -34,7 +37,7 @@ Do **not** set Neovim as default for `.ts` unless you want transport streams to 
 
 ## Apps
 
-- **Neovim (bob)** — `Neovim-bob.app` → `~/Applications/Neovim.app`; default handler for text-like files via `duti` (`bin/mac-neovim-defaults`). CLI `nvim` stays on bob (`~/.local/share/bob/nvim-bin`); the `.app` is only for Finder / double-click / “Open With”.
+- **Neovim (WezTerm)** — `Neovim-bob.app` → `~/Applications/Neovim.app`; default handler for text-like files via `duti` (`bin/mac-neovim-defaults`). Double-click / “Open With” runs `wezterm start -- nvim <file>` (same as Tridactyl `editorcmd`). CLI `nvim` in an existing shell stays on bob (`~/.local/share/bob/nvim-bin`).
 - **Choosy** — browser routing rules (URL → browser). `gitlab.com` (incl. OAuth) → Chrome; `notion.so` → Chrome; unmatched URLs → prompt. Reload: `cp -f conf/mac-apps/choosy-behaviours.plist ~/Library/Application\ Support/Choosy/behaviours.plist` then restart Choosy.
 - **SteerMouse** — mouse button/gesture mapping
 - **LanguageTool** — spell/grammar checker preferences

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# install-glum — install jaschadub/glum (focus markdown reader) to ~/.local/bin
+#
+# Usage:
+#   install-glum
+#   GLUM_VERSION=v0.2.2 install-glum
+#   GLUM_PREFIX=/usr/local install-glum
+
+set -euo pipefail
+
+INSTALL_DIR="${GLUM_PREFIX:-$HOME/.local/bin}"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+export GLUM_PREFIX="$INSTALL_DIR"
+if [[ -n "${GLUM_VERSION:-}" ]]; then
+  export GLUM_VERSION
+fi
+
+curl -fsSL https://raw.githubusercontent.com/jaschadub/glum/main/scripts/install.sh \
+  | bash
+
+echo "Installed glum → ${INSTALL_DIR%/}/glum"
+echo "Try: readmd cheatsheets/markdown-reading.md   readweb cheatsheets/"

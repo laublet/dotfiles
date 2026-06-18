@@ -1,0 +1,28 @@
+/* Dracula palette for mdfocus — paste into Stylus (or similar) for http://localhost:* */
+/* Source: conf/theme/dracula.env */
+
+[data-theme="light"],
+[data-theme="sepia"],
+[data-theme="dark"],
+[data-theme="oled"] {
+  --mdfocus-bg: #282a36;
+  --mdfocus-fg: #f8f8f2;
+  --mdfocus-muted: #6272a4;
+  --mdfocus-card: #44475a;
+  --mdfocus-border: #6272a4;
+
+  --mdfocus-link: #bd93f9;
+  --mdfocus-link-hover: #ff79c6;
+
+  --mdfocus-code-bg: #44475a;
+  --mdfocus-code-fg: #f8f8f2;
+
+  --mdfocus-pre-bg: #21222c;
+  --mdfocus-pre-fg: #f8f8f2;
+
+  --mdfocus-quote: #6272a4;
+  --mdfocus-quote-border: #bd93f9;
+
+  --mdfocus-selection-bg: #44475a;
+  --mdfocus-selection-fg: #f8f8f2;
+}

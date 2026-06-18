@@ -5,7 +5,7 @@ local M = {}
 
 ---@class GlowPreviewConfig
 ---@field glow_path string
----@field style "dark"|"light"
+---@field style string
 ---@field border string
 ---@field width_ratio number
 ---@field height_ratio number
@@ -106,10 +106,10 @@ local function term_env()
 end
 
 local function resolve_style()
-  if config.style == "light" or config.style == "dark" then
+  if config.style and config.style ~= "" then
     return config.style
   end
-  return vim.o.background == "light" and "light" or "dark"
+  return vim.o.background == "light" and "light" or "dracula"
 end
 
 local function open_window(file)
@@ -182,7 +182,6 @@ end
 
 function M.setup(opts)
   config = vim.tbl_deep_extend("force", config, opts or {})
-  config.style = config.style == "light" and "light" or "dark"
 end
 
 ---@param opts table? { fargs: string[], bang: boolean }

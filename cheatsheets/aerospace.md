@@ -23,7 +23,7 @@ Modifier architecture:
 | Vertical accordion | `Ctrl+Cmd+Alt + S` |
 | Horizontal accordion | `Ctrl+Cmd+Alt + W` |
 | Toggle floating/tiling | `Ctrl+Cmd+Alt + T` |
-| Fullscreen | `Ctrl+Cmd+Alt + F` |
+| Zoom window (tiling fullscreen) | `Ctrl+Cmd+Alt+Shift + Z` |
 | Native fullscreen | `Ctrl+Cmd+Alt+Shift + F` |
 | Balance sizes | `Ctrl+Cmd+Alt + =` |
 
@@ -68,6 +68,7 @@ Modifier architecture:
 | Action | Shortcut |
 |--------|----------|
 | New WezTerm window | `Ctrl+Cmd+Alt + Enter` |
+| Ghostty + Zellij lab | `Ctrl+Cmd+Alt+Shift + Enter` |
 | Focus WezTerm | `Ctrl+Cmd+Alt + `` ` |
 
 ## Service mode
@@ -90,7 +91,7 @@ Enter: `Ctrl+Cmd+Alt+Shift + ;`
 | WS | Purpose | Apps |
 |----|---------|------|
 | 0 | Dashboard | Calendar, Todoist, Music |
-| 1 | Work/Comms | Slack, Chrome, Signal, Thunderbird |
+| 1 | Work/Comms | Slack, Chrome, Signal |
 | 2 | Dev | WezTerm, Cursor, Firefox Dev, Obsidian |
 | 3 | Test/Browse | Firefox, Postman |
 | 4–9 | Secondary monitor (manual) | Spill workspaces — no auto app rules. Prefs (System Settings, SteerMouse, …) open on **focused** workspace. |

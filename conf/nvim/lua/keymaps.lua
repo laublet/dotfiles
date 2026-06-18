@@ -33,6 +33,10 @@ map("n", "<C-PageUp>", ":bprevious<CR>", opts)
 
 -- =============================================================================
 -- VSCode-specific keymaps (via vscode-neovim)
+-- These intentionally DIVERGE from standalone Neovim bindings.
+-- They proxy Cursor/VS Code workbench actions (vscode.action()) and do NOT
+-- use Lazy plugins, which are skipped when vim.g.vscode is true.
+-- Mapping surface: keymaps.lua only (no which-key, no plugin keys= specs).
 -- =============================================================================
 
 if vim.g.vscode then
@@ -222,35 +226,35 @@ else
   -- statusline position visually (bottom edge).
   map("n", "<leader>;", toggle_bottom_terminal, { desc = "Toggle bottom terminal (split)" })
 
-  -- cursor-agent in a vertical split on the right (raw CLI TUI). Complements
-  -- Avante (<leader>at / aa) which uses the same binary via ACP with a sidebar UI.
-  local cursor_agent_buf, cursor_agent_win
-  local cursor_agent_cmd = (os.getenv("HOME") or "") .. "/.local/bin/cursor-agent"
-  local function toggle_cursor_agent_split()
-    if cursor_agent_win and vim.api.nvim_win_is_valid(cursor_agent_win) then
-      vim.api.nvim_win_close(cursor_agent_win, true)
-      cursor_agent_win = nil
+  -- opencode CLI in a vertical split on the right. Complements Avante (<leader>at / aa)
+  -- which uses the same binary via ACP with a sidebar UI.
+  local agent_cli_buf, agent_cli_win
+  local agent_cli_cmd = (os.getenv("HOME") or "") .. "/.local/bin/opencode-launch"
+  local function toggle_agent_cli_split()
+    if agent_cli_win and vim.api.nvim_win_is_valid(agent_cli_win) then
+      vim.api.nvim_win_close(agent_cli_win, true)
+      agent_cli_win = nil
       return
     end
-    if vim.fn.executable(cursor_agent_cmd) ~= 1 then
-      vim.notify("cursor-agent not found at " .. cursor_agent_cmd, vim.log.levels.ERROR)
+    if vim.fn.executable(agent_cli_cmd) ~= 1 then
+      vim.notify("opencode-launch not found at " .. agent_cli_cmd, vim.log.levels.ERROR)
       return
     end
-    if not cursor_agent_buf or not vim.api.nvim_buf_is_valid(cursor_agent_buf) then
-      cursor_agent_buf = vim.api.nvim_create_buf(false, true)
+    if not agent_cli_buf or not vim.api.nvim_buf_is_valid(agent_cli_buf) then
+      agent_cli_buf = vim.api.nvim_create_buf(false, true)
     end
     vim.cmd("vsplit")
-    cursor_agent_win = vim.api.nvim_get_current_win()
-    vim.api.nvim_win_set_buf(cursor_agent_win, cursor_agent_buf)
+    agent_cli_win = vim.api.nvim_get_current_win()
+    vim.api.nvim_win_set_buf(agent_cli_win, agent_cli_buf)
     vim.cmd("vertical resize " .. math.floor(vim.o.columns * 0.42))
-    if vim.bo[cursor_agent_buf].buftype ~= "terminal" then
-      vim.fn.termopen(cursor_agent_cmd, { cwd = vim.fn.getcwd() })
+    if vim.bo[agent_cli_buf].buftype ~= "terminal" then
+      vim.fn.termopen(agent_cli_cmd, { cwd = vim.fn.getcwd() })
     end
     vim.cmd("startinsert")
   end
-  map("n", "<leader>ac", toggle_cursor_agent_split, { desc = "Toggle cursor-agent (vsplit right)" })
+  map("n", "<leader>ac", toggle_agent_cli_split, { desc = "Toggle opencode (vsplit right)" })
 
-  -- Fluid one-key exit from managed terminals (floating, bottom split, cursor-agent).
+  -- Fluid one-key exit from managed terminals (floating, bottom split, agent CLI).
   -- <C-q> chosen because:
   --   - <C-t> is widely used by fzf-lua / oil (open-in-new-tab action)
   --   - <C-\> is awkward on the user's Kyria layout
@@ -261,8 +265,8 @@ else
       toggle_terminal()
     elseif bterm_win and vim.api.nvim_win_is_valid(bterm_win) and cur_win == bterm_win then
       toggle_bottom_terminal()
-    elseif cursor_agent_win and vim.api.nvim_win_is_valid(cursor_agent_win) and cur_win == cursor_agent_win then
-      toggle_cursor_agent_split()
+    elseif agent_cli_win and vim.api.nvim_win_is_valid(agent_cli_win) and cur_win == agent_cli_win then
+      toggle_agent_cli_split()
     else
       -- Safety: never close an arbitrary window when <C-q> is pressed outside
       -- the managed terminal windows tracked above.

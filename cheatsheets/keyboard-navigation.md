@@ -36,9 +36,9 @@ LCAG = `Super+Ctrl+Alt` (same fingers as macOS). See [`conf/keyd/README.md`](../
 | LCAG + arrows | Focus window (wrap-around) |
 | HYPR + arrows | Move window |
 | HYPR + -/= | Resize ±50 |
+| HYPR + Z | Zoom window (tiling fullscreen toggle) |
 | LCAG + E | Toggle tiles layout |
 | LCAG + T | Toggle floating/tiling |
-| LCAG + F | Fullscreen |
 | LCAG + Enter | New WezTerm window |
 | Cmd+Alt + Left/Right | Prev/next workspace |
 | Cmd+Alt + 0-9 | Go to workspace |
@@ -56,6 +56,7 @@ Full cheatsheet (panes, tabs, copy mode, workspaces, resurrect, config) : [wezte
 | Shortcut | Action |
 |---|---|
 | Ctrl + arrows | Navigate panes (smart-splits, crosses into Neovim) |
+| Ctrl + Shift + arrows | Same — macOS fallback when `Ctrl+←/→` is stolen by Mission Control |
 | Ctrl + Alt + arrows | Resize panes |
 | Ctrl + Alt + Shift + arrows | Swap with neighbor in that direction (2 panes: rotate; 3+: picker) |
 | Cmd + D | Split horizontal |
@@ -85,9 +86,11 @@ Full cheatsheet (panes, tabs, copy mode, workspaces, resurrect, config) : [wezte
 | Cmd + T | New tab |
 | Cmd + 1-9 | Go to tab |
 
+Zoomed pane (`Cmd+Shift+Z`): `Ctrl+arrows` blocked at WezTerm boundary. Unzoom with `Cmd+Shift+Z`, then navigate normally.
+
 Scrollback search: **Cmd+F** (overlay, bottom bar — Ctrl+Shift+C copy per WezTerm docs). **Copy mode** (Cmd+Alt+Space) then **`/`** or **`?`** to start a pattern; **Enter** accepts and auto-selects the current match (press **`y`** to copy immediately). Navigate matches with **`n`** / **`Shift+n`** (vim-style; `Ctrl+n`/`Ctrl+p` and arrows also work). **`Esc`** clears the pattern + closes — important: wezterm retriggers search on every terminal redraw, so a leftover pattern would periodically yank the cursor back to the first match.
 
-Tab title: shows `<index>: <title>`. When an AI agent CLI (cursor-agent, claude, aider, codex) runs in the active pane, its status glyph (`⏳`, `✅`, `🧭`, `🔐`, `🔄`, spinner braille) is prefixed automatically and disappears when the agent exits.
+Tab title: shows `<index>: <title>`. When an AI agent CLI (cursor-agent, opencode, claude, aider, codex) runs in the active pane, its status glyph (`⏳`, `✅`, `🧭`, `🔐`, `🔄`, spinner braille) is prefixed automatically and disappears when the agent exits.
 
 ### iTerm2 (same ⌘⌫ behavior)
 
@@ -230,11 +233,12 @@ Quick reference (Mason, debug, tests, troubleshooting): [neovim-ide.md](neovim-i
 | Space + Q | Close buffer + force (closes window too) |
 | Space + t | Toggle floating terminal (modal) |
 | Space + ; | Toggle bottom split terminal (persistent, side-by-side with code) |
-| `Ctrl + q` | Close a managed terminal (float / bottom / cursor-agent); safe no-op outside managed terminal windows |
+| `Ctrl + q` | Close a managed terminal (float / bottom / cursor-agent / opencode backup); safe no-op outside managed terminal windows |
 | `Esc Esc` | Exit terminal-insert mode without closing (then scroll, copy, `:q`, …) |
 | Space + z | Zoom toggle (maximize split — use on the tree to read long paths) |
 | Space + a + c | **cursor-agent** CLI in a vsplit on the right (toggle; raw TUI) |
-| Space + a + a | Ask AI (avante → cursor-agent via ACP, Claude as fallback) |
+| Space + a + o | **opencode** CLI backup (vsplit; only if `vim.g.agent_backup = "opencode"` in `init.local.lua`) — runbook vault [[OpenCode — plan secours agent]] |
+| Space + a + a | Ask AI (avante → cursor-agent via ACP, Claude as fallback; secours: `:AvanteSwitchProvider opencode`) |
 | Space + a + t | Toggle Avante sidebar |
 | Space + a + f | **Focus** Avante sidebar (more reliable than smart-splits arrows on multi-pane layouts) |
 | Space + a + r | Refresh Avante |
@@ -306,9 +310,9 @@ Mason: `:MasonInstall js-debug-adapter`. Optional: `.vscode/launch.json` loaded 
 
 | Layer | Tool | Role |
 |---|---|---|
-| Agent / chat | Avante (`Space + a*`) | Sidebar, cursor-agent via ACP — not inline completion |
+| Agent / chat | Avante (`Space + a*`) | Sidebar, cursor-agent via ACP (backup: OpenCode — vault runbook) |
 | Inline ghost | Supermaven | Code buffers only; off markdown, Avante, neo-tree, oil |
-| Completion menu | nvim-cmp + LSP + LuaSnip | Tab accepts Supermaven ghost first, else cmp/snippet |
+| Completion menu | nvim-cmp + LSP + LuaSnip | Tab: Avante Cursor Tab ghost first, then Supermaven, then cmp/snippet |
 | Lint (TS/JS) | eslint LSP + ts_ls | Mason: `eslint-lsp` |
 | Debug (TS/JS) | nvim-dap + js-debug-adapter | Mason: `js-debug-adapter` |
 | Tests | neotest (jest + vitest) | `Space + c + t` nearest |

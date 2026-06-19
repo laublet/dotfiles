@@ -11,9 +11,7 @@
   "mcp": {
     "research-vault": {
       "type": "local",
-      "command": [
-        "/Users/loic.aublet/.local/bin/research-vault-mcp-remote"
-      ],
+      "command": ["research-vault-mcp-remote"],
       "enabled": true
     }
   }

@@ -1,17 +1,47 @@
 #!/usr/bin/env bash
-# Wrapper so Cursor always has RESEARCH_VAULT_MCP_TOKEN (Dock launch may skip zshrc).
+# Wrapper so Cursor / Claude Desktop / Opencode always have RESEARCH_VAULT_MCP_TOKEN.
+# Loads token from env file (Dock launch may skip zshrc).
 set -euo pipefail
-ENV_FILE="${HOME}/.config/research-vault-mcp.env"
-if [[ -f "${ENV_FILE}" ]]; then
-  # shellcheck source=/dev/null
-  source "${ENV_FILE}"
+
+ENV_FILE="${RESEARCH_VAULT_MCP_ENV:-$HOME/.config/research-vault-mcp.env}"
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
 fi
-if [[ -z "${RESEARCH_VAULT_MCP_TOKEN:-}" ]]; then
-  echo "research-vault-mcp-remote: RESEARCH_VAULT_MCP_TOKEN unset (see ~/.config/research-vault-mcp.env)" >&2
-  exit 1
+
+: "${RESEARCH_VAULT_MCP_TOKEN:?Set RESEARCH_VAULT_MCP_TOKEN in $ENV_FILE}"
+
+# Default: cloud URL (works everywhere). Override via env var for LAN or custom.
+MCP_URL="${RESEARCH_VAULT_MCP_URL:-https://mcp-research.loicaublet.fr/mcp}"
+
+# Auto-detect node/npx (mise, nvm, or system PATH)
+find_node_bin() {
+  local candidate
+  if command -v node &>/dev/null && command -v npx &>/dev/null; then
+    dirname "$(command -v node)"
+    return 0
+  fi
+  for candidate in \
+    "$HOME/.local/share/mise/installs/node/"*/bin \
+    "$HOME/.nvm/versions/node/"*/bin; do
+    [[ -x "$candidate/node" && -x "$candidate/npx" ]] || continue
+    echo "$candidate"
+    return 0
+  done
+  return 1
+}
+
+NODE_BIN="$(find_node_bin)" || {
+  echo "research-vault-mcp-remote: node/npx not found (install node via mise)" >&2
+  exit 127
+}
+export PATH="$NODE_BIN:$PATH"
+
+MCP_REMOTE_ARGS=(--yes mcp-remote@0.1.37 "$MCP_URL" --header "Authorization: Bearer ${RESEARCH_VAULT_MCP_TOKEN}")
+if [[ "$MCP_URL" == http://* ]]; then
+  MCP_REMOTE_ARGS+=(--allow-http)
 fi
-# Claude Desktop: no args → default remote uruk (token injected here, not via ${env} in JSON).
-if [[ $# -eq 0 ]]; then
-  set -- "https://mcp-research.loicaublet.fr/mcp" "--header" "Authorization: Bearer ${RESEARCH_VAULT_MCP_TOKEN}"
-fi
-exec npx -y mcp-remote@0.1.37 "$@"
+
+exec npx "${MCP_REMOTE_ARGS[@]}" "$@"

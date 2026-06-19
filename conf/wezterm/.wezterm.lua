@@ -278,7 +278,7 @@ end
 wezterm.on("open-uri", function(_window, pane, uri)
 	local spec = uri:match("^file%-line://(.+)$")
 	if spec then
-		local file, line, _col = parse_file_line_uri(spec)
+		local file, line, _col = parse_file_line_uri(spec) -- luacheck: ignore 211
 		file = resolve_file_path(file, pane)
 
 		local args = { "nvim" }
@@ -523,7 +523,8 @@ wezterm.on("resurrect.error", function(err)
 	end
 end)
 
--- Plugin emits file_io.write_state.finished, not state_manager.save_state.finished — toast on manual save in resurrect_save_action
+-- Plugin emits file_io.write_state.finished, not state_manager.save_state.finished
+-- — toast on manual save in resurrect_save_action
 
 -- Mark which workspace to restore on next startup (not written by save_state alone)
 wezterm.on("resurrect.state_manager.periodic_save.finished", function()
@@ -542,31 +543,39 @@ end)
 -- the active key table indicator (copy mode, leader pending, …) is the only
 -- piece of context vim-style usage actually needs.
 
--- Tab title format: respect custom title set via Cmd+Shift+,; otherwise show
--- the active pane title (process). Tab index prefix helps Cmd+1..9 navigation.
--- Active tab is never truncated (so you always see its full name); inactive
--- tabs follow the max_width budget.
+-- =============================================================================
+-- AI Agent Status in Tab Bar
+-- =============================================================================
+-- Monitors AI coding agent processes (opencode, cursor-agent, claude, …)
+-- and displays their state in the tab title:
+--   🧠  actively thinking / generating
+--   ✅  done, waiting for input (prompt visible)
+--   (no indicator when the shell is the foreground process)
 --
--- When a custom title is set and an AI agent CLI is running in the active pane,
--- surface its spinner/status icon (cursor-agent's "⠋ Thinking…", "⏳ Working …",
--- "✅ Ready", "🧭 Planning", etc.). Gated on the foreground process name so that:
---   - starship/p10k prompt icons (git branch, language version, …) never leak in
---   - the glyph disappears as soon as the agent exits and the shell takes over
--- Without this gate, the last status emoji stayed stuck on the tab title forever.
-local STATUS_PROCESSES = {
+-- Detection: reads the visible pane text for known prompt / thinking
+-- indicators (opencode's "esc interrupt" status bar, "Thought:", …).
+-- A polling timer (every 2 s) catches state transitions and triggers a tab
+-- redraw when the status flips. The glyph disappears automatically when the
+-- agent process exits and the shell takes over.
+-- =============================================================================
+
+local AI_PROCESS_PATTERNS = {
 	"cursor%-agent",
-	"^agent$", -- cursor-agent CLI runtime binary name
+	"^agent$",
 	"opencode",
 	"claude",
 	"aider",
 	"codex",
 }
 
-local function pane_has_status_process(proc_name)
+local AI_STATUS = {} -- pane_id → "thinking" | "done" | nil
+local FLASH_ACTIVE = {} -- window_id → true when a flash is showing
+
+local function is_ai_process(proc_name)
 	if not proc_name or proc_name == "" then
 		return false
 	end
-	for _, pat in ipairs(STATUS_PROCESSES) do
+	for _, pat in ipairs(AI_PROCESS_PATTERNS) do
 		if proc_name:match(pat) then
 			return true
 		end
@@ -574,34 +583,118 @@ local function pane_has_status_process(proc_name)
 	return false
 end
 
--- Scan tokens for a multibyte char (byte ≥ 0x80). Catches glyphs whether they
--- appear at the start, middle or end of the title.
-local function extract_status_glyph(pane)
-	if not pane_has_status_process(pane.foreground_process_name) then
+-- Return "thinking", "done", or nil (not an AI process).
+local function detect_ai_status(pane)
+	if not pane then
 		return nil
 	end
-	local title = pane.title
-	if not title or #title == 0 then
+	local proc = pane.foreground_process_name
+	if not is_ai_process(proc) then
 		return nil
 	end
-	for token in title:gmatch("%S+") do
-		if token:find("[\128-\255]") then
-			return token
+
+	local title = pane.title or ""
+
+	-- 1. Title-based indicators (works for cursor-agent, claude desktop, …)
+	if title:find("✅") then
+		return "done"
+	end
+	if title:find("⏳") or title:find("🧠") or title:find("🧭") then
+		return "thinking"
+	end
+
+	-- 2. Visible-text indicators (opencode's own TUI)
+	local ok, text = pcall(function()
+		local dims = pane:get_dimensions()
+		if not dims then
+			return ""
+		end
+		return pane:get_lines_as_text(math.max(0, dims.rows - 5), dims.rows)
+	end)
+
+	if ok and text and #text > 0 then
+		-- Done: opencode prompt bar visible
+		if text:find("esc interrupt") or text:find("ctrl.p commands") then
+			return "done"
+		end
+		-- Thinking: reasoning indicator or spinner
+		if
+			text:find("Thought:")
+			or text:find("⠋")
+			or text:find("⠙")
+			or text:find("⠹")
+			or text:find("⠸")
+			or text:find("⠼")
+			or text:find("⠴")
+			or text:find("⠦")
+			or text:find("⠧")
+			or text:find("⠇")
+			or text:find("⠏")
+		then
+			return "thinking"
 		end
 	end
-	return nil
+
+	-- 3. Active AI process with no explicit indicator → assume thinking
+	return "thinking"
 end
 
+-- Force a chrome repaint so format-tab-title is re-evaluated.
+-- We only call this when the status actually flips (rare), so the
+-- cursor‑snapping side effect (wezterm#5952) is negligible.
+local function refresh_chrome(pane)
+	local tab = pane:tab()
+	if not tab then
+		return
+	end
+	local window = tab:window()
+	if not window then
+		return
+	end
+	local wid = tostring(window:window_id())
+	if FLASH_ACTIVE[wid] then
+		return
+	end
+	window:set_right_status(wezterm.format({
+		{ Foreground = { Color = "#282a36" } },
+		{ Text = " " },
+	}))
+end
+
+-- Poll every 2 s — matches the typical thinking‑block granularity.
+local function poll_ai_status()
+	wezterm.time.call_after(2, function()
+		for _, pane in ipairs(wezterm.mux.all_panes() or {}) do
+			local status = detect_ai_status(pane)
+			local pid = pane:pane_id()
+			local prev = AI_STATUS[pid]
+			if status ~= prev then
+				AI_STATUS[pid] = status
+				refresh_chrome(pane)
+			end
+		end
+		poll_ai_status()
+	end)
+end
+
+-- Start polling after the multiplexer is initialised.
+wezterm.time.call_after(0, poll_ai_status)
+
+-- Tab title formatting
 wezterm.on("format-tab-title", function(tab, _, _, _, _, max_width)
 	local title = tab.tab_title
-	if title and #title > 0 then
-		local glyph = extract_status_glyph(tab.active_pane)
-		if glyph then
-			title = glyph .. " " .. title
-		end
-	else
+	if not title or #title == 0 then
 		title = tab.active_pane.title
 	end
+
+	-- Prepend AI status glyph
+	local status = AI_STATUS[tab.active_pane:pane_id()]
+	if status == "thinking" then
+		title = "🧠 " .. title
+	elseif status == "done" then
+		title = "✅ " .. title
+	end
+
 	local prefix = " " .. (tab.tab_index + 1) .. ": "
 	local suffix = " "
 	if not tab.is_active then
@@ -743,6 +836,8 @@ end
 -- Status-bar feedback is immediate, always visible, and has zero OS dependency.
 -- Auto-clears after `ms` (default 1.8s) via wezterm.time.call_after.
 local function flash_status(window, message, ms)
+	local wid = tostring(window:window_id())
+	FLASH_ACTIVE[wid] = true
 	pcall(function()
 		window:set_right_status(wezterm.format({
 			{ Background = { Color = "#ffb86c" } },
@@ -752,6 +847,7 @@ local function flash_status(window, message, ms)
 		}))
 	end)
 	wezterm.time.call_after((ms or 1800) / 1000, function()
+		FLASH_ACTIVE[wid] = nil
 		pcall(function()
 			window:set_right_status("")
 		end)
@@ -1251,6 +1347,11 @@ for _, binding in ipairs(platform.ctrl_w_passthrough_bindings(act)) do
 	table.insert(config.keys, binding)
 end
 
+-- Detect if the foreground process is an AI coding agent (used for Cmd+Z routing).
+local function pane_has_status_process(proc_name)
+	return is_ai_process(proc_name)
+end
+
 -- macOS: forward Cmd+Z undo (WezTerm intercepts otherwise). Shell: SendString Ctrl+_
 -- (zle undo in zshrc). Agent accepts ESC[127;5u literally. Neovim insert: kitty
 -- SUPER+z. Cmd+Shift+Z stays global zoom above.
@@ -1339,16 +1440,16 @@ local function build_copy_mode_smart_escape()
 		if defaults and defaults.copy_mode then
 			local out = {}
 			for _, b in ipairs(defaults.copy_mode) do
-				if b.key == "Escape" then
-				-- replaced below
-				elseif b.key == "/" or b.key == "?" then
-					table.insert(out, {
-						key = b.key,
-						mods = b.mods or "NONE",
-						action = clear_pattern_then_edit(),
-					})
-				else
-					table.insert(out, b)
+				if b.key ~= "Escape" then -- skip: replaced below with smart version
+					if b.key == "/" or b.key == "?" then
+						table.insert(out, {
+							key = b.key,
+							mods = b.mods or "NONE",
+							action = clear_pattern_then_edit(),
+						})
+					else
+						table.insert(out, b)
+					end
 				end
 			end
 			table.insert(out, { key = "Escape", mods = "NONE", action = copy_mode_smart_escape() })
@@ -1390,4 +1491,3 @@ if config.key_tables.copy_mode then
 end
 
 return config
-

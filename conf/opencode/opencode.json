@@ -39,12 +39,9 @@
   },
   "mcp": {
     "research-vault": {
-      "type": "remote",
-      "url": "https://mcp-research.loicaublet.fr/mcp",
-      "enabled": true,
-      "headers": {
-        "Authorization": "Bearer {env:RESEARCH_VAULT_MCP_TOKEN}"
-      }
+      "type": "local",
+      "command": ["research-vault-mcp-remote"],
+      "enabled": true
     }
   }
 }

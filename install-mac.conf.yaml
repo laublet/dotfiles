@@ -83,9 +83,6 @@
     ~/.local/bin/mac-raycast-dracula:
       create: true
       path: bin/mac-raycast-dracula
-    ~/.local/bin/research-vault-mcp-remote:
-      create: true
-      path: bin/research-vault-mcp-remote
     ~/.local/bin/ghostty-lab:
       create: true
       path: bin/ghostty-lab

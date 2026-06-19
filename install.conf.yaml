@@ -153,6 +153,10 @@
     ~/.local/bin/mdfocus-launch:
       create: true
       path: bin/mdfocus-launch
+    # research-vault MCP wrapper (loads token from env file)
+    ~/.local/bin/research-vault-mcp-remote:
+      create: true
+      path: bin/research-vault-mcp-remote
     # macOS Choosy URL opener (harmless on Linux; zsh only wraps open on darwin)
     ~/.local/bin/mac-open:
       create: true

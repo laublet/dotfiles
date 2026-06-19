@@ -1,0 +1,9 @@
+When you finish implementing a feature (all changes applied, tests passing), run a post-feature quality pipeline:
+
+1. Call @review to review the diff. If it finds issues, fix them before continuing.
+2. Call @lint to run lint and typecheck, then auto-apply safe fixes.
+3. Present a concise summary: what was implemented, files changed, lint results, any remaining warnings.
+
+Only run the pipeline if the project is a git repository (check with `git rev-parse --git-dir`). If not a git repo, skip review and lint entirely.
+
+If the user asked for something quick or trivial (single line change, rename, etc.), skip the pipeline — use your judgment to avoid unnecessary overhead.

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/deepseek-v4-flash",
+  "small_model": "opencode-go/deepseek-v4-flash",
+  "default_agent": "build",
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  },
+  "instructions": ["AGENTS.md", "AGENTS-core.md", "OPEncode.md"],
+  "agent": {
+    "plan": {
+      "model": "opencode-go/deepseek-v4-pro",
+      "permission": {
+        "edit": "deny",
+        "bash": "ask"
+      }
+    },
+    "build": {
+      "prompt": "{file:./prompts/build.txt}",
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "allow",
+          "sudo *": "ask",
+          "rm -rf *": "ask",
+          "rm -rf /*": "deny",
+          "dd *": "ask",
+          "mkfs*": "ask",
+          "fdisk *": "ask",
+          "shutdown": "ask",
+          "reboot": "ask",
+          "halt": "ask",
+          "poweroff": "ask"
+        },
+        "external_directory": "ask"
+      }
+    }
+  },
+  "mcp": {
+    "research-vault": {
+      "type": "remote",
+      "url": "https://mcp-research.loicaublet.fr/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {env:RESEARCH_VAULT_MCP_TOKEN}"
+      }
+    }
+  }
+}

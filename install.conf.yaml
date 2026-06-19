@@ -112,6 +112,16 @@
       create: true
       path: conf/zellij
 
+    # opencode
+    ~/.config/opencode/opencode.json:
+      create: true
+      force: true
+      path: conf/opencode/opencode.json
+    ~/.config/opencode/prompts/build.txt:
+      create: true
+      force: true
+      path: conf/opencode/prompts/build.txt
+
     # local bin (cross-platform helpers; mac-only scripts linked in install-mac.conf.yaml)
     ~/.local/bin/yazi-pick:
       create: true
